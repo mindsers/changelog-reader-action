@@ -1,13 +1,16 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'Changelog Reader'
+description: 'Read and parse the CHANGELOG.md file of the project'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
-    required: true
-    default: '1000'
+  path:
+    description: 'Path to the CHANGELOG.md file containing the log entries'
+    required: false
+    default: './CHANGELOG.md'
+  version:
+    description: 'Version of the log entry wanted'
+    required: false
 outputs:
-  time: # output will be available to future steps 
-    description: 'The message to output'
+  logEntry:
+    description: 'The log entry wanted. Defaults to the last release on the CHANGELOG.md file if version is not specified'
 runs:
   using: 'node12'
   main: 'dist/index.js'
