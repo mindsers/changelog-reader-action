@@ -7,5 +7,5 @@ exports.getVersionById = (versions, id) => {
     }
   }
 
-  return versions.shift()
+  return [...versions].shift()
 }
