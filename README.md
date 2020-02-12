@@ -1,114 +1,79 @@
+# Changelog Reader
+
+A Github action to read and get data from the `CHANGELOG.md` file :rocket:
+
+**This action only work if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now**
 
 <p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
+  <a href="https://github.com/mindsers/changelog-reader-action"><img alt="changelog-reader-action status" src="https://github.com/mindsers/changelog-reader-action/workflows/units-test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action
-
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
-
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.  
-
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Master
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
-
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
-
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
-
-Run package
-
-```bash
-npm run package
-```
-
-Since the packaged index.js is run from the dist folder.
-
-```bash
-git add dist
-```
-
-## Create a release branch
-
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checkin to the v1 release branch
-
-```bash
-$ git checkout -b v1
-$ git commit -a -m "v1 release"
-```
-
-```bash
-$ git push origin v1
-```
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
 ## Usage
+### Pre-requisites
+Create a workflow `.yml` file in your repositories `.github/workflows` directory. An [example workflow](#example-workflow---upload-a-release-asset) is available below. For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
 
-You can now consume the action by referencing the v1 branch
+### Inputs
+
+- `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
+- `version`: The exact version of the log entry you want to retreive. Optional. Defaults to last one.
+
+### Outputs
+
+- `log_entry`: The log entry found on the `CHANGELOG.md` file.
+
+### Example workflow - upload a release asset
+On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content. This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
 
 ```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Create Release
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v1
+        with:
+          version: ${{ github.ref }}
+          path: ./CHANGELOG.md
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.changelog_reader.outputs.log_entry }} # This pulls from the GET CHANGELOG ENTRY step above, referencing it's ID to get its outputs object, which include a `log_entry`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          draft: false
+          prerelease: false
 ```
 
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+## Contribution
+
+Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](https://github.com/mindsers/changelog-reader-action/blob/master/CONTRIBUTING.md).
+
+## Support
+
+*Changelog Reader Action* is licensed under an Apache-2.0 license, which means that it's a  completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 1.0.0 is the next step, which will result in many late, beer-filled nights of development.
+
+If you're using *Changelog Reader Action* and want to support the development, you now have the chance! Go on my [Patreon page](https://www.patreon.com/mindsers) and become my joyful patron!!
+
+[![Become a Patron!](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=9715649)
+
+For help on how to support Changelog Reader Action, please refer to [The awesome people who support Changelog Reader Action](https://github.com/mindsers/changelog-reader-action/blob/master/SPONSORS.md).
+
+<!-- ### Premium sponsors -->
+
+## License
+The scripts and documentation in this project are released under the [MIT License](LICENSE)

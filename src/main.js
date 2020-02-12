@@ -17,22 +17,13 @@ exports.main = async function main() {
     const versions = getEntries(rawData)
       .map(parseEntry)
 
-    if (targetVersion != null) {
-      const entry = versions.find(version => version.id === targetVersion)
-
-      if (entry != null) {
-        core.setOutput('logEntry', entry.text)
-        return
-      }
-    }
-
     const version = getVersionById(versions, targetVersion)
 
-    if(version == null) {
+    if (version == null) {
       throw new Error('No log entry found.')
     }
 
-    core.setOutput('logEntry', version.text)
+    core.setOutput('log_entry', version.text)
   }
   catch (error) {
     core.setFailed(error.message)

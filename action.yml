@@ -9,7 +9,7 @@ inputs:
     description: 'Version of the log entry wanted'
     required: false
 outputs:
-  logEntry:
+  log_entry:
     description: 'The log entry wanted. Defaults to the last release on the CHANGELOG.md file if version is not specified'
 runs:
   using: 'node12'
