@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
+  "name": "changelog-reader-action",
   "version": "1.0.0",
-  "description": "JavaScript Action Template",
+  "description": "Changelog Reader Action",
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js",
@@ -10,19 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-action.git"
+    "url": "git+https://github.com/mindsers/changelog-reader-action"
   },
   "keywords": [
     "GitHub",
     "Actions",
-    "JavaScript"
+    "Changelog"
   ],
-  "author": "GitHub",
+  "author": "Nathanaël Cherrier",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
+    "url": "https://github.com/mindsers/changelog-reader-action/issues"
   },
-  "homepage": "https://github.com/actions/javascript-action#readme",
+  "homepage": "https://github.com/mindsers/changelog-reader-action#readme",
   "dependencies": {
     "@actions/core": "^1.1.1"
   },
