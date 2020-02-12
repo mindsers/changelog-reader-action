@@ -1,12 +1,9 @@
 # Changelog Reader
+<a href="https://github.com/mindsers/changelog-reader-action"><img alt="changelog-reader-action status" src="https://github.com/mindsers/changelog-reader-action/workflows/units-test/badge.svg"></a>
 
 A Github action to read and get data from the `CHANGELOG.md` file :rocket:
 
-**This action only work if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now**
-
-<p align="center">
-  <a href="https://github.com/mindsers/changelog-reader-action"><img alt="changelog-reader-action status" src="https://github.com/mindsers/changelog-reader-action/workflows/units-test/badge.svg"></a>
-</p>
+**This action only work if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
 
 ## Usage
 ### Pre-requisites
@@ -61,17 +58,15 @@ jobs:
 
 ## Contribution
 
-Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](https://github.com/mindsers/changelog-reader-action/blob/master/CONTRIBUTING.md).
+Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
 
 ## Support
 
-*Changelog Reader Action* is licensed under an Apache-2.0 license, which means that it's a  completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 1.0.0 is the next step, which will result in many late, beer-filled nights of development.
+*Changelog Reader Action* is licensed under an MIT license, which means that it's a completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 1.1.0 is the next step, which will result in many late, beer-filled nights of development.
 
-If you're using *Changelog Reader Action* and want to support the development, you now have the chance! Go on my [Patreon page](https://www.patreon.com/mindsers) and become my joyful patron!!
+If you're using *Changelog Reader Action* and want to support the development, you now have the chance! Go on my [Github Sponsor page](https://github.com/sponsors/mindsers) and become my joyful sponsor!!
 
-[![Become a Patron!](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=9715649)
-
-For help on how to support Changelog Reader Action, please refer to [The awesome people who support Changelog Reader Action](https://github.com/mindsers/changelog-reader-action/blob/master/SPONSORS.md).
+For more help on how to support Changelog Reader Action, please refer to [The awesome people who support Changelog Reader Action](SPONSORS.md).
 
 <!-- ### Premium sponsors -->
 
