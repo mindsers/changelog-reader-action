@@ -17,11 +17,11 @@ This file is an extension of the **Support** section in `README.md`. You can fin
 
 *Changelog Reader Action* is licensed under an Apache-2.0 license, which means that it's a completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself and I'm happy to build it on my free time.
 
-If you're using *Changelog Reader Action* and want to support the development, you can do it via the Patreon service. On this platform you can choose exactly what you want to give from $1 to whatever you want... You can click on the "Become a patron" button bellow to see Mindsers' patreon page.
+If you're using *Changelog Reader Action* and want to support the development, you can do it via the Github Sponsor service. On this platform you can choose exactly what you want to give from $5 to whatever you want... You can click on the "Become a sponsor" link bellow to see Mindsers' Github Sponsor page.
 
 Be sure your effort to support this project will be greatly appreciated.
 
-[![Become a Patron!](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=9715649)
+[**_Become a Sponsor!_**](https://github.com/sponsors/mindsers)
 
 ## Who are the people behind this project?
 
