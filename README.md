@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Changelog Entry
         id: changelog_reader
-        uses: mindsers/changelog-reader-action@v1.0.1
+        uses: mindsers/changelog-reader-action@v1.1.0
         with:
           version: ${{ github.ref }}
           path: ./CHANGELOG.md
