@@ -19,7 +19,10 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: ./
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Run the changelog reader
       id: changelog_reader
-    - run: echo "${{ steps.changelog_reader.outputs.log_entry }}"
+      uses: ./
+    - name: Display output
+      run: echo "${{ steps.changelog_reader.outputs.log_entry }}"
