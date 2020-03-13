@@ -20,7 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: ./
+    - name: Get Changelog Entry
+      uses: ./
+      id: changelog_reader
       with:
         milliseconds: 1000
         version: v1.0.1 
