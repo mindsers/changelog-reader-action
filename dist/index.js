@@ -91,7 +91,7 @@ exports.main = async function main() {
     const versions = getEntries(rawData)
       .map(parseEntry)
 
-    core.debug(`${version.length} version logs found`)
+    core.debug(`${versions.length} version logs found`)
     core.endGroup()
 
     const version = getVersionById(versions, targetVersion)
