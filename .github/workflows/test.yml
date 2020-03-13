@@ -20,8 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Get Changelog Entry
-      uses: mindsers/changelog-reader-action@master
+    - uses: ./
       id: changelog_reader
       with:
         milliseconds: 1000
