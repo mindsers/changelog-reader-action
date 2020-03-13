@@ -25,5 +25,5 @@ jobs:
       id: changelog_reader
       with:
         milliseconds: 1000
-        version: v1.0.1 
+        version: 1.0.1 
     - run: echo ${{ steps.changelog_reader.outputs.log_entry }}
