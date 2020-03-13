@@ -44,14 +44,17 @@ module.exports =
 /******/ ({
 
 /***/ 7:
-/***/ (function(__unusedmodule, exports) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+const core = __webpack_require__(470)
 
 const versionSeparator = '\n## '
-
-const avoidNonVersionData = version => /^\[v/.test(version)
+const avoidNonVersionData = version => /^\[v?[0-9]+(\.[0-9]+){0,2}\]/.test(version)
 
 exports.getEntries = (rawData) => {
     const content = String(rawData)
+
+    core.debug(`CHANGELOG content: ${content}`)
 
     return content
       .split(versionSeparator)
@@ -79,14 +82,24 @@ exports.main = async function main() {
     const changelogPath = core.getInput('path') || './CHANGELOG.md'
     const targetVersion = core.getInput('version')
 
+    if (targetVersion == null) {
+      core.warning(`No target version specified. try to return the most recent one in the changelog file.`)
+    }
+
+    core.startGroup('Parse data')
     const rawData = await readFile(changelogPath)
     const versions = getEntries(rawData)
       .map(parseEntry)
 
+    core.debug(`${version.length} version logs found`)
+    core.endGroup()
+
     const version = getVersionById(versions, targetVersion)
 
     if (version == null) {
-      throw new Error('No log entry found.')
+      core.error('No log entry found.')
+      core.setOutput('log_entry', '')
+      return
     }
 
     core.setOutput('log_entry', version.text)
@@ -311,6 +324,13 @@ exports.setFailed = setFailed;
 //-----------------------------------------------------------------------
 // Logging Commands
 //-----------------------------------------------------------------------
+/**
+ * Gets whether Actions Step Debug is on or not
+ */
+function isDebug() {
+    return process.env['RUNNER_DEBUG'] === '1';
+}
+exports.isDebug = isDebug;
 /**
  * Writes debug message to user log
  * @param message debug message
