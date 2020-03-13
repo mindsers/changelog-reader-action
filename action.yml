@@ -1,7 +1,7 @@
 name: 'Changelog Reader'
 description: 'Read and parse the CHANGELOG.md file of the project'
 branding:
-  icon: 'align-right'  
+  icon: 'align-right'
   color: 'gray-dark'
 inputs:
   path:
