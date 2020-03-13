@@ -36,6 +36,29 @@ test('get latest if bad version provided', () => {
   expect(output.id).toEqual(input[0].id)
 })
 
+test('support X.X.X version patern', () => {
+  const input = [
+    {
+      id: 'v2.0.2',
+      date: '2019-12-08',
+      text: `blablabla`
+    },
+    {
+      id: '2.0.1',
+      date: '2019-12-02',
+      text: `blablabla`
+    },
+    {
+      id: '1.13.2',
+      date: '2019-12-02',
+      text: `blablabla`
+    }
+  ]
+  const output = getVersionById(input, '2.0.1')
+
+  expect(output.id).toEqual('2.0.1')
+})
+
 test('get the correct version', () => {
   const input = [
     {
