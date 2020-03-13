@@ -24,12 +24,12 @@
   },
   "homepage": "https://github.com/mindsers/changelog-reader-action#readme",
   "dependencies": {
-    "@actions/core": "^1.1.1"
+    "@actions/core": "^1.2.3"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.2",
+    "@types/jest": "^25.1.4",
     "@zeit/ncc": "^0.20.5",
     "eslint": "^6.3.0",
-    "jest": "^24.9.0"
+    "jest": "^25.1.0"
   }
 }
