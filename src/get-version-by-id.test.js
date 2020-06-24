@@ -102,3 +102,35 @@ test('get the correct version', () => {
 
   expect(output.id).toEqual(input[2].id)
 })
+
+test('get the unreleased version', () => {
+  const input = [
+    {
+      id: 'Unreleased',
+      text: `blablabla`
+    },
+    {
+      id: 'v2.1.1',
+      date: '2019-12-08',
+      text: `blablabla`
+    },
+    {
+      id: 'v2.1.0',
+      date: '2019-12-02',
+      text: `blablabla`
+    },
+    {
+      id: 'v2.0.0',
+      date: '2019-12-02',
+      text: `blablabla`
+    },
+    {
+      id: 'v1.2.12',
+      date: '2019-12-02',
+      text: `blablabla`
+    },
+  ]
+  const output = getVersionById(input, 'Unreleased')
+
+  expect(output.id).toEqual(input[0].id)
+})

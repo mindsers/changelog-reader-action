@@ -7,5 +7,7 @@ exports.getVersionById = (versions, id) => {
     }
   }
 
-  return [...versions].shift()
+  return [...versions]
+    .filter(version => !['Unreleased', 'unreleased'].includes(version.id))
+    .shift()
 }
