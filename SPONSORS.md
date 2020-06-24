@@ -31,6 +31,8 @@ No one is in the **Sponsors** section for now. Be the first! Read the **How can 
 
 ### Supporters
 
-The best supporters are listed below:
+No one is in the **Supporters** section for now. Be the first! Read the **How can I support this project** section above.
 
-- ...
+<!-- The best supporters are listed below:
+
+- ... -->
