@@ -3,6 +3,10 @@ const { getVersionById } = require('./get-version-by-id')
 test('get latest if no version provided', () => {
   const input = [
     {
+      id: 'Unreleased',
+      text: `blablabla`
+    },
+    {
       id: 'v2.0.2',
       date: '2019-12-08',
       text: `blablabla`
@@ -15,11 +19,15 @@ test('get latest if no version provided', () => {
   ]
   const output = getVersionById(input)
 
-  expect(output.id).toEqual(input[0].id)
+  expect(output.id).toEqual(input[1].id)
 })
 
 test('get latest if bad version provided', () => {
   const input = [
+    {
+      id: 'Unreleased',
+      text: `blablabla`
+    },
     {
       id: 'v2.0.2',
       date: '2019-12-08',
@@ -33,11 +41,15 @@ test('get latest if bad version provided', () => {
   ]
   const output = getVersionById(input, 'v1.2.12')
 
-  expect(output.id).toEqual(input[0].id)
+  expect(output.id).toEqual(input[1].id)
 })
 
 test('support X.X.X version patern', () => {
   const input = [
+    {
+      id: 'Unreleased',
+      text: `blablabla`
+    },
     {
       id: 'v2.0.2',
       date: '2019-12-08',
@@ -62,6 +74,10 @@ test('support X.X.X version patern', () => {
 test('get the correct version', () => {
   const input = [
     {
+      id: 'Unreleased',
+      text: `blablabla`
+    },
+    {
       id: 'v2.1.1',
       date: '2019-12-08',
       text: `blablabla`
@@ -84,5 +100,5 @@ test('get the correct version', () => {
   ]
   const output = getVersionById(input, 'v2.1.0')
 
-  expect(output.id).toEqual(input[1].id)
+  expect(output.id).toEqual(input[2].id)
 })
