@@ -12,7 +12,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 ### Inputs
 
 - `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
-- `version`: The exact version of the log entry you want to retreive. Optional. Defaults to last one.
+- `version`: The exact version of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 
 ### Outputs
 
@@ -68,7 +68,7 @@ Contributions to the source code of *Changelog Reader Action* are welcomed and g
 
 ## Support
 
-*Changelog Reader Action* is licensed under an MIT license, which means that it's a completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 1.1.0 is the next step, which will result in many late, beer-filled nights of development.
+*Changelog Reader Action* is licensed under an MIT license, which means that it's a completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 2.0.0 is the next step, which will result in many late, beer-filled nights of development.
 
 If you're using *Changelog Reader Action* and want to support the development, you now have the chance! Go on my [Github Sponsor page](https://github.com/sponsors/mindsers) and become my joyful sponsor!!
 
