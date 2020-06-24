@@ -4,9 +4,9 @@
   "description": "Changelog Reader Action",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint index.js",
+    "lint": "eslint src/**/*.js",
     "package": "ncc build index.js -o dist",
-    "test": "eslint index.js && jest"
+    "test": "npm run lint && jest"
   },
   "repository": {
     "type": "git",
