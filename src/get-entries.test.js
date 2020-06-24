@@ -56,14 +56,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 test('retreive entries from test (tag patern: vX.X.X)', () => {
   const output = getEntries(DATA_v)
+  const versionRegex = /^\[(v[0-1]+|unreleased)/i
 
-  expect(output.length).toEqual(2)
-  expect(output[0]).toMatch(/^\[v[0-1]+/)
+  expect(output.length).toEqual(3)
+  expect(output[0]).toMatch(versionRegex)
+  expect(output[1]).toMatch(versionRegex)
+  expect(output[2]).toMatch(versionRegex)
 })
 
 test('retreive entries from test (tag patern: X.X.X)', () => {
   const output = getEntries(DATA)
+  const versionRegex = /^\[([0-1]+|unreleased)/i
 
-  expect(output.length).toEqual(2)
-  expect(output[0]).toMatch(/^\[[0-1]+/)
+  expect(output.length).toEqual(3)
+  expect(output[0]).toMatch(versionRegex)
+  expect(output[1]).toMatch(versionRegex)
+  expect(output[2]).toMatch(versionRegex)
 })

@@ -1,7 +1,7 @@
 const core = require('@actions/core')
 
 const versionSeparator = '\n## '
-const avoidNonVersionData = version => /^\[v?[0-9]+(\.[0-9]+){0,2}\]/.test(version)
+const avoidNonVersionData = version => /^\[(v?[0-9]+(\.[0-9]+){0,2}|unreleased)\]/i.test(version)
 
 exports.getEntries = (rawData) => {
     const content = String(rawData)
