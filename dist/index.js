@@ -49,7 +49,7 @@ module.exports =
 const core = __webpack_require__(470)
 
 const versionSeparator = '\n## '
-const avoidNonVersionData = version => /^\[v?[0-9]+(\.[0-9]+){0,2}\]/.test(version)
+const avoidNonVersionData = version => /^\[(v?[0-9]+(\.[0-9]+){0,2}|unreleased)\]/i.test(version)
 
 exports.getEntries = (rawData) => {
     const content = String(rawData)
@@ -442,7 +442,9 @@ exports.getVersionById = (versions, id) => {
     }
   }
 
-  return [...versions].shift()
+  return [...versions]
+    .filter(version => !['Unreleased', 'unreleased'].includes(version.id))
+    .shift()
 }
 
 
