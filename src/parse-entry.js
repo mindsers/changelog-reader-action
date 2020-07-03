@@ -3,11 +3,14 @@ exports.parseEntry = entry => {
     .trim()
     .split('\n')
 
-  const [versionPart, versionDate] = title.split(' - ')
-  const [versionNumber] = versionPart.match(/[a-zA-ZZ0-9.\-+]+/)
+  const [versionPart, datePart] = title.split(' - ')
+  const [versionNumber] = versionPart.match(/[a-zA-Z0-9.\-+]+/)
+  const [versionDate] = datePart != null
+    ? datePart.match(/[0-9-]+/)
+    : []
 
   return {
-    id: versionNumber.replace(/(\s)/g, ''),
+    id: versionNumber,
     date: versionDate,
     text: other
       .filter(item => !/\[.*\]: http/.test(item))
