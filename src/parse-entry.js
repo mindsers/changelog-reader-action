@@ -1,12 +1,10 @@
-const capturingVersionAndDateRegex = /\[?(v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?|unreleased)\]?(\s+-\s+)?(.*)$/i
-
 exports.parseEntry = entry => {
   const [title, ...other] = entry
     .trim()
     .split('\n')
 
-  const [, versionNumber, ...lastCaptureGroup] = title.match(capturingVersionAndDateRegex)
-  const [versionDate] = lastCaptureGroup.reverse()
+  const [versionPart, versionDate] = title.split(' - ')
+  const [versionNumber] = versionPart.match(/[a-zA-ZZ0-9.\-+]+/)
 
   return {
     id: versionNumber.replace(/(\s)/g, ''),
