@@ -49,7 +49,9 @@ module.exports =
 const core = __webpack_require__(470)
 
 const versionSeparator = '\n## '
-const avoidNonVersionData = version => /^\[(v?[0-9]+(\.[0-9]+){0,2}|unreleased)\]/i.test(version)
+const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
+const unreleasedLinkRegex = /^\[unreleased\]/i
+const avoidNonVersionData = version => semverLinkRegex.test(version) || unreleasedLinkRegex.test(version)
 
 exports.getEntries = (rawData) => {
     const content = String(rawData)
@@ -479,10 +481,14 @@ exports.parseEntry = entry => {
     .trim()
     .split('\n')
 
-  const [versionNumber, versionDate] = title.replace(/(\[|\])/g, '').split(' - ')
+  const [versionPart, datePart] = title.split(' - ')
+  const [versionNumber] = versionPart.match(/[a-zA-Z0-9.\-+]+/)
+  const [versionDate] = datePart != null
+    ? datePart.match(/[0-9-]+/)
+    : []
 
   return {
-    id: versionNumber.match(/(\w|\.)/g).join(''),
+    id: versionNumber,
     date: versionDate,
     text: other
       .filter(item => !/\[.*\]: http/.test(item))
