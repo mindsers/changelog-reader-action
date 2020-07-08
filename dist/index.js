@@ -483,9 +483,7 @@ exports.parseEntry = entry => {
 
   const [versionPart, datePart] = title.split(' - ')
   const [versionNumber] = versionPart.match(/[a-zA-Z0-9.\-+]+/)
-  const [versionDate] = datePart != null
-    ? datePart.match(/[0-9-]+/)
-    : []
+  const [versionDate] = datePart != null && datePart.match(/[0-9-]+/) || []
 
   return {
     id: versionNumber,
