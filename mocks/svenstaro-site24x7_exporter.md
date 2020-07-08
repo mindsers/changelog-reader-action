@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 <!-- next-header -->
 
-## [Unreleased] - ReleaseDate
+## [Unreleased]
 
 ## [0.3.0] - 2020-07-06
 - Use more robust way of getting and holding access token.
