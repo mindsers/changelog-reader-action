@@ -12,8 +12,14 @@ inputs:
     description: 'Version of the log entry wanted'
     required: false
 outputs:
-  log_entry:
-    description: 'The log entry wanted. Defaults to the last release on the CHANGELOG.md file if version is not specified'
+  version:
+    description: 'The release version. Ex...2.0.0.'
+  date:
+    description: 'The release date. Ex...2020-08-22.'
+  status:
+    description: 'The status of the release is one of the following: prereleased, released, unreleased, or yanked.'
+  changes:
+    description: 'All the changes defined for that release.'
 runs:
   using: 'node12'
   main: 'dist/index.js'

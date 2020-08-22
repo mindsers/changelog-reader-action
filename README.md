@@ -16,7 +16,10 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 ### Outputs
 
-- `log_entry`: The log entry found on the `CHANGELOG.md` file.
+- `version`: The release version. Ex...`2.0.0`.
+- `date`: The release date. Ex...`2020-08-22`.
+- `status`: The status of the release is one of the following: `prereleased`, `released`, `unreleased`, or `yanked`.
+- `changes`: All the changes defined for that release. Intended to be used for GitHub’s *release description*.
 
 ### Example workflow - upload a release asset
 On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content. This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
@@ -41,7 +44,7 @@ jobs:
           echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
         shell: bash
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
       - name: Get Changelog Entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v1
@@ -54,11 +57,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ steps.changelog_reader.outputs.log_entry }} # This pulls from the GET CHANGELOG ENTRY step above, referencing it's ID to get its outputs object, which include a `log_entry`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          # This pulls from the GET CHANGELOG ENTRY step above, referencing it's ID to get its outputs object, which include a `log_entry`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          tag_name: ${{ steps.changelog_reader.outputs.version }}
+          release_name: Release ${{ steps.changelog_reader.outputs.version }}
+          body: ${{ steps.changelog_reader.outputs.changes }}
+          prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
           draft: false
-          prerelease: false
 ```
 
 ## Contribution
