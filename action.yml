@@ -8,6 +8,10 @@ inputs:
     description: 'Path to the CHANGELOG file containing the log entries'
     required: false
     default: './CHANGELOG.md'
+  validation_depth:
+    description: 'Specifies how many entries to validate in the CHANGELOG.md file'
+    required: false
+    default: '0'
   version:
     description: 'Version of the log entry wanted'
     required: false

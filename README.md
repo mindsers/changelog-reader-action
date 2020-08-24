@@ -12,6 +12,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 ### Inputs
 
 - `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
+- `validation_depth`: Specifies how many entries to validate in the CHANGELOG.md file. Defaults to `0`.
 - `version`: The [exact version](https://semver.org) of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 
 ### Outputs
@@ -20,6 +21,10 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 - `date`: Release date of the log entry found. Ex: `2020-08-22`.
 - `status`: Status of the log entry found (`prereleased`, `released`, `unreleased`, or `yanked`).
 - `changes`: Description text of the log entry found.
+
+### Validation
+
+Each version in the changelog is subject to validation to enforce [Semantic Versioning 2.0.0](https://semver.org/) standards as well as [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) standards and formatting. You can utilize the `validation_depth` input param to specify how many entries to validate. Setting the `validation_depth` property to `0` will disable all validation.
 
 ### Example workflow - create a release from changelog
 On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content. This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
@@ -49,6 +54,7 @@ jobs:
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
+          validation_depth: 10
           version: ${{ steps.tag_name.outputs.current_version }}
           path: ./CHANGELOG.md
       - name: Create Release
@@ -57,7 +63,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # This pulls from the "Get Changelog Entry" step above, referencing it's ID to get its outputs object. 
+          # This pulls from the "Get Changelog Entry" step above, referencing it's ID to get its outputs object.
           # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           tag_name: ${{ steps.changelog_reader.outputs.version }}
           release_name: Release ${{ steps.changelog_reader.outputs.version }}

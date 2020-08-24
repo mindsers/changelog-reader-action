@@ -2,6 +2,7 @@ const utils = require('util')
 const fs = require('fs')
 const core = require('@actions/core')
 
+const { validateEntry } = require('./validate-entry')
 const { parseEntry } = require('./parse-entry')
 const { getEntries } = require('./get-entries')
 const { getVersionById } = require('./get-version-by-id')
@@ -12,6 +13,7 @@ exports.main = async function main() {
   try {
     const changelogPath = core.getInput('path') || './CHANGELOG.md'
     const targetVersion = core.getInput('version') || null
+    const validationDepth = parseInt(core.getInput('validation_depth') || '0', 10)
 
     if (targetVersion == null) {
       core.warning(`No target version specified. Will try to return the most recent one in the changelog file.`)
@@ -21,6 +23,15 @@ exports.main = async function main() {
     const rawData = await readFile(changelogPath)
     const versions = getEntries(rawData)
       .map(parseEntry)
+
+    if (validationDepth != 0)
+    {
+      const releasedVersions = versions.filter(version => version.status != 'unreleased')
+      releasedVersions
+        .reverse()
+        .slice(Math.max(0, releasedVersions.length - validationDepth))
+        .forEach(validateEntry)
+    }
 
     core.debug(`${versions.length} version logs found`)
     core.endGroup()

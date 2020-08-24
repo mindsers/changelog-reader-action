@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `status` of the release based on the version number and the title line of the entry.
     Could be equal to `unreleased`, `prereleased`, `released` or `yanked`.
     Please refer to https://semver.org/#semantic-versioning-specification-semver for more informations about this.
+- Introduced changelog validation to help keep the release version in line with [Semantic Versioning](https://semver.org/)
+- New input param of `validation_depth` to allow for configuration of changelog validation.
 
 ### Changed
 - **[BREAKING CHANGE]** If given a specific target version, action will now generate an error response if that version is not found in the changelog.
