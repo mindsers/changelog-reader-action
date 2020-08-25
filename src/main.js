@@ -27,10 +27,12 @@ exports.main = async function main() {
 
     const version = getVersionById(versions, targetVersion)
 
-    if (version == null && targetVersion != null) {
-      throw new Error(`No log entry found for target version ${targetVersion}.`)
-    } else if (version == null) {
-      throw new Error('No log entry found.')
+    if (version == null) {
+      throw new Error(`No log entry found${
+        targetVersion != null
+          ? ` for version ${targetVersion}`
+          : ''
+      }`)
     }
 
     core.setOutput('log_entry', version.text)
