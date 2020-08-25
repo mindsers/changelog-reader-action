@@ -48,13 +48,13 @@ This file is a set of guilines for contributing to *Changelog Reader Action* pro
 
 ### Do you intend to add a new feature or change an existing one?
 
-* Please ask first ([open an issue][Issues] or [talk about it on gitter][gitter]) before embarking on any significant pull request (e.g. implementing features, refactoring code), otherwise you risk spending a lot of time working on something that the project's developers might not want to merge into the project.
+* Please ask first ([open an issue][Issues] or [talk about it on the community forum][Forum]) before embarking on any significant pull request (e.g. implementing features, refactoring code), otherwise you risk spending a lot of time working on something that the project's developers might not want to merge into the project.
 
 * Please adhere to the coding conventions used in this project (indentation, accurate comments, etc.) and any other requirements (such as test coverage, documentation).
 
 ### Do you have questions about the source code?
 
-* Ask any question about how to use Configfile in the [gitter channel][gitter] or on [Stack Overflow](https://stackoverflow.com).
+* Ask any question about how to use Configfile in the [forum category][Forum] or on [Stack Overflow](https://stackoverflow.com).
 
 ### Do you want to contribute to the Configfile documentation?
 
@@ -95,7 +95,7 @@ Additional rules:
 * Prefer rest parameter (`prefer-rest-params`)
 * Prefer using template literals (`prefer-template`)
 
-All the rules are listed in `.eslinrc.json` on the root directory.
+All the rules are listed in `.eslintrc.json` on the root directory.
 
 ### Git commit messages
 
@@ -109,4 +109,4 @@ All the rules are listed in `.eslinrc.json` on the root directory.
 
 
 [Issues]: https://github.com/mindsers/changelog-reader-action/issues
-[gitter]: https://gitter.im/mindsers/changelog-reader-action
+[Forum]: https://community.nathanaelcherrier.com/c/open-source/changelog-reader-action/11
