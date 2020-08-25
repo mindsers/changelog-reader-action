@@ -5,7 +5,7 @@ const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|
 const unreleasedLinkRegex = /^\[unreleased\]/i
 const avoidNonVersionData = version => semverLinkRegex.test(version) || unreleasedLinkRegex.test(version)
 
-exports.getEntries = (rawData) => {
+exports.getEntries = rawData => {
     const content = String(rawData)
 
     core.debug(`CHANGELOG content: ${content}`)
