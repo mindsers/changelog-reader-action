@@ -14,7 +14,7 @@ exports.main = async function main() {
     const targetVersion = core.getInput('version')
 
     if (targetVersion == null) {
-      core.warning(`No target version specified. try to return the most recent one in the changelog file.`)
+      core.warning(`No target version specified. Will try to return the most recent one in the changelog file.`)
     }
 
     core.startGroup('Parse data')
