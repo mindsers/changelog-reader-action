@@ -14,5 +14,30 @@
         "ecmaVersion": 2018
     },
     "rules": {
+        "arrow-body-style": ["error", "as-needed"],
+        "arrow-parens": ["error", "as-needed"],
+        "arrow-spacing": "error",
+        "default-case": "error",
+        "guard-for-in": "error",
+        "generator-star-spacing": ["error", { "before": true, "after": false }],
+        "getter-return": ["error", { "allowImplicit": true }],
+        "no-compare-neg-zero": "error",
+        "no-confusing-arrow": "error",
+        "no-else-return": "error",
+        "no-empty": "error",
+        "no-implicit-coercion": "error",
+        "no-useless-return": "error",
+        "no-redeclare": "error",
+        "no-var": "error",
+        "prefer-arrow-callback": "error",
+        "prefer-const": "error",
+        "prefer-rest-params": "error",
+        "prefer-spread": "error",
+        "prefer-template": "error",
+        "space-before-function-paren": ["error", {
+            "anonymous": "always",
+            "named": "never",
+            "asyncArrow": "always"
+        }]
     }
 }
