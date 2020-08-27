@@ -6,11 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- The following additional properties were added to action output: version, date, status.
+- New output properties:
+  - The `version` number of the returned entry
+  - The released `date` of the returned entry
+  - The `status` of the release based on the version number and the title line of the entry.
+    Could be equal to `unreleased`, `prereleased`, `released` or `yanked`.
+    Please refer to https://semver.org/#semantic-versioning-specification-semver for more informations about this.
 
 ### Changed
 - **[BREAKING CHANGE]** If given a specific target version, action will now generate an error response if that version is not found in the changelog.
-- Changed `log_entry` output property to `changes`.
+- **[BREAKING CHANGE]** `log_entry` output property is renamed to `changes`.
 
 ## [1.3.1] - 2020-07-08
 ### Fixed
