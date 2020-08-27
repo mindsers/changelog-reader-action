@@ -15,11 +15,11 @@ outputs:
   version:
     description: 'Version of the log entry found'
   date:
-    description: 'Release date of the log entry found.'
+    description: 'Release date of the log entry found'
   status:
-    description: 'Status of the log entry found. Possibly one of the following: prereleased, released, unreleased, or yanked.'
+    description: 'Status of the log entry found. Possibly one of the following: prereleased, released, unreleased, or yanked'
   changes:
-    description: 'Description text of the log entry found.'
+    description: 'Description text of the log entry found'
 runs:
   using: 'node12'
   main: 'dist/index.js'
