@@ -16,9 +16,12 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 ### Outputs
 
-- `log_entry`: The log entry found on the `CHANGELOG.md` file.
+- `version`: Version of the log entry found. Ex: `2.0.0`.
+- `date`: Release date of the log entry found. Ex: `2020-08-22`.
+- `status`: Status of the log entry found (`prereleased`, `released`, `unreleased`, or `yanked`).
+- `changes`: Description text of the log entry found.
 
-### Example workflow - upload a release asset
+### Example workflow - create a release from changelog
 On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content. This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
 
 ```yaml
@@ -54,11 +57,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ steps.changelog_reader.outputs.log_entry }} # This pulls from the GET CHANGELOG ENTRY step above, referencing it's ID to get its outputs object, which include a `log_entry`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          draft: false
-          prerelease: false
+          # This pulls from the "Get Changelog Entry" step above, referencing it's ID to get its outputs object. 
+          # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          tag_name: ${{ steps.changelog_reader.outputs.version }}
+          release_name: Release ${{ steps.changelog_reader.outputs.version }}
+          body: ${{ steps.changelog_reader.outputs.changes }}
+          prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
+          draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
 ```
 
 ## Contribution
