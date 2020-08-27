@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- If given a specific target version, action will now generate an error response if that version is not found in the changelog.
+- **[BREAKING CHANGE]** If given a specific target version, action will now generate an error response if that version is not found in the changelog.
 
 ## [1.3.1] - 2020-07-08
 ### Fixed
