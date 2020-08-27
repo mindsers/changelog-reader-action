@@ -11,7 +11,7 @@ const readFile  = utils.promisify(fs.readFile)
 exports.main = async function main() {
   try {
     const changelogPath = core.getInput('path') || './CHANGELOG.md'
-    const targetVersion = core.getInput('version')
+    const targetVersion = core.getInput('version') || null
 
     if (targetVersion == null) {
       core.warning(`No target version specified. Will try to return the most recent one in the changelog file.`)
@@ -28,9 +28,11 @@ exports.main = async function main() {
     const version = getVersionById(versions, targetVersion)
 
     if (version == null) {
-      core.error('No log entry found.')
-      core.setOutput('log_entry', '')
-      return
+      throw new Error(`No log entry found${
+        targetVersion != null
+          ? ` for version ${targetVersion}`
+          : ''
+      }`)
     }
 
     core.setOutput('log_entry', version.text)

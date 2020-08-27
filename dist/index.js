@@ -82,7 +82,7 @@ const readFile  = utils.promisify(fs.readFile)
 exports.main = async function main() {
   try {
     const changelogPath = core.getInput('path') || './CHANGELOG.md'
-    const targetVersion = core.getInput('version')
+    const targetVersion = core.getInput('version') || null
 
     if (targetVersion == null) {
       core.warning(`No target version specified. try to return the most recent one in the changelog file.`)
@@ -98,10 +98,10 @@ exports.main = async function main() {
 
     const version = getVersionById(versions, targetVersion)
 
-    if (version == null) {
-      core.error('No log entry found.')
-      core.setOutput('log_entry', '')
-      return
+    if (version == null && targetVersion != null) {
+      throw new Error(`No log entry found for target version ${targetVersion}.`)
+    } else if (version == null) {
+      throw new Error('No log entry found.')
     }
 
     core.setOutput('log_entry', version.text)
@@ -437,11 +437,7 @@ exports.getState = getState;
 
 exports.getVersionById = (versions, id) => {
   if (id != null) {
-    const version = versions.find(version => version.id === id)
-
-    if (version != null) {
-      return version
-    }
+    return versions.find(version => version.id === id)
   }
 
   return [...versions]

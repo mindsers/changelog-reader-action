@@ -22,7 +22,7 @@ test('get latest if no version provided', () => {
   expect(output.id).toEqual(input[1].id)
 })
 
-test('get latest if bad version provided', () => {
+test('return null if bad version provided', () => {
   const input = [
     {
       id: 'Unreleased',
@@ -41,7 +41,7 @@ test('get latest if bad version provided', () => {
   ]
   const output = getVersionById(input, 'v1.2.12')
 
-  expect(output.id).toEqual(input[1].id)
+  expect(output).toBeUndefined()
 })
 
 test('support X.X.X version patern', () => {
