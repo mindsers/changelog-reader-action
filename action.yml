@@ -1,11 +1,11 @@
 name: 'Changelog Reader'
-description: 'Read and parse the CHANGELOG.md file of the project'
+description: 'Read and parse the CHANGELOG file of the project'
 branding:
   icon: 'align-right'
   color: 'gray-dark'
 inputs:
   path:
-    description: 'Path to the CHANGELOG.md file containing the log entries'
+    description: 'Path to the CHANGELOG file containing the log entries'
     required: false
     default: './CHANGELOG.md'
   version:
@@ -13,13 +13,13 @@ inputs:
     required: false
 outputs:
   version:
-    description: 'The release version. Ex...2.0.0.'
+    description: 'Version of the log entry found'
   date:
-    description: 'The release date. Ex...2020-08-22.'
+    description: 'Release date of the log entry found.'
   status:
-    description: 'The status of the release is one of the following: prereleased, released, unreleased, or yanked.'
+    description: 'Status of the log entry found. Possibly one of the following: prereleased, released, unreleased, or yanked.'
   changes:
-    description: 'All the changes defined for that release.'
+    description: 'Description text of the log entry found.'
 runs:
   using: 'node12'
   main: 'dist/index.js'
