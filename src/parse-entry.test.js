@@ -34,9 +34,9 @@ test('get readable data from text entry', () => {
   expect(output.id).toEqual('v0.0.26')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('released')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | no title for version', () => {
@@ -49,9 +49,9 @@ test('get readable data from text entry | no title for version', () => {
   expect(output.id).toEqual('v0.0.26')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('released')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | version patern X.X.X', () => {
@@ -64,9 +64,9 @@ test('get readable data from text entry | version patern X.X.X', () => {
   expect(output.id).toEqual('0.0.26')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('released')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | raw version number', () => {
@@ -79,9 +79,9 @@ test('get readable data from text entry | raw version number', () => {
   expect(output.id).toEqual('v0.0.26')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('released')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 // https://github.com/mindsers/changelog-reader-action/issues/4
@@ -95,9 +95,9 @@ test('get readable data from text entry | unreleased version', () => {
   expect(output.id).toEqual('Unreleased')
   expect(output.date).toBeUndefined()
   expect(output.status).toEqual('unreleased')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 // https://github.com/mindsers/changelog-reader-action/issues/8
@@ -111,9 +111,9 @@ test('get readable data from text entry | unreleased version', () => {
   expect(output.id).toEqual('1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('prereleased')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | unexpected characters between version and date', () => {
@@ -126,9 +126,9 @@ test('get readable data from text entry | unexpected characters between version 
   expect(output.id).toEqual('1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('prereleased')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 // https://github.com/mindsers/changelog-reader-action/issues/10
@@ -142,9 +142,9 @@ test('get readable data from text entry | Fake date', () => {
   expect(output.id).toEqual('1.0.0')
   expect(output.date).toBeUndefined()
   expect(output.status).toEqual('released')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | build number with plus sign', () => {
@@ -157,9 +157,9 @@ test('get readable data from text entry | build number with plus sign', () => {
   expect(output.id).toEqual('2.0.0+build.1848')
   expect(output.date).toBeUndefined()
   expect(output.status).toEqual('released')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | yanked release', () => {
@@ -172,9 +172,9 @@ test('get readable data from text entry | yanked release', () => {
   expect(output.id).toEqual('2.0.0')
   expect(output.date).toEqual('2019-02-10')
   expect(output.status).toEqual('yanked')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })
 
 test('get readable data from text entry | yanked release with no date', () => {
@@ -187,7 +187,7 @@ test('get readable data from text entry | yanked release with no date', () => {
   expect(output.id).toEqual('2.0.0')
   expect(output.date).toBeUndefined()
   expect(output.status).toEqual('yanked')
-  expect(output.changes).toContain(`### Added`)
-  expect(output.changes).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
-  expect(output.changes).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
+  expect(output.text).toContain(`### Added`)
+  expect(output.text).toContain(`ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`)
+  expect(output.text).toContain(`**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`)
 })

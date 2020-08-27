@@ -20,7 +20,7 @@ exports.parseEntry = entry => {
     id: versionNumber,
     date: versionDate,
     status: status,
-    changes: other
+    text: other
       .filter(item => !/\[.*\]: http/.test(item))
       .join('\n')
   }

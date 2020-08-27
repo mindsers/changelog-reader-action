@@ -38,7 +38,7 @@ exports.main = async function main() {
     core.setOutput('version', version.id)
     core.setOutput('date', version.date)
     core.setOutput('status', version.status)
-    core.setOutput('changes', version.changes)
+    core.setOutput('changes', version.text)
   }
   catch (error) {
     core.setFailed(error.message)
