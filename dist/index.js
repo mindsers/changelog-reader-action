@@ -109,7 +109,7 @@ exports.main = async function main() {
     core.setOutput('version', version.id)
     core.setOutput('date', version.date)
     core.setOutput('status', version.status)
-    core.setOutput('changes', version.changes)
+    core.setOutput('changes', version.text)
   }
   catch (error) {
     core.setFailed(error.message)
@@ -2090,24 +2090,32 @@ exports.parseEntry = entry => {
   const [versionPart, datePart] = title.split(' - ')
   const [versionNumber] = versionPart.match(/[a-zA-Z0-9.\-+]+/)
   const [versionDate] = datePart != null && datePart.match(/[0-9-]+/) || []
-  const status = prerelease(versionNumber)
-    ? 'prereleased'
-    : title.match(/\[yanked\]/i)
-      ? 'yanked'
-      : title.match(/\[unreleased\]/i)
-        ? 'unreleased'
-        : 'released'
 
   return {
     id: versionNumber,
     date: versionDate,
-    status: status,
-    changes: other
+    status: computeStatus(versionNumber, title),
+    text: other
       .filter(item => !/\[.*\]: http/.test(item))
       .join('\n')
   }
 }
 
+function computeStatus(version, title) {
+  if (prerelease(version)) {
+    return 'prereleased'
+  }
+
+  if (title.match(/\[yanked\]/i)) {
+    return 'yanked'
+  }
+
+  if (title.match(/\[unreleased\]/i)) {
+    return 'unreleased'
+  }
+
+  return 'released'
+}
 
 /***/ })
 
