@@ -1,7 +1,7 @@
 # Changelog Reader
 <a href="https://github.com/mindsers/changelog-reader-action"><img alt="changelog-reader-action status" src="https://github.com/mindsers/changelog-reader-action/workflows/units-test/badge.svg"></a>
 
-A Github action to read and get data from the `CHANGELOG.md` file :rocket:
+A GitHub action to read and get data from the `CHANGELOG.md` file :rocket:
 
 **This action only work if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
 
@@ -74,7 +74,7 @@ Contributions to the source code of *Changelog Reader Action* are welcomed and g
 
 *Changelog Reader Action* is licensed under an MIT license, which means that it's a completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 2.0.0 is the next step, which will result in many late, beer-filled nights of development.
 
-If you're using *Changelog Reader Action* and want to support the development, you now have the chance! Go on my [Github Sponsor page](https://github.com/sponsors/mindsers) and become my joyful sponsor!!
+If you're using *Changelog Reader Action* and want to support the development, you now have the chance! Go on my [GitHub Sponsor page](https://github.com/sponsors/mindsers) and become my joyful sponsor!!
 
 For more help on how to support Changelog Reader Action, please refer to [The awesome people who support Changelog Reader Action](SPONSORS.md).
 
