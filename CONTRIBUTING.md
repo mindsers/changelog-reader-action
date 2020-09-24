@@ -4,6 +4,8 @@
 
 This file is a set of guilines for contributing to *Changelog Reader Action* project. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
+**All the contributors are/will be added to our [Contributors Wall](CONTRIBUTORS.md).** If we forgot someone, please let us know. We'll be glad to add them to the list.
+
 #### Table of contents
 
 [How can I contribute?](#how-can-i-contribute)
