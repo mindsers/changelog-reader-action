@@ -70,7 +70,7 @@ jobs:
 
 Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
 
-To see the project's list of **awesome contributors**, please refer to the [CONTRIBUTORS.md](CONTRIBUTORS.md) file.
+To see the project's list of **awesome contributors**, please refer to our [Contributors Wall](CONTRIBUTORS.md).
 
 ## Support
 
