@@ -3,7 +3,7 @@
 
 A GitHub action to read and get data from the `CHANGELOG.md` file :rocket:
 
-**This action only work if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
+**This action only works if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
 
 ## Usage
 ### Pre-requisites
@@ -11,7 +11,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 ### Inputs
 
-- `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
+- `path`: The path the action can find the [CHANGELOG](CHANGELOG.md). Optional. Defaults to `./CHANGELOG.md`.
 - `version`: The [exact version](https://semver.org) of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 
 ### Outputs
@@ -22,7 +22,8 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 - `changes`: Description text of the log entry found.
 
 ### Example workflow - create a release from changelog
-On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content. This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
+On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content.
+This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
 
 ```yaml
 on:
@@ -57,7 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # This pulls from the "Get Changelog Entry" step above, referencing it's ID to get its outputs object. 
+          # This pulls from the "Get Changelog Entry" step above, referencing it's ID to get its outputs object.
           # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           tag_name: ${{ steps.changelog_reader.outputs.version }}
           release_name: Release ${{ steps.changelog_reader.outputs.version }}
@@ -68,7 +69,8 @@ jobs:
 
 ## Contribution
 
-Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
+Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated.
+For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
 
 ## Support
 

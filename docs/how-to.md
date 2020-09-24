@@ -7,12 +7,12 @@
 
 ## Code in Master
 
-Install the dependencies
+Install the dependencies:
 ```bash
 $ npm install
 ```
 
-Run the tests :heavy_check_mark:
+Run the tests: :heavy_check_mark:
 ```bash
 $ npm test
 
@@ -58,15 +58,15 @@ See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/R
 
 GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
 
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
+Actions are run from GitHub repos.  Packaging the action will create a packaged action in the `dist` folder.
 
-Run package
+Run package:
 
 ```bash
 npm run package
 ```
 
-Since the packaged index.js is run from the dist folder.
+Since the packaged `index.js` is ran from the `dist` folder.
 
 ```bash
 git add dist
@@ -76,7 +76,7 @@ git add dist
 
 Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
 
-Checkin to the v1 release branch
+Checking to the v1 release branch:
 
 ```bash
 $ git checkout -b v1
@@ -93,7 +93,7 @@ See the [versioning documentation](https://github.com/actions/toolkit/blob/maste
 
 ## Usage
 
-You can now consume the action by referencing the v1 branch
+You can now consume the action by referencing the v1 branch:
 
 ```yaml
 uses: actions/javascript-action@v1
