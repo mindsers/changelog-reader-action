@@ -70,6 +70,8 @@ jobs:
 
 Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
 
+To see the project's list of **awesome contributors**, please refer to the [CONTRIBUTORS.md](CONTRIBUTORS.md) file.
+
 ## Support
 
 *Changelog Reader Action* is licensed under an MIT license, which means that it's a completely free open source software. Unfortunately, *Changelog Reader Action* doesn't make itself. Version 2.0.0 is the next step, which will result in many late, beer-filled nights of development.
