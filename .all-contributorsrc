@@ -3,7 +3,22 @@
     "CONTRIBUTORS.md"
   ],
   "skipCi": true,
-  "contributors": [],
+  "contributors": [
+    {
+      "login": "mindsers",
+      "name": "Nathanael CHERRIER",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/3090112?v=4",
+      "profile": "https://nathanaelcherrier.com",
+      "contributions": [
+        "code",
+        "doc",
+        "review",
+        "question",
+        "test",
+        "maintenance"
+      ]
+    }
+  ],
   "projectName": "changelog-reader-action",
   "projectOwner": "mindsers",
   "repoType": "github",
