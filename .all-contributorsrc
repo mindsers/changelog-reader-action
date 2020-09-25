@@ -17,6 +17,15 @@
         "test",
         "maintenance"
       ]
+    },
+    {
+      "login": "alexesprit",
+      "name": "Alexey",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/1119267?v=4",
+      "profile": "https://alexesprit.com",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
