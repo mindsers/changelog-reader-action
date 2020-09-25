@@ -11,7 +11,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 ### Inputs
 
-- `path`: The path the action can find the [CHANGELOG](CHANGELOG.md). Optional. Defaults to `./CHANGELOG.md`.
+- `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
 - `version`: The [exact version](https://semver.org) of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 
 ### Outputs
