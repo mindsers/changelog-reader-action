@@ -19,6 +19,17 @@
       ]
     },
     {
+      "login": "aroemen",
+      "name": "Alan Roemen",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/796505?v=4",
+      "profile": "https://roemen.company",
+      "contributions": [
+        "code",
+        "test",
+        "ideas"
+      ]
+    },
+    {
       "login": "endormi",
       "name": "Erno Salo",
       "avatar_url": "https://avatars3.githubusercontent.com/u/39559256?v=4",
