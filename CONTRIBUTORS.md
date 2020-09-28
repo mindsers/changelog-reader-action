@@ -13,6 +13,7 @@ Thanks goes to these wonderful people
     <td align="center"><a href="https://roemen.company"><img src="https://avatars1.githubusercontent.com/u/796505?v=4" width="100px;" alt=""/><br /><sub><b>Alan Roemen</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=aroemen" title="Code">💻</a> <a href="https://github.com/mindsers/changelog-reader-action/commits?author=aroemen" title="Tests">⚠️</a> <a href="#ideas-aroemen" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="http://endormi.io"><img src="https://avatars3.githubusercontent.com/u/39559256?v=4" width="100px;" alt=""/><br /><sub><b>Erno Salo</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=endormi" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/andrekosak"><img src="https://avatars1.githubusercontent.com/u/6382243?v=4" width="100px;" alt=""/><br /><sub><b>Andre Kosak</b></sub></a><br /><a href="#example-andrekosak" title="Examples">💡</a></td>
+    <td align="center"><a href="https://svenstaro.org"><img src="https://avatars0.githubusercontent.com/u/1664?v=4" width="100px;" alt=""/><br /><sub><b>Sven-Hendrik Haase</b></sub></a><br /><a href="#example-svenstaro" title="Examples">💡</a></td>
   </tr>
 </table>
 
