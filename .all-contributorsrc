@@ -17,6 +17,17 @@
         "test",
         "maintenance"
       ]
+    },
+    {
+      "login": "aroemen",
+      "name": "Alan Roemen",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/796505?v=4",
+      "profile": "https://roemen.company",
+      "contributions": [
+        "code",
+        "test",
+        "ideas"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
