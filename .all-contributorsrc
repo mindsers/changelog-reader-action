@@ -37,6 +37,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "andrekosak",
+      "name": "Andre Kosak",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6382243?v=4",
+      "profile": "https://github.com/andrekosak",
+      "contributions": [
+        "example"
+      ] 
     }
   ],
   "projectName": "changelog-reader-action",
