@@ -3,7 +3,7 @@
 
 A GitHub action to read and get data from the `CHANGELOG.md` file :rocket:
 
-**This action only work if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
+**This action only works if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
 
 ## Usage
 ### Pre-requisites
@@ -27,7 +27,8 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 Each version in the changelog is subject to validation to enforce [Semantic Versioning 2.0.0](https://semver.org/) standards as well as [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) standards and formatting. You can utilize the `validation_depth` input param to specify how many entries to validate. Setting the `validation_depth` property to `0` will disable all validation.
 
 ### Example workflow - create a release from changelog
-On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content. This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
+On every `push` to a tag matching the pattern `v*`, [create a release](https://developer.github.com/v3/repos/releases/#create-a-release) using the CHANGELOG.md content.
+This Workflow example assumes you'll use the [`@actions/create-release`](https://www.github.com/actions/create-release) Action to create the release step:
 
 ```yaml
 on:
@@ -74,7 +75,10 @@ jobs:
 
 ## Contribution
 
-Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated. For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
+Contributions to the source code of *Changelog Reader Action* are welcomed and greatly appreciated.
+For help on how to contribute in this project, please refer to [How to contribute to Changelog Reader Action](CONTRIBUTING.md).
+
+To see the project's list of **awesome contributors**, please refer to our [Contributors Wall](CONTRIBUTORS.md).
 
 ## Support
 
