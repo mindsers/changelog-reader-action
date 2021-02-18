@@ -224,7 +224,7 @@ src[t.PRERELEASEIDENTIFIERLOOSE] = '(?:' + src[t.NUMERICIDENTIFIERLOOSE] +
 // identifiers.
 
 tok('PRERELEASE')
-src[t.PRERELEASE] = '(?:-(' + src[t.PRERELEASEIDENTIFIER] +
+src[t.PRERELEASE] = '(?:-?(' + src[t.PRERELEASEIDENTIFIER] +
                   '(?:\\.' + src[t.PRERELEASEIDENTIFIER] + ')*))'
 
 tok('PRERELEASELOOSE')
