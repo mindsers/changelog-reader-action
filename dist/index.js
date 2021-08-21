@@ -49,7 +49,7 @@ module.exports =
 const core = __webpack_require__(470)
 
 const versionSeparator = '\n## '
-const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
+const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-?((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
 const unreleasedLinkRegex = /^\[unreleased\]/i
 const avoidNonVersionData = version => semverLinkRegex.test(version) || unreleasedLinkRegex.test(version)
 
@@ -224,7 +224,7 @@ src[t.PRERELEASEIDENTIFIERLOOSE] = '(?:' + src[t.NUMERICIDENTIFIERLOOSE] +
 // identifiers.
 
 tok('PRERELEASE')
-src[t.PRERELEASE] = '(?:-(' + src[t.PRERELEASEIDENTIFIER] +
+src[t.PRERELEASE] = '(?:-?(' + src[t.PRERELEASEIDENTIFIER] +
                   '(?:\\.' + src[t.PRERELEASEIDENTIFIER] + ')*))'
 
 tok('PRERELEASELOOSE')
