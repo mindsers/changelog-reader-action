@@ -58,19 +58,18 @@ jobs:
           validation_depth: 10
           version: ${{ steps.tag_name.outputs.current_version }}
           path: ./CHANGELOG.md
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create/update release
+        uses: ncipollo/release-action@v1
         with:
           # This pulls from the "Get Changelog Entry" step above, referencing it's ID to get its outputs object.
           # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          tag_name: ${{ steps.changelog_reader.outputs.version }}
-          release_name: Release ${{ steps.changelog_reader.outputs.version }}
+          tag: ${{ steps.changelog_reader.outputs.version }}
+          name: Release ${{ steps.changelog_reader.outputs.version }}
           body: ${{ steps.changelog_reader.outputs.changes }}
           prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
           draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Contribution
