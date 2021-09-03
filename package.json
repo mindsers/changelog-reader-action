@@ -1,6 +1,6 @@
 {
   "name": "changelog-reader-action",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A GitHub Action to read your CHANGELOG",
   "main": "index.js",
   "homepage": "https://github.com/mindsers/changelog-reader-action#readme",
@@ -30,7 +30,7 @@
     "@types/semver": "^7.3.3",
     "@zeit/ncc": "^0.20.5",
     "eslint": "^6.3.0",
-    "jest": "^25.1.0",
+    "jest": "^25.5.4",
     "semver": "^7.3.2"
   },
   "keywords": [
