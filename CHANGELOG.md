@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Introduced changelog validation to help keep the release version in line with [Semantic Versioning](https://semver.org/)
 - New input param of `validation_depth` to allow for configuration of changelog validation.
+- Support Angular CHANGELOG format. (Doesn't force title emphasis)
 
 ### Changed
 - The project now implement the [All Contributors](https://allcontributors.org).
