@@ -64,6 +64,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "farfromrefug",
+      "name": "farfromrefuge",
+      "avatar_url": "https://avatars.githubusercontent.com/u/655344?v=4",
+      "profile": "https://github.com/farfromrefug",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
