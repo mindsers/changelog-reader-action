@@ -6,6 +6,7 @@ const { validateEntry } = require('./validate-entry')
 const { parseEntry } = require('./parse-entry')
 const { getEntries } = require('./get-entries')
 const { getVersionById } = require('./get-version-by-id')
+const { addLinks } = require('./add-links')
 
 const readFile  = utils.promisify(fs.readFile)
 
@@ -24,6 +25,7 @@ exports.main = async function main() {
     const linkList = getLinks(rawData)
     const versions = getEntries(rawData)
       .map(parseEntry)
+      .map(addLinks(linkList))
 
     if (validationDepth != 0)
     {
