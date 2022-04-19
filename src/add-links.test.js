@@ -1,6 +1,6 @@
-const { addLinks } = require("./add-links");
+const { addLinks } = require('./add-links')
 
-test("retreive add correct links to entry", () => {
+test('retreive add correct links to entry', () => {
   const output = addLinks([
     `[1.1.2+meta]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.1-rc.1+build.123...1.1.2+meta`,
     `[1.1.1-rc.1+build.123]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay...v1.1.1-rc.1+build.123`,
@@ -11,7 +11,7 @@ test("retreive add correct links to entry", () => {
     text: `### Added
 - CHANGELOG can be parsed by the [github][] action
 - [1.1.1-DEV-SNAPSHOT][] can be parsed by the github action`,
-  });
+  })
 
   expect(output.text).toEqual(
     `### Added
@@ -19,10 +19,10 @@ test("retreive add correct links to entry", () => {
 - [1.1.1-DEV-SNAPSHOT][] can be parsed by the github action
 [github]: https://github.com/mindsers/changelog-reader-action/releases/tag/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay
 [1.1.1-DEV-SNAPSHOT]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay...v1.1.1-DEV-SNAPSHOT`
-  );
-});
+  )
+})
 
-test("add nothing when there is no references", () => {
+test('add nothing when there is no references', () => {
   const output = addLinks([
     `[1.1.2+meta]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.1-rc.1+build.123...1.1.2+meta`,
     `[1.1.1-rc.1+build.123]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay...v1.1.1-rc.1+build.123`,
@@ -31,8 +31,8 @@ test("add nothing when there is no references", () => {
   ])({
     text: `### Added
   - CHANGELOG can be parsed by the github action`,
-  });
+  })
 
   expect(output.text).toEqual(`### Added
-  - CHANGELOG can be parsed by the github action`);
-});
+  - CHANGELOG can be parsed by the github action`)
+})

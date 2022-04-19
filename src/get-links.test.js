@@ -1,4 +1,4 @@
-const { getLinks } = require("./get-links");
+const { getLinks } = require('./get-links')
 
 const DATA_v = `
 # Changelog
@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mindsers/changelog-reader-action/releases/tag/v1.0.0
-`;
+`
 
 const DATA_complex = `
 # Changelog
@@ -57,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.1.1-rc.1+build.123]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay...v1.1.1-rc.1+build.123
 [1.1.1-DEV-SNAPSHOT]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay...v1.1.1-DEV-SNAPSHOT
 [1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay]: https://github.com/mindsers/changelog-reader-action/releases/tag/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay
-`;
+`
 
 const DATA = `
 # Changelog
@@ -84,35 +84,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mindsers/changelog-reader-action/releases/tag/v1.0.0
-`;
+`
 
 const linkRegex =
-  /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&'\(\)\*\+,;=.]+$/;
+  /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&'\(\)\*\+,;=.]+$/
 
-test("retreive links from test (tag patern: vX.X.X)", () => {
-  const output = getLinks(DATA_v);
+test('retreive links from test (tag patern: vX.X.X)', () => {
+  const output = getLinks(DATA_v)
 
-  expect(output.length).toEqual(3);
+  expect(output.length).toEqual(3)
   for (const text of output) {
-    expect(text).toMatch(linkRegex);
+    expect(text).toMatch(linkRegex)
   }
-});
+})
 
-test("retreive links from test (tag patern: X.X.X)", () => {
-  const output = getLinks(DATA);
+test('retreive links from test (tag patern: X.X.X)', () => {
+  const output = getLinks(DATA)
 
-  expect(output.length).toEqual(3);
+  expect(output.length).toEqual(3)
   for (const text of output) {
-    expect(text).toMatch(linkRegex);
+    expect(text).toMatch(linkRegex)
   }
-});
+})
 
 // https://github.com/mindsers/changelog-reader-action/issues/8
-test("retreive links from test (complex SEMVER)", () => {
-  const output = getLinks(DATA_complex);
+test('retreive links from test (complex SEMVER)', () => {
+  const output = getLinks(DATA_complex)
 
-  expect(output.length).toEqual(4);
+  expect(output.length).toEqual(4)
   for (const text of output) {
-    expect(text).toMatch(linkRegex);
+    expect(text).toMatch(linkRegex)
   }
-});
+})

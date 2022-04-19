@@ -26,9 +26,7 @@ exports.main = async function main() {
     core.startGroup('Parse data')
     const rawData = await readFile(changelogPath)
     const linkList = getLinks(rawData)
-    const versions = getEntries(rawData)
-      .map(parseEntry)
-      .map(addLinks(linkList))
+    const versions = getEntries(rawData).map(parseEntry).map(addLinks(linkList))
 
     if (validationDepth != 0) {
       const releasedVersions = versions.filter(version => version.status != 'unreleased')

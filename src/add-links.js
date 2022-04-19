@@ -1,21 +1,21 @@
-const core = require("@actions/core");
+const core = require('@actions/core')
 
-exports.addLinks = (links) => (entry) => {
-  const { text } = entry;
-  const linkRegex = /(\[.+\])\[\]/gi;
+exports.addLinks = links => entry => {
+  const { text } = entry
+  const linkRegex = /(\[.+\])\[\]/gi
 
-  let tempText = `${text}`;
+  let tempText = `${text}`
   while (true) {
-    const results = linkRegex.exec(text);
+    const results = linkRegex.exec(text)
 
     if (results == null) {
-      break;
+      break
     }
 
-    const link = links.find((element) => element.includes(results[1]));
+    const link = links.find(element => element.includes(results[1]))
 
-    tempText = tempText + "\n" + link;
+    tempText = tempText + '\n' + link
   }
 
-  return { ...entry, text: tempText.trim() };
-};
+  return { ...entry, text: tempText.trim() }
+}
