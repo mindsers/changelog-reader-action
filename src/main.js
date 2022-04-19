@@ -2,25 +2,36 @@ const utils = require('util')
 const fs = require('fs')
 const core = require('@actions/core')
 
+const { validateEntry } = require('./validate-entry')
 const { parseEntry } = require('./parse-entry')
 const { getEntries } = require('./get-entries')
 const { getVersionById } = require('./get-version-by-id')
 
-const readFile  = utils.promisify(fs.readFile)
+const readFile = utils.promisify(fs.readFile)
 
 exports.main = async function main() {
   try {
     const changelogPath = core.getInput('path') || './CHANGELOG.md'
-    const targetVersion = core.getInput('version')
+    const targetVersion = core.getInput('version') || null
+    const validationDepth = parseInt(core.getInput('validation_depth') || '0', 10)
 
     if (targetVersion == null) {
-      core.warning(`No target version specified. try to return the most recent one in the changelog file.`)
+      core.warning(
+        `No target version specified. Will try to return the most recent one in the changelog file.`
+      )
     }
 
     core.startGroup('Parse data')
     const rawData = await readFile(changelogPath)
-    const versions = getEntries(rawData)
-      .map(parseEntry)
+    const versions = getEntries(rawData).map(parseEntry)
+
+    if (validationDepth != 0) {
+      const releasedVersions = versions.filter(version => version.status != 'unreleased')
+      releasedVersions
+        .reverse()
+        .slice(Math.max(0, releasedVersions.length - validationDepth))
+        .forEach(validateEntry)
+    }
 
     core.debug(`${versions.length} version logs found`)
     core.endGroup()
@@ -28,14 +39,16 @@ exports.main = async function main() {
     const version = getVersionById(versions, targetVersion)
 
     if (version == null) {
-      core.error('No log entry found.')
-      core.setOutput('log_entry', '')
-      return
+      throw new Error(
+        `No log entry found${targetVersion != null ? ` for version ${targetVersion}` : ''}`
+      )
     }
 
-    core.setOutput('log_entry', version.text)
-  }
-  catch (error) {
+    core.setOutput('version', version.id)
+    core.setOutput('date', version.date)
+    core.setOutput('status', version.status)
+    core.setOutput('changes', version.text)
+  } catch (error) {
     core.setFailed(error.message)
   }
 }

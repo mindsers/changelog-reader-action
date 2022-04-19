@@ -1,35 +1,41 @@
 {
   "name": "changelog-reader-action",
-  "version": "1.3.0",
-  "description": "Changelog Reader Action",
+  "version": "2.0.0",
+  "description": "A GitHub Action to read your CHANGELOG",
   "main": "index.js",
+  "homepage": "https://github.com/mindsers/changelog-reader-action#readme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mindsers/changelog-reader-action"
+  },
+  "bugs": {
+    "url": "https://github.com/mindsers/changelog-reader-action/issues"
+  },
+  "author": {
+    "name": "Nathanaël Cherrier",
+    "email": "dev@nathanaelcherrier.com",
+    "url": "https://nathanaelcherrier.com"
+  },
   "scripts": {
     "lint": "eslint src/**/*.js",
     "package": "ncc build index.js -o dist",
     "test": "npm run lint && jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mindsers/changelog-reader-action"
+  "dependencies": {
+    "@actions/core": "^1.2.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/semver": "^7.3.3",
+    "@zeit/ncc": "^0.20.5",
+    "eslint": "^6.3.0",
+    "jest": "^25.1.0",
+    "semver": "^7.3.2"
   },
   "keywords": [
     "GitHub",
     "Actions",
     "Changelog"
-  ],
-  "author": "Nathanaël Cherrier",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mindsers/changelog-reader-action/issues"
-  },
-  "homepage": "https://github.com/mindsers/changelog-reader-action#readme",
-  "dependencies": {
-    "@actions/core": "^1.2.3"
-  },
-  "devDependencies": {
-    "@types/jest": "^25.1.4",
-    "@zeit/ncc": "^0.20.5",
-    "eslint": "^6.3.0",
-    "jest": "^25.1.0"
-  }
+  ]
 }

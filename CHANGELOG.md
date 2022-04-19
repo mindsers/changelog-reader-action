@@ -5,6 +5,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Introduced changelog validation to help keep the release version in line with [Semantic Versioning](https://semver.org/)
+- New input param of `validation_depth` to allow for configuration of changelog validation.
+- Support Angular CHANGELOG format. (Doesn't force title emphasis)
+
+### Changed
+- The project now implement the [All Contributors](https://allcontributors.org).
+  *This is not a change in the code but a change in how the projet recognize the
+  external contributions.*
+
+## [2.0.0] - 2020-08-30
+### Added
+- New output properties:
+  - The `version` number of the returned entry
+  - The released `date` of the returned entry
+  - The `status` of the release based on the version number and the title line of the entry.
+    Could be equal to `unreleased`, `prereleased`, `released` or `yanked`.
+    Please refer to https://semver.org/#semantic-versioning-specification-semver for more informations about this.
+
+### Changed
+- **[BREAKING CHANGE]** If given a specific target version, action will now generate an error response if that version is not found in the changelog.
+- **[BREAKING CHANGE]** `log_entry` output property is renamed to `changes`.
+
+## [1.3.1] - 2020-07-08
+### Fixed
+- Allow developers to NOT use a date for each version entries.
 
 ## [1.3.0] - 2020-07-06
 ### Changed
@@ -43,7 +69,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CHANGELOG can be parsed by the github action
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/mindsers/changelog-reader-action/compare/v1.3.1...v2.0.0
+[1.3.1]: https://github.com/mindsers/changelog-reader-action/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/mindsers/changelog-reader-action/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/mindsers/changelog-reader-action/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.1...v1.1.0

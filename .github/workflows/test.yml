@@ -27,4 +27,8 @@ jobs:
       with:
         path: ./mocks/svenstaro-site24x7_exporter.md
     - name: Display output
-      run: echo "${{ steps.changelog_reader.outputs.log_entry }}"
+      run: |
+        echo "Version: ${{ steps.changelog_reader.outputs.version }}"
+        echo "Date: ${{ steps.changelog_reader.outputs.date }}"
+        echo "Status: ${{ steps.changelog_reader.outputs.status }}"
+        echo "Changes: ${{ steps.changelog_reader.outputs.changes }}"
