@@ -9,11 +9,17 @@ test("retreive add correct links to entry", () => {
     `[github]: https://github.com/mindsers/changelog-reader-action/releases/tag/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay`,
   ])({
     text: `### Added
-  - CHANGELOG can be parsed by the [github][] action
-  - [1.1.1-DEV-SNAPSHOT][] can be parsed by the github action`,
+- CHANGELOG can be parsed by the [github][] action
+- [1.1.1-DEV-SNAPSHOT][] can be parsed by the github action`,
   });
 
-  expect(output).toEqual(3);
+  expect(output.text).toEqual(
+    `### Added
+- CHANGELOG can be parsed by the [github][] action
+- [1.1.1-DEV-SNAPSHOT][] can be parsed by the github action
+[github]: https://github.com/mindsers/changelog-reader-action/releases/tag/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay
+[1.1.1-DEV-SNAPSHOT]: https://github.com/mindsers/changelog-reader-action/compare/v1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay...v1.1.1-DEV-SNAPSHOT`
+  );
 });
 
 test("add nothing when there is no references", () => {
@@ -27,5 +33,6 @@ test("add nothing when there is no references", () => {
   - CHANGELOG can be parsed by the github action`,
   });
 
-  expect(output.length).toBeLessThan(1);
+  expect(output.text).toEqual(`### Added
+  - CHANGELOG can be parsed by the github action`);
 });

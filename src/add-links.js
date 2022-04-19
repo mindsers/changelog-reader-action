@@ -2,16 +2,20 @@ const core = require("@actions/core");
 
 exports.addLinks = (links) => (entry) => {
   const { text } = entry;
-  const [, ...usedLinks] = /(\[.+\])\[\]/g.exec(text) || [];
+  const linkRegex = /(\[.+\])\[\]/gi;
 
   let tempText = `${text}`;
-  for (const usedLink of usedLinks) {
-    const link = links.find((element) => element.includes(usedLink));
+  while (true) {
+    const results = linkRegex.exec(text);
 
-    tempText = `${tempText}
+    if (results == null) {
+      break;
+    }
 
-    ${link}`;
+    const link = links.find((element) => element.includes(results[1]));
+
+    tempText = tempText + "\n" + link;
   }
 
-  return { ...entry, text: tempText };
+  return { ...entry, text: tempText.trim() };
 };
