@@ -51,7 +51,7 @@ test('validate multiple versions without error', () => {
     { id: '1.0.0', changes: entryDescriptionMajor },
     { id: '1.0.1', changes: entryDescriptionPatch },
     { id: '1.1.0', changes: entryDescriptionMinor },
-    { id: '2.0.0', changes: entryDescriptionMajor }
+    { id: '2.0.0', changes: entryDescriptionMajor },
   ]
   const output = () => input.forEach(validateEntry)
 
@@ -63,43 +63,51 @@ test('throw error on version that is not semantic', () => {
     { id: '1.0.0', changes: entryDescriptionMajor },
     { id: '1.0.1', changes: entryDescriptionPatch },
     { id: 'a.b.c', changes: entryDescriptionMinor },
-    { id: '2.0.0', changes: entryDescriptionMajor }
+    { id: '2.0.0', changes: entryDescriptionMajor },
   ]
   const output = () => input.forEach(validateEntry)
 
-  expect(output).toThrow('a.b.c is not a valid semantic version.')
+  expect(output).toThrow(`a.b.c is not a valid semantic version.`)
 })
 
 test('no listed changes under the heading', () => {
   const input = [{ id: '1.0.0', changes: '### Added\r\n' }]
   const output = () => input.forEach(validateEntry)
 
-  expect(output).toThrow('The \'added\' section under version 1.0.0 does not contain any listed changes under the heading.')
+  expect(output).toThrow(
+    `The 'added' section under version 1.0.0 does not contain any listed changes under the heading.`
+  )
 })
 
 test('added section in patch release should throw error', () => {
   const input = [
     { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.0.1', changes: entryDescriptionMajor }
+    { id: '1.0.1', changes: entryDescriptionMajor },
   ]
   const output = () => input.forEach(validateEntry)
 
-  expect(output).toThrow('The sections \'added, removed, changed\' under version 1.0.1 are not allowed in a patch release type.')
+  expect(output).toThrow(
+    `The sections 'added, removed, changed' under version 1.0.1 are not allowed in a patch release type.`
+  )
 })
 
 test('removed section in minor release should throw error', () => {
   const input = [
     { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.1.0', changes: entryDescriptionMajor }
+    { id: '1.1.0', changes: entryDescriptionMajor },
   ]
   const output = () => input.forEach(validateEntry)
 
-  expect(output).toThrow('The section \'removed\' under version 1.1.0 is not allowed in a minor release type.')
+  expect(output).toThrow(
+    `The section 'removed' under version 1.1.0 is not allowed in a minor release type.`
+  )
 })
 
 test('an unknown section always throws an error', () => {
   const input = [{ id: '1.0.0', changes: '### Bugfixes\r\n' }]
   const output = () => input.forEach(validateEntry)
 
-  expect(output).toThrow('The \'bugfixes\' section under version 1.0.0 does not contain any listed changes under the heading.')
+  expect(output).toThrow(
+    `The 'bugfixes' section under version 1.0.0 does not contain any listed changes under the heading.`
+  )
 })
