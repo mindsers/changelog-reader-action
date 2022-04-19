@@ -87,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `
 
 const linkRegex =
-  /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&'\(\)\*\+,;=.]+$/
+  /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/
 
 test('retreive links from test (tag patern: vX.X.X)', () => {
   const output = getLinks(DATA_v)
