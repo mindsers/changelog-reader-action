@@ -3,7 +3,5 @@ exports.getVersionById = (versions, id) => {
     return versions.find(version => version.id === id)
   }
 
-  return [...versions]
-    .filter(version => !['Unreleased', 'unreleased'].includes(version.id))
-    .shift()
+  return [...versions].filter(version => !['Unreleased', 'unreleased'].includes(version.id)).shift()
 }
