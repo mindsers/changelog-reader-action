@@ -1,4 +1,4 @@
-name: "units-test"
+name: 'units-test'
 on:
   pull_request:
   push:
@@ -11,24 +11,32 @@ jobs:
   unit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - run: npm ci
-    - run: npm test
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - run: npm test
 
   # test action works running from the graph
   e2e:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Run the changelog reader
-      id: changelog_reader
-      uses: ./
-      with:
-        path: ./mocks/svenstaro-site24x7_exporter.md
-    - name: Display output
-      run: |
-        echo "Version: ${{ steps.changelog_reader.outputs.version }}"
-        echo "Date: ${{ steps.changelog_reader.outputs.date }}"
-        echo "Status: ${{ steps.changelog_reader.outputs.status }}"
-        echo "Changes: ${{ steps.changelog_reader.outputs.changes }}"
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: changelog_reader_1
+        uses: ./
+        with:
+          path: ./mocks/mindsers-changelog-reader-action.md
+      - id: changelog_reader_2
+        uses: ./
+        with:
+          path: ./mocks/svenstaro-site24x7_exporter.md
+      - name: Display output
+        run: |
+          echo "Version: ${{ steps.changelog_reader_1.outputs.version }}"
+          echo "Date: ${{ steps.changelog_reader_1.outputs.date }}"
+          echo "Status: ${{ steps.changelog_reader_1.outputs.status }}"
+          echo "Changes: ${{ steps.changelog_reader_1.outputs.changes }}"
+          echo "========================================================"
+          echo "Version: ${{ steps.changelog_reader_2.outputs.version }}"
+          echo "Date: ${{ steps.changelog_reader_2.outputs.date }}"
+          echo "Status: ${{ steps.changelog_reader_2.outputs.status }}"
+          echo "Changes: ${{ steps.changelog_reader_2.outputs.changes }}"
