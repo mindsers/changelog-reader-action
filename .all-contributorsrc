@@ -73,6 +73,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "xt0rted",
+      "name": "Brian Surowiec",
+      "avatar_url": "https://avatars.githubusercontent.com/u/831974?v=4",
+      "profile": "http://onlypans.pizza",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
