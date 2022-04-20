@@ -5,7 +5,7 @@ const core = require('@actions/core')
 const { validateEntry } = require('./validate-entry')
 const { parseEntry } = require('./parse-entry')
 const { getEntries } = require('./get-entries')
-const { getVersionById: getEntryByVersionID } = require('./get-version-by-id')
+const { getEntryByVersionID } = require('./get-entry-by-version-id')
 
 const readFile = utils.promisify(fs.readFile)
 
