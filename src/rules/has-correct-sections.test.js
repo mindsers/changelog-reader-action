@@ -27,7 +27,29 @@ const entryDescriptionMajor = `
 - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.
 `
 
-test('added section in patch release should throw error', () => {
+test('should not throw error', () => {
+  const outputError = () =>
+    hasCorrectSections(
+      [
+        { id: '1.0.0', changes: entryDescriptionMajor },
+        { id: '1.0.1', changes: entryDescriptionMajor },
+      ],
+      1
+    )
+  const output = () =>
+    hasCorrectSections(
+      [
+        { id: '1.0.0', changes: entryDescriptionMajor },
+        { id: '2.0.0', changes: entryDescriptionMajor },
+      ],
+      1
+    )
+
+  expect(output).not.toThrow()
+  expect(outputError).not.toThrow()
+})
+
+test('should return error when added section in patch release', () => {
   const output = hasCorrectSections(
     [
       { id: '1.0.0', changes: entryDescriptionMajor },
@@ -36,10 +58,10 @@ test('added section in patch release should throw error', () => {
     1
   )
 
-  expect(output).toBeTruthy()
+  expect(output['has-correct-sections']).toBeTruthy()
 })
 
-test('removed section in minor release should throw error', () => {
+test('should return error when removed section in minor release should throw error', () => {
   const output = hasCorrectSections(
     [
       { id: '1.0.0', changes: entryDescriptionMajor },

@@ -46,7 +46,7 @@ const entryDescriptionPatch = `
 - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.
 `
 
-test('validate multiple versions without error', () => {
+test('validate multiple versions', () => {
   const input = [
     { id: '1.0.0', changes: entryDescriptionMajor },
     { id: '1.0.1', changes: entryDescriptionPatch },
@@ -58,7 +58,7 @@ test('validate multiple versions without error', () => {
   expect(output).not.toThrow()
 })
 
-test('throw error on version that is not semantic', () => {
+test('throw error on error', () => {
   const input = [
     { id: '1.0.0', changes: entryDescriptionMajor },
     { id: '1.0.1', changes: entryDescriptionPatch },
@@ -70,81 +70,13 @@ test('throw error on version that is not semantic', () => {
   expect(output).toThrow()
 })
 
-test('not throw error on version that is not semantic [warn]', () => {
+test('not throw error on error [warn]', () => {
   const input = [
     { id: '1.0.0', changes: entryDescriptionMajor },
     { id: '1.0.1', changes: entryDescriptionPatch },
     { id: 'a.b.c', changes: entryDescriptionMinor },
     { id: '2.0.0', changes: entryDescriptionMajor },
   ]
-  const output = () => input.forEach(validateEntry('warn'))
-
-  expect(output).not.toThrow()
-})
-
-test('no listed changes under the heading', () => {
-  const input = [{ id: '1.0.0', changes: '### Added\r\n' }]
-  const output = () => input.forEach(validateEntry('error'))
-
-  expect(output).toThrow()
-})
-
-test('not throw error when no listed changes under the heading [warn]', () => {
-  const input = [{ id: '1.0.0', changes: '### Added\r\n' }]
-  const output = () => input.forEach(validateEntry('warn'))
-
-  expect(output).not.toThrow()
-})
-
-test('added section in patch release should throw error', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.0.1', changes: entryDescriptionMajor },
-  ]
-  const output = () => input.forEach(validateEntry('error'))
-
-  expect(output).toThrow()
-})
-
-test('added section in patch release should not throw error [warn]', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.0.1', changes: entryDescriptionMajor },
-  ]
-  const output = () => input.forEach(validateEntry('warn'))
-
-  expect(output).not.toThrow()
-})
-
-test('removed section in minor release should throw error', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.1.0', changes: entryDescriptionMajor },
-  ]
-  const output = () => input.forEach(validateEntry('error'))
-
-  expect(output).toThrow()
-})
-
-test('removed section in minor release should throw not error [warn]', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.1.0', changes: entryDescriptionMajor },
-  ]
-  const output = () => input.forEach(validateEntry('warn'))
-
-  expect(output).not.toThrow()
-})
-
-test('an unknown section always throws an error', () => {
-  const input = [{ id: '1.0.0', changes: '### Bugfixes\r\n' }]
-  const output = () => input.forEach(validateEntry('error'))
-
-  expect(output).toThrow()
-})
-
-test('an unknown section never throws an error [warn]', () => {
-  const input = [{ id: '1.0.0', changes: '### Bugfixes\r\n' }]
   const output = () => input.forEach(validateEntry('warn'))
 
   expect(output).not.toThrow()
