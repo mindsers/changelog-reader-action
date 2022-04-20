@@ -1,4 +1,4 @@
-const { diff } = require('semver')
+const { diff, valid } = require('semver')
 
 const { parseEntryContent } = require('../parse-entry-content')
 
@@ -7,6 +7,10 @@ exports.hasCorrectSections = function (entries, currentIndex) {
   const previousEntry = entries[currentIndex - 1]
 
   if (previousEntry == null) {
+    return {}
+  }
+
+  if (!valid(previousEntry.id) || !valid(currentEntry.id)) {
     return {}
   }
 
