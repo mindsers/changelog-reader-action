@@ -8,44 +8,54 @@ const { isSemVer } = require('./rules/is-semver')
 exports.validateEntry = validationLevel => (entry, index, entries) => {
   if (entry.status == 'unreleased') return // no validation on unreleased versions
 
-  const errors = {
+  const validationResults = {
     ...isSemVer(entry),
     ...hasChronologicalOrder(entries, index),
     ...hasSections(entry),
     ...hasCorrectSections(entries, index),
   }
 
-  const log = validationLevel === 'error' ? core.error : core.warning
+  const errors = Object.keys(validationResults)
+    .filter(key => validationResults[key] != false)
+    .map(key => {
+      if (key === 'is-semver') {
+        return new Error(`${entry.id} is not a valid semantic version.`)
+      }
 
-  if (errors['is-semver']) {
-    log(`${entry.id} is not a valid semantic version.`)
+      if (key === 'has-chronological-order') {
+        const { current, previous } = validationResults[key]
+
+        return new Error(
+          `Changelog versions out of order. Version ${current} cannot come after ${previous}.`
+        )
+      }
+
+      if (key === 'has-section') {
+        const { type, entryID } = validationResults[key]
+
+        return new Error(
+          `The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`
+        )
+      }
+
+      if (key === 'has-correct-sections') {
+        const { entryID, types } = validationResults[key]
+
+        return new Error(
+          `Only '${types.join(', ')}' section${
+            types.length == 1 ? '' : 's'
+          } are allowed for version ${entryID}.`
+        )
+      }
+    })
+
+  const shouldBreakTheBuild = validationLevel === 'error'
+  const log = shouldBreakTheBuild ? core.error : core.warning
+  for (const error of errors) {
+    log(error)
   }
 
-  if (errors['has-chronological-order']) {
-    const { current, previous } = errors['has-chronological-order']
-
-    log(`Changelog versions out of order. Version ${current} cannot come after ${previous}.`)
-  }
-
-  if (errors['has-section']) {
-    const { type, entryID } = errors['has-section']
-
-    log(
-      `The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`
-    )
-  }
-
-  if (errors['has-correct-sections']) {
-    const { entryID, types } = errors['has-correct-sections']
-
-    log(
-      `Only '${types.join(', ')}' section${
-        types.length == 1 ? '' : 's'
-      } are allowed for version ${entryID}.`
-    )
-  }
-
-  if (Object.keys(errors).length > 0 && validationLevel === 'error') {
-    throw new Error(`${entry.id} entry is invalid.`)
+  if (errors.length > 0 && shouldBreakTheBuild) {
+    throw new AggregateError(errors, `${entry.id} entry is invalid.`)
   }
 }
