@@ -18,7 +18,7 @@ inputs:
   validation_depth:
     description: 'Specifies how many entries to validate in the CHANGELOG.md file'
     required: false
-    default: '-1'
+    default: '10'
 outputs:
   version:
     description: 'Version of the log entry found'
