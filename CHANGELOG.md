@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   *This is not a change in the code but a change in how the projet recognize the
   external contributions.*
 
+### Fixed
+- Retrieve links (external to the entry) and add them back in the related entry.
+
 ## [2.0.0] - 2020-08-30
 ### Added
 - New output properties:
