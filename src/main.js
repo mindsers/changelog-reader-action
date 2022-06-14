@@ -29,7 +29,7 @@ exports.main = async function main() {
     const linkList = getLinks(rawData)
     const versions = getEntries(rawData).map(parseEntry).map(addLinks(linkList))
 
-    core.debug(`${entries.length} version logs found`)
+    core.debug(`${versions.length} version logs found`)
     core.endGroup()
 
     // Validate data
@@ -41,7 +41,7 @@ exports.main = async function main() {
     if (validationLevel !== 'none') {
       const validationDepth = parseInt(core.getInput('validation_depth'), 10)
 
-      entries
+      versions
         .filter(version => version.status != 'unreleased')
         .reverse()
         .slice(Math.max(0, releasedVersions.length - validationDepth))
@@ -50,7 +50,7 @@ exports.main = async function main() {
     core.endGroup()
 
     // Return data
-    const entry = getEntryByVersionID(entries, targetVersion)
+    const entry = getEntryByVersionID(versions, targetVersion)
 
     if (entry == null) {
       throw new Error(
