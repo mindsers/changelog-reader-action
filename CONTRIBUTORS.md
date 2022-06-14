@@ -17,6 +17,9 @@ Thanks goes to these wonderful people
     <td align="center"><a href="https://alexesprit.com"><img src="https://avatars1.githubusercontent.com/u/1119267?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alexey</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=alexesprit" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/farfromrefug"><img src="https://avatars.githubusercontent.com/u/655344?v=4?s=100" width="100px;" alt=""/><br /><sub><b>farfromrefuge</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=farfromrefug" title="Code">💻</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="http://onlypans.pizza"><img src="https://avatars.githubusercontent.com/u/831974?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brian Surowiec</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3Axt0rted" title="Bug reports">🐛</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->

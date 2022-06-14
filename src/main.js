@@ -6,6 +6,8 @@ const { validateEntry } = require('./validate-entry')
 const { parseEntry } = require('./parse-entry')
 const { getEntries } = require('./get-entries')
 const { getEntryByVersionID } = require('./get-entry-by-version-id')
+const { getLinks } = require('./get-links')
+const { addLinks } = require('./add-links')
 
 const readFile = utils.promisify(fs.readFile)
 
@@ -24,7 +26,8 @@ exports.main = async function main() {
     // Parse data
     core.startGroup('Parse data')
     const rawData = await readFile(changelogPath)
-    const entries = getEntries(rawData).map(parseEntry)
+    const linkList = getLinks(rawData)
+    const versions = getEntries(rawData).map(parseEntry).map(addLinks(linkList))
 
     core.debug(`${entries.length} version logs found`)
     core.endGroup()
