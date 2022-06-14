@@ -1,72 +1,61 @@
-const { diff, lt, valid } = require('semver')
-const known = []
+const core = require('@actions/core')
 
-exports.validateEntry = (entry, idx) => {
+const { hasChronologicalOrder } = require('./rules/has-chronological-order')
+const { hasCorrectSections } = require('./rules/has-correct-sections')
+const { hasSections } = require('./rules/has-sections')
+const { isSemVer } = require('./rules/is-semver')
+
+exports.validateEntry = validationLevel => (entry, index, entries) => {
   if (entry.status == 'unreleased') return // no validation on unreleased versions
-  if (!valid(entry.id)) {
-    // Validate verion is semantically correct
-    throw new Error(`${entry.id} is not a valid semantic version.`)
+
+  const validationResults = {
+    ...isSemVer(entry),
+    ...hasChronologicalOrder(entries, index),
+    ...hasSections(entry),
+    ...hasCorrectSections(entries, index),
   }
 
-  if (known[idx]) known.length = 0 // reset known -- used by tests to reset value
-  const lastVersion = known.length ? known[known.length - 1] : null
-  known.push(entry.id)
+  const errors = Object.keys(validationResults)
+    .filter(key => validationResults[key] != false)
+    .map(key => {
+      if (key === 'is-semver') {
+        return new Error(`${entry.id} is not a valid semantic version.`)
+      }
 
-  if (lastVersion && !lt(lastVersion, entry.id)) {
-    // Validate versions appear in reverse chronological order
-    throw new Error(
-      `Changelog versions out of order. Version ${entry.id} cannot come after ${lastVersion}.`
-    )
-  }
+      if (key === 'has-chronological-order') {
+        const { current, previous } = validationResults[key]
 
-  const changes = (entry.changes || entry.text) // backwards compatible
-    .split(/^###\s*/gm)
-    .filter(content => content.replace(/\s+/g, '') != '')
-    .map(content => {
-      const [type, ...items] = content.trim().split(/\r*\n/)
-      return { type: type.toLowerCase().trim(), items }
+        return new Error(
+          `Changelog versions out of order. Version ${current} cannot come after ${previous}.`
+        )
+      }
+
+      if (key === 'has-section') {
+        const { type, entryID } = validationResults[key]
+
+        return new Error(
+          `The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`
+        )
+      }
+
+      if (key === 'has-correct-sections') {
+        const { entryID, types } = validationResults[key]
+
+        return new Error(
+          `Only '${types.join(', ')}' section${
+            types.length == 1 ? '' : 's'
+          } are allowed for version ${entryID}.`
+        )
+      }
     })
 
-  changes.forEach(change => {
-    if (!change.items.length) {
-      // Validate that there are changes listed under each section
-      throw new Error(
-        `The '${change.type}' section under version ${entry.id} does not contain any listed changes under the heading.`
-      )
-    }
-  })
-
-  if (!lastVersion) return // No further validation needed because there is no previous version to compare against
-
-  const versionDiff = diff(lastVersion, entry.id)
-  const allowedTypes = []
-  switch (versionDiff) {
-    case 'prerelease':
-    case 'prepatch':
-    case 'patch':
-      allowedTypes.push('fixed', 'security')
-      break
-    case 'minor':
-    case 'preminor':
-      allowedTypes.push('added', 'changed', 'deprecated', 'fixed', 'security')
-      break
-    default:
-      allowedTypes.push('added', 'removed', 'changed', 'deprecated', 'fixed', 'security')
-      break
+  const shouldBreakTheBuild = validationLevel === 'error'
+  const log = shouldBreakTheBuild ? core.error : core.warning
+  for (const error of errors) {
+    log(error)
   }
-  if (allowedTypes.length) {
-    const disallowedTypes = changes
-      .map(change => change.type)
-      .filter(type => allowedTypes.indexOf(type) === -1)
-    if (disallowedTypes.length) {
-      // Validates that only certain allowed types are in the change set
-      throw new Error(
-        `The section${disallowedTypes.length == 1 ? '' : 's'} '${disallowedTypes.join(
-          ', '
-        )}' under version ${entry.id} ${
-          disallowedTypes.length == 1 ? 'is' : 'are'
-        } not allowed in a ${versionDiff} release type.`
-      )
-    }
+
+  if (errors.length > 0 && shouldBreakTheBuild) {
+    throw new AggregateError(errors, `${entry.id} entry is invalid.`)
   }
 }
