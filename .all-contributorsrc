@@ -82,6 +82,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "danilogco",
+      "name": "Danilo Carolino",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3433530?v=4",
+      "profile": "https://github.com/danilogco",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
