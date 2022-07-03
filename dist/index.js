@@ -48,7 +48,7 @@ module.exports =
 
 const core = __webpack_require__(470)
 
-const versionSeparator = /\n#{1,3}\s/
+const versionSeparator = '\n## '
 const semverLinkRegex =
   /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
 const unreleasedLinkRegex = /^\[unreleased\]/i
@@ -118,9 +118,8 @@ exports.main = async function main() {
 
     if (validationLevel !== 'none') {
       const validationDepth = parseInt(core.getInput('validation_depth'), 10)
-
-      versions
-        .filter(version => version.status != 'unreleased')
+      const releasedVersions = versions.filter(version => version.status != 'unreleased')
+      releasedVersions
         .reverse()
         .slice(Math.max(0, releasedVersions.length - validationDepth))
         .forEach(validateEntry(validationLevel))

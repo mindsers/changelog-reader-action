@@ -40,9 +40,8 @@ exports.main = async function main() {
 
     if (validationLevel !== 'none') {
       const validationDepth = parseInt(core.getInput('validation_depth'), 10)
-
-      versions
-        .filter(version => version.status != 'unreleased')
+      const releasedVersions = versions.filter(version => version.status != 'unreleased')
+      releasedVersions
         .reverse()
         .slice(Math.max(0, releasedVersions.length - validationDepth))
         .forEach(validateEntry(validationLevel))
