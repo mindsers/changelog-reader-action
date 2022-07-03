@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The action was returning empty data since the last version. Now correctly returns selected entries data.
+
 ## [2.1.0] - 2022-06-14
 
 ### Added
