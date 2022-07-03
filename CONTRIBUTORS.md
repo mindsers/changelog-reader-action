@@ -19,6 +19,7 @@ Thanks goes to these wonderful people
   </tr>
   <tr>
     <td align="center"><a href="http://onlypans.pizza"><img src="https://avatars.githubusercontent.com/u/831974?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brian Surowiec</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3Axt0rted" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/danilogco"><img src="https://avatars.githubusercontent.com/u/3433530?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Danilo Carolino</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=danilogco" title="Code">💻</a></td>
   </tr>
 </table>
 
