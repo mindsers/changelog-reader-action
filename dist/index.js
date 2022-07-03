@@ -118,11 +118,10 @@ exports.main = async function main() {
 
     if (validationLevel !== 'none') {
       const validationDepth = parseInt(core.getInput('validation_depth'), 10)
-
-      versions
-        .filter(version => version.status != 'unreleased')
+      const releasedVersions = versions.filter(version => version.status != 'unreleased')
+      releasedVersions
         .reverse()
-        .slice(Math.max(0, versions.length - validationDepth))
+        .slice(Math.max(0, releasedVersions.length - validationDepth))
         .forEach(validateEntry(validationLevel))
     }
     core.endGroup()
@@ -4604,8 +4603,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n
-        Error Code : ${error.statusCode}\n
+                throw new Error(`Failed to get ID Token. \n 
+        Error Code : ${error.statusCode}\n 
         Error Message: ${error.result.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
