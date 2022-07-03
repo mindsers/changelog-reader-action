@@ -48,7 +48,7 @@ module.exports =
 
 const core = __webpack_require__(470)
 
-const versionSeparator = /\n#{1,3}\s/
+const versionSeparator = '\n## '
 const semverLinkRegex =
   /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
 const unreleasedLinkRegex = /^\[unreleased\]/i
@@ -122,7 +122,7 @@ exports.main = async function main() {
       versions
         .filter(version => version.status != 'unreleased')
         .reverse()
-        .slice(Math.max(0, releasedVersions.length - validationDepth))
+        .slice(Math.max(0, versions.length - validationDepth))
         .forEach(validateEntry(validationLevel))
     }
     core.endGroup()
@@ -4604,8 +4604,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n 
-        Error Code : ${error.statusCode}\n 
+                throw new Error(`Failed to get ID Token. \n
+        Error Code : ${error.statusCode}\n
         Error Message: ${error.result.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
