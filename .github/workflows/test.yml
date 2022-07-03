@@ -31,4 +31,5 @@ jobs:
           echo "Status: ${{ steps.changelog_reader.outputs.status }}"
           echo "Changes: ${{ steps.changelog_reader.outputs.changes }}"
       - name: Check output
-        run: test ${{ steps.changelog_reader.outputs.changes }} != ""
+        run: |
+          test "Changes: ${{ steps.changelog_reader.outputs.changes }}" != ""
