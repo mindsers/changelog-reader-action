@@ -16,6 +16,7 @@ exports.main = async function main() {
     const changelogPath = core.getInput('path') || './CHANGELOG.md'
     const targetVersion = core.getInput('version') || null
     const validationLevel = core.getInput('validation_level') || 'none'
+    const validateAllowedSections = core.getInput('validate_allowed_sections') || 'true'
 
     if (targetVersion == null) {
       core.warning(
@@ -44,7 +45,7 @@ exports.main = async function main() {
       releasedVersions
         .reverse()
         .slice(Math.max(0, releasedVersions.length - validationDepth))
-        .forEach(validateEntry(validationLevel))
+        .forEach(validateEntry(validationLevel, validateAllowedSections))
     }
     core.endGroup()
 

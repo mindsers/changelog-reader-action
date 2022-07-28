@@ -5,14 +5,14 @@ const { hasCorrectSections } = require('./rules/has-correct-sections')
 const { hasSections } = require('./rules/has-sections')
 const { isSemVer } = require('./rules/is-semver')
 
-exports.validateEntry = validationLevel => (entry, index, entries) => {
+exports.validateEntry = (validationLevel, validateAllowedSections) => (entry, index, entries) => {
   if (entry.status == 'unreleased') return // no validation on unreleased versions
 
   const validationResults = {
     ...isSemVer(entry),
     ...hasChronologicalOrder(entries, index),
     ...hasSections(entry),
-    ...hasCorrectSections(entries, index),
+    ...(validateAllowedSections === 'true' ? hasCorrectSections(entries, index) : {}),
   }
 
   const errors = Object.keys(validationResults)

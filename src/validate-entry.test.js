@@ -53,7 +53,7 @@ test('validate multiple versions', () => {
     { id: '1.1.0', changes: entryDescriptionMinor },
     { id: '2.0.0', changes: entryDescriptionMajor },
   ]
-  const output = () => input.forEach(validateEntry('error'))
+  const output = () => input.forEach(validateEntry('error', 'true'))
 
   expect(output).not.toThrow()
 })
@@ -65,7 +65,7 @@ test('throw error on error', () => {
     { id: 'a.b.c', changes: entryDescriptionMinor },
     { id: '2.0.0', changes: entryDescriptionMajor },
   ]
-  const output = () => input.forEach(validateEntry('error'))
+  const output = () => input.forEach(validateEntry('error', 'true'))
 
   expect(output).toThrow()
 })
@@ -77,7 +77,63 @@ test('not throw error on error [warn]', () => {
     { id: 'a.b.c', changes: entryDescriptionMinor },
     { id: '2.0.0', changes: entryDescriptionMajor },
   ]
-  const output = () => input.forEach(validateEntry('warn'))
+  const output = () => input.forEach(validateEntry('warn', 'true'))
+
+  expect(output).not.toThrow()
+})
+
+test('validate multiple versions', () => {
+  const input = [
+    { id: '1.0.0', changes: entryDescriptionMajor },
+    { id: '1.0.1', changes: entryDescriptionPatch },
+    { id: '1.1.0', changes: entryDescriptionMinor },
+    { id: '2.0.0', changes: entryDescriptionMajor },
+  ]
+  const output = () => input.forEach(validateEntry('error', null))
+
+  expect(output).not.toThrow()
+})
+
+test('throw error on error', () => {
+  const input = [
+    { id: '1.0.0', changes: entryDescriptionMajor },
+    { id: '1.0.1', changes: entryDescriptionPatch },
+    { id: 'a.b.c', changes: entryDescriptionMinor },
+    { id: '2.0.0', changes: entryDescriptionMajor },
+  ]
+  const output = () => input.forEach(validateEntry('error', null))
+
+  expect(output).toThrow()
+})
+
+test('not throw error on error [warn]', () => {
+  const input = [
+    { id: '1.0.0', changes: entryDescriptionMajor },
+    { id: '1.0.1', changes: entryDescriptionPatch },
+    { id: 'a.b.c', changes: entryDescriptionMinor },
+    { id: '2.0.0', changes: entryDescriptionMajor },
+  ]
+  const output = () => input.forEach(validateEntry('warn', null))
+
+  expect(output).not.toThrow()
+})
+
+test('throw error on allowed sections error', () => {
+  const input = [
+    { id: '1.0.0-beta.0', changes: entryDescriptionMajor },
+    { id: '1.0.0-beta.1', changes: entryDescriptionMajor },
+  ]
+  const output = () => input.forEach(validateEntry('error', 'true'))
+
+  expect(output).toThrow()
+})
+
+test('not throw error on allowed sections validation disabled', () => {
+  const input = [
+    { id: '1.0.0-beta.0', changes: entryDescriptionMajor },
+    { id: '1.0.0-beta.1', changes: entryDescriptionMajor },
+  ]
+  const output = () => input.forEach(validateEntry('error', null))
 
   expect(output).not.toThrow()
 })
