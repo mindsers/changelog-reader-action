@@ -36,13 +36,14 @@ function getAllowedTypes(v1, v2) {
   const versionDiff = diff(v1, v2)
 
   switch (versionDiff) {
-    case 'prerelease':
     case 'prepatch':
     case 'patch':
       return ['fixed', 'security']
     case 'minor':
     case 'preminor':
       return ['added', 'changed', 'deprecated', 'fixed', 'security']
+    case 'premajor':
+    case 'major':
     default:
       return ['added', 'removed', 'changed', 'deprecated', 'fixed', 'security']
   }
