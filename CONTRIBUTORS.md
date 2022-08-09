@@ -20,6 +20,7 @@ Thanks goes to these wonderful people
   <tr>
     <td align="center"><a href="http://onlypans.pizza"><img src="https://avatars.githubusercontent.com/u/831974?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brian Surowiec</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3Axt0rted" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/danilogco"><img src="https://avatars.githubusercontent.com/u/3433530?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Danilo Carolino</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=danilogco" title="Code">💻</a> <a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3Adanilogco" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/SwabianCoder"><img src="https://avatars.githubusercontent.com/u/43047586?v=4?s=100" width="100px;" alt=""/><br /><sub><b>SwabianCoder</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3ASwabianCoder" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
