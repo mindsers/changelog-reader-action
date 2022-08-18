@@ -23,7 +23,7 @@
     "test": "npm run lint && jest"
   },
   "dependencies": {
-    "@actions/core": "^1.8.2"
+    "@actions/core": "^1.9.1"
   },
   "devDependencies": {
     "@types/jest": "^28.1.1",
