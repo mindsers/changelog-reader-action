@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2022-09-01
+
 ### Changed
 
 - Allow more section types into prerelease versions. #67
+
+### Fixed
+
+- Change the links' syntax to make them correctly recognized by GitHub.
 
 ## [2.1.1] - 2022-07-03
 
@@ -108,7 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CHANGELOG can be parsed by the github action
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.1.1...HEAD
+[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/mindsers/changelog-reader-action/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/mindsers/changelog-reader-action/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/mindsers/changelog-reader-action/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/mindsers/changelog-reader-action/compare/v1.3.1...v2.0.0
