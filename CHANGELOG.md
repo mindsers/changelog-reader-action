@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.2] - 2022-11-23
+
+### Fixed
+
+- Upgrade dependencies to solve deprecation issues.
+
 ## [2.2.1] - 2022-11-10
 
 ### Fixed
 
 - Change node engine for a non-deprecated version.
-- Upgrade dependencies to solve deprecation issues.
 
 ## [2.2.0] - 2022-09-01
 
@@ -121,7 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CHANGELOG can be parsed by the github action
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.2.1...HEAD
+[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.2.2...HEAD
+[2.2.2]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/mindsers/changelog-reader-action/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/mindsers/changelog-reader-action/compare/v2.1.0...v2.1.1
