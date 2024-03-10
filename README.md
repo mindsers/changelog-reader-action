@@ -17,7 +17,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 - `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
 - `version`: The [exact version](https://semver.org) of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 - `validation_level`: Specifies at which level the validation system is set. Can be 'none', 'warn', 'error'. Optional. Defaults to `none`.
-- `validation_depth`: Specifies how many entries to validate in the CHANGELOG.md file. Optional. Defaults to `0`.
+- `validation_depth`: Specifies how many entries to validate in the CHANGELOG.md file. Optional. Defaults to `10`.
 
 ### Outputs
 
