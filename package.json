@@ -19,7 +19,7 @@
   },
   "scripts": {
     "lint": "eslint src/**/*.js",
-    "package": "ncc build index.js -o dist",
+    "package": "NODE_OPTIONS=--openssl-legacy-provider ncc build index.js -o dist",
     "test": "npm run lint && jest"
   },
   "dependencies": {
