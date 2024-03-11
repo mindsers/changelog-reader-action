@@ -110,11 +110,22 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "mrks115",
+      "name": "Markus Brüx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3636209?v=4",
+      "profile": "https://github.com/mrks115",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
   "projectOwner": "mindsers",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "commitType": "docs",
+  "commitConvention": "angular"
 }
