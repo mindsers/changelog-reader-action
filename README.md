@@ -28,9 +28,9 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 ### Validation / Linting
 
-A validation engine is available in _Changelog Reader_. It is by default disabled but can be enabled by setting `validation_level` at 'warn' or 'error'.
+A validation engine is available in _Changelog Reader_. It is by default disabled but can be enabled by setting `validation_level` to 'warn' or 'error'.
 
-The validation engine will enforce [Semantic Versioning 2.0.0](https://semver.org/) standards as well as [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) standards and formatting. **If your project doesn't follow Semantic Versioning 2.0.0 or Keep a Changelog, do not enable the validation engine.** It might your build unnecessarily.
+The validation engine will enforce [Semantic Versioning 2.0.0](https://semver.org/) standards as well as [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) standards and formatting. **If your project doesn't follow Semantic Versioning 2.0.0 or Keep a Changelog, do not enable the validation engine.** It might break your build unnecessarily.
 
 You can utilize the `validation_depth` input param to specify how many entries to validate. Changelog Reader will by default validates only the last 10 changelog entries.
 
