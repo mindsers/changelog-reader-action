@@ -128,6 +128,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "stronk7",
+      "name": "Eloy Lafuente",
+      "avatar_url": "https://avatars.githubusercontent.com/u/167147?v=4",
+      "profile": "https://github.com/stronk7",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",
