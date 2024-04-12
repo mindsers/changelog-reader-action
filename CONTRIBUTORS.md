@@ -25,6 +25,7 @@ Thanks goes to these wonderful people
       <td align="center" valign="top" width="14.28%"><a href="http://jon-whit.me"><img src="https://avatars.githubusercontent.com/u/2899204?v=4?s=100" width="100px;" alt="Jonathan Whitaker"/><br /><sub><b>Jonathan Whitaker</b></sub></a><br /><a href="#ideas-jon-whit" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mrks115"><img src="https://avatars.githubusercontent.com/u/3636209?v=4?s=100" width="100px;" alt="Markus Brüx"/><br /><sub><b>Markus Brüx</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=mrks115" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/guihkx"><img src="https://avatars.githubusercontent.com/u/626206?v=4?s=100" width="100px;" alt="Guilherme Silva"/><br /><sub><b>Guilherme Silva</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3Aguihkx" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/stronk7"><img src="https://avatars.githubusercontent.com/u/167147?v=4?s=100" width="100px;" alt="Eloy Lafuente"/><br /><sub><b>Eloy Lafuente</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=stronk7" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
