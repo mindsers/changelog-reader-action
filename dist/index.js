@@ -144,14 +144,25 @@ const { getEntries } = __webpack_require__(7)
 const { getEntryByVersionID } = __webpack_require__(636)
 const { getLinks } = __webpack_require__(666)
 const { addLinks } = __webpack_require__(101)
+const { getConfig } = __webpack_require__(228)
 
 const readFile = utils.promisify(fs.readFile)
 
 exports.main = async function main() {
   try {
-    const changelogPath = core.getInput('path') || './CHANGELOG.md'
-    const targetVersion = core.getInput('version') || null
-    const validationLevel = core.getInput('validation_level') || 'none'
+    // Load configuration from file (if available)
+    const configFilePath = core.getInput('config_file') || null
+    const fileConfig = getConfig(configFilePath)
+
+    if (Object.keys(fileConfig).length > 0) {
+      core.info(`Configuration loaded from file`)
+      core.debug(`File configuration: ${JSON.stringify(fileConfig)}`)
+    }
+
+    // Merge configuration: action inputs take precedence over file config
+    const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md'
+    const targetVersion = core.getInput('version') || fileConfig.version || null
+    const validationLevel = core.getInput('validation_level') || fileConfig.validation_level || 'none'
 
     if (targetVersion == null) {
       core.warning(
@@ -175,7 +186,8 @@ exports.main = async function main() {
     }
 
     if (validationLevel !== 'none') {
-      const validationDepth = parseInt(core.getInput('validation_depth'), 10)
+      const validationDepthInput = core.getInput('validation_depth')
+      const validationDepth = parseInt(validationDepthInput || fileConfig.validation_depth || '10', 10)
       const releasedVersions = versions.filter(version => version.status != 'unreleased')
       releasedVersions
         .reverse()
@@ -2085,6 +2097,116 @@ const toComparators = (range, options) =>
     .map(comp => comp.map(c => c.value).join(' ').trim().split(' '))
 
 module.exports = toComparators
+
+
+/***/ }),
+
+/***/ 228:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+const fs = __webpack_require__(747)
+const path = __webpack_require__(622)
+
+const CONFIG_FILE_NAMES = [
+  '.changelog-reader.json',
+  '.changelog-reader.yml',
+  '.changelog-reader.yaml',
+  '.changelogrc',
+  '.changelogrc.json',
+]
+
+/**
+ * Loads configuration from a file
+ * @param {string|null} configPath - Optional explicit path to config file
+ * @returns {Object} - Configuration object with properties: path, validation_level, validation_depth
+ */
+exports.getConfig = function getConfig(configPath = null) {
+  // If explicit path is provided, try to load from that path
+  if (configPath) {
+    return loadConfigFromPath(configPath)
+  }
+
+  // Otherwise, search for config files in the current directory
+  for (const fileName of CONFIG_FILE_NAMES) {
+    const filePath = path.resolve(process.cwd(), fileName)
+    if (fs.existsSync(filePath)) {
+      return loadConfigFromPath(filePath)
+    }
+  }
+
+  // Return empty config if no config file found
+  return {}
+}
+
+/**
+ * Load configuration from a specific path
+ * @param {string} configPath - Path to the config file
+ * @returns {Object} - Configuration object
+ */
+function loadConfigFromPath(configPath) {
+  const resolvedPath = path.resolve(process.cwd(), configPath)
+
+  if (!fs.existsSync(resolvedPath)) {
+    // Return empty config if file doesn't exist
+    return {}
+  }
+
+  const content = fs.readFileSync(resolvedPath, 'utf8')
+  const ext = path.extname(resolvedPath).toLowerCase()
+
+  if (ext === '.yml' || ext === '.yaml') {
+    return parseYaml(content)
+  }
+
+  // Default to JSON parsing
+  return JSON.parse(content)
+}
+
+/**
+ * Simple YAML parser for basic key-value pairs
+ * @param {string} content - YAML content
+ * @returns {Object} - Parsed configuration object
+ */
+function parseYaml(content) {
+  const config = {}
+  const lines = content.split('\n')
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    // Skip empty lines and comments
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue
+    }
+
+    // Parse key-value pairs
+    const colonIndex = trimmed.indexOf(':')
+    if (colonIndex === -1) {
+      continue
+    }
+
+    const key = trimmed.substring(0, colonIndex).trim()
+    let value = trimmed.substring(colonIndex + 1).trim()
+
+    // Remove quotes if present
+    if ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
+    }
+
+    // Convert to appropriate type
+    if (value === 'true') {
+      config[key] = true
+    } else if (value === 'false') {
+      config[key] = false
+    } else if (!isNaN(value) && value !== '') {
+      config[key] = parseInt(value, 10)
+    } else {
+      config[key] = value
+    }
+  }
+
+  return config
+}
 
 
 /***/ }),

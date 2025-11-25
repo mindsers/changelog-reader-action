@@ -8,14 +8,25 @@ const { getEntries } = require('./get-entries')
 const { getEntryByVersionID } = require('./get-entry-by-version-id')
 const { getLinks } = require('./get-links')
 const { addLinks } = require('./add-links')
+const { getConfig } = require('./get-config')
 
 const readFile = utils.promisify(fs.readFile)
 
 exports.main = async function main() {
   try {
-    const changelogPath = core.getInput('path') || './CHANGELOG.md'
-    const targetVersion = core.getInput('version') || null
-    const validationLevel = core.getInput('validation_level') || 'none'
+    // Load configuration from file (if available)
+    const configFilePath = core.getInput('config_file') || null
+    const fileConfig = getConfig(configFilePath)
+
+    if (Object.keys(fileConfig).length > 0) {
+      core.info(`Configuration loaded from file`)
+      core.debug(`File configuration: ${JSON.stringify(fileConfig)}`)
+    }
+
+    // Merge configuration: action inputs take precedence over file config
+    const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md'
+    const targetVersion = core.getInput('version') || fileConfig.version || null
+    const validationLevel = core.getInput('validation_level') || fileConfig.validation_level || 'none'
 
     if (targetVersion == null) {
       core.warning(
@@ -39,7 +50,8 @@ exports.main = async function main() {
     }
 
     if (validationLevel !== 'none') {
-      const validationDepth = parseInt(core.getInput('validation_depth'), 10)
+      const validationDepthInput = core.getInput('validation_depth')
+      const validationDepth = parseInt(validationDepthInput || fileConfig.validation_depth || '10', 10)
       const releasedVersions = versions.filter(version => version.status != 'unreleased')
       releasedVersions
         .reverse()
