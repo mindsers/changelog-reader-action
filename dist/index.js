@@ -2198,7 +2198,8 @@ function parseYaml(content) {
       config[key] = true
     } else if (value === 'false') {
       config[key] = false
-    } else if (!isNaN(value) && value !== '') {
+    } else if (/^-?\d+$/.test(value)) {
+      // Only convert strict integers (no decimals, no mixed alphanumeric)
       config[key] = parseInt(value, 10)
     } else {
       config[key] = value

@@ -166,4 +166,31 @@ validation_level: warn # inline comments are not supported
     // Note: inline comments are treated as part of the value
     expect(config.validation_level).toEqual('warn # inline comments are not supported')
   })
+
+  test('handles numeric edge cases correctly', () => {
+    const configContent = `
+integer_value: 42
+negative_value: -10
+decimal_value: 3.14
+mixed_alphanumeric: 123abc
+version_string: 1.2.3
+empty_value:
+`
+
+    fs.existsSync.mockReturnValue(true)
+    fs.readFileSync.mockReturnValue(configContent)
+
+    const config = getConfig('.changelog-reader.yml')
+
+    expect(config.integer_value).toEqual(42)
+    expect(config.negative_value).toEqual(-10)
+    // Decimal values should remain as strings since we only convert integers
+    expect(config.decimal_value).toEqual('3.14')
+    // Mixed alphanumeric should remain as strings
+    expect(config.mixed_alphanumeric).toEqual('123abc')
+    // Version strings should remain as strings
+    expect(config.version_string).toEqual('1.2.3')
+    // Empty values should be empty strings
+    expect(config.empty_value).toEqual('')
+  })
 })
