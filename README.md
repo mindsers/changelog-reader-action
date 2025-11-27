@@ -14,6 +14,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 ### Inputs
 
+- `config_file`: Path to a configuration file. If not specified, will look for `.changelog-reader.json`, `.changelog-reader.yml`, `.changelog-reader.yaml`, `.changelogrc`, or `.changelogrc.json` in the repository root. Optional.
 - `path`: The path the action can find the CHANGELOG. Optional. Defaults to `./CHANGELOG.md`.
 - `version`: The [exact version](https://semver.org) of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 - `validation_level`: Specifies at which level the validation system is set. Can be 'none', 'warn', 'error'. Optional. Defaults to `none`.
@@ -36,6 +37,40 @@ You can utilize the `validation_depth` input param to specify how many entries t
 
 When `validation_level` is set at 'warn', Changelog Reader will print check results as warnings in your logs without breaking your build.
 When `validation_level` is set at 'error', Changelog Reader will print check results as errors in your logs and will throw an error to prevent the build to go further.
+
+### Configuration File
+
+Instead of specifying options in your workflow file, you can use a configuration file in your repository. This makes your configuration versionable and shareable across different workflows.
+
+The action will automatically look for these configuration files in your repository root (in order of priority):
+
+1. `.changelog-reader.json`
+2. `.changelog-reader.yml`
+3. `.changelog-reader.yaml`
+4. `.changelogrc`
+5. `.changelogrc.json`
+
+Alternatively, you can specify a custom path using the `config_file` input.
+
+**Example `.changelog-reader.json`:**
+
+```json
+{
+  "path": "./CHANGELOG.md",
+  "validation_level": "warn",
+  "validation_depth": 10
+}
+```
+
+**Example `.changelog-reader.yml`:**
+
+```yaml
+path: ./CHANGELOG.md
+validation_level: warn
+validation_depth: 10
+```
+
+**Note:** Action inputs take precedence over configuration file values. This allows you to override specific settings in your workflow while keeping defaults in the configuration file.
 
 ### Example workflow - create a release from changelog
 

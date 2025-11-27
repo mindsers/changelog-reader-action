@@ -4,6 +4,9 @@ branding:
   icon: 'align-right'
   color: 'gray-dark'
 inputs:
+  config_file:
+    description: 'Path to a configuration file. If not specified, will look for .changelog-reader.json, .changelog-reader.yml, .changelog-reader.yaml, .changelogrc, or .changelogrc.json in the repository root'
+    required: false
   path:
     description: 'Path to the CHANGELOG file containing the log entries'
     required: false
