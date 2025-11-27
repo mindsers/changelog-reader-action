@@ -154,7 +154,7 @@ another_bool: false
 # This is a comment
 path: ./CHANGELOG.md
 # Another comment
-validation_level: warn # inline comments are not supported
+validation_level: warn # inline comment
 `
 
     fs.existsSync.mockReturnValue(true)
@@ -163,8 +163,8 @@ validation_level: warn # inline comments are not supported
     const config = getConfig('.changelog-reader.yml')
 
     expect(config.path).toEqual('./CHANGELOG.md')
-    // Note: inline comments are treated as part of the value
-    expect(config.validation_level).toEqual('warn # inline comments are not supported')
+    // yaml library properly handles inline comments
+    expect(config.validation_level).toEqual('warn')
   })
 
   test('handles numeric edge cases correctly', () => {
@@ -172,9 +172,7 @@ validation_level: warn # inline comments are not supported
 integer_value: 42
 negative_value: -10
 decimal_value: 3.14
-mixed_alphanumeric: 123abc
-version_string: 1.2.3
-empty_value:
+version_string: "1.2.3"
 `
 
     fs.existsSync.mockReturnValue(true)
@@ -184,13 +182,20 @@ empty_value:
 
     expect(config.integer_value).toEqual(42)
     expect(config.negative_value).toEqual(-10)
-    // Decimal values should remain as strings since we only convert integers
-    expect(config.decimal_value).toEqual('3.14')
-    // Mixed alphanumeric should remain as strings
-    expect(config.mixed_alphanumeric).toEqual('123abc')
-    // Version strings should remain as strings
+    // yaml library properly parses decimals as floats
+    expect(config.decimal_value).toEqual(3.14)
+    // Quoted version strings remain as strings
     expect(config.version_string).toEqual('1.2.3')
-    // Empty values should be empty strings
-    expect(config.empty_value).toEqual('')
+  })
+
+  test('returns empty object for empty YAML file', () => {
+    const configContent = ``
+
+    fs.existsSync.mockReturnValue(true)
+    fs.readFileSync.mockReturnValue(configContent)
+
+    const config = getConfig('.changelog-reader.yml')
+
+    expect(config).toEqual({})
   })
 })

@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const yaml = require('yaml')
 
 const CONFIG_FILE_NAMES = [
   '.changelog-reader.json',
@@ -49,56 +50,9 @@ function loadConfigFromPath(configPath) {
   const ext = path.extname(resolvedPath).toLowerCase()
 
   if (ext === '.yml' || ext === '.yaml') {
-    return parseYaml(content)
+    return yaml.parse(content) || {}
   }
 
   // Default to JSON parsing
   return JSON.parse(content)
-}
-
-/**
- * Simple YAML parser for basic key-value pairs
- * @param {string} content - YAML content
- * @returns {Object} - Parsed configuration object
- */
-function parseYaml(content) {
-  const config = {}
-  const lines = content.split('\n')
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    // Skip empty lines and comments
-    if (!trimmed || trimmed.startsWith('#')) {
-      continue
-    }
-
-    // Parse key-value pairs
-    const colonIndex = trimmed.indexOf(':')
-    if (colonIndex === -1) {
-      continue
-    }
-
-    const key = trimmed.substring(0, colonIndex).trim()
-    let value = trimmed.substring(colonIndex + 1).trim()
-
-    // Remove quotes if present
-    if ((value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1)
-    }
-
-    // Convert to appropriate type
-    if (value === 'true') {
-      config[key] = true
-    } else if (value === 'false') {
-      config[key] = false
-    } else if (/^-?\d+$/.test(value)) {
-      // Only convert strict integers (no decimals, no mixed alphanumeric)
-      config[key] = parseInt(value, 10)
-    } else {
-      config[key] = value
-    }
-  }
-
-  return config
 }
