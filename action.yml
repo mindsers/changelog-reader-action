@@ -32,5 +32,5 @@ outputs:
   changes:
     description: 'Description text of the log entry found'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
