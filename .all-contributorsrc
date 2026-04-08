@@ -90,7 +90,8 @@
       "profile": "https://github.com/danilogco",
       "contributions": [
         "code",
-        "bug"
+        "bug",
+        "infra"
       ]
     }
   ],
@@ -98,5 +99,7 @@
   "projectOwner": "mindsers",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "commitType": "docs",
+  "commitConvention": "angular"
 }
