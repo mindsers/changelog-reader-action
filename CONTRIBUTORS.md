@@ -27,6 +27,9 @@ Thanks goes to these wonderful people
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/guihkx"><img src="https://avatars.githubusercontent.com/u/626206?v=4?s=100" width="100px;" alt="Guilherme Silva"/><br /><sub><b>Guilherme Silva</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/issues?q=author%3Aguihkx" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/stronk7"><img src="https://avatars.githubusercontent.com/u/167147?v=4?s=100" width="100px;" alt="Eloy Lafuente"/><br /><sub><b>Eloy Lafuente</b></sub></a><br /><a href="https://github.com/mindsers/changelog-reader-action/commits?author=stronk7" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/davidgamero"><img src="https://avatars.githubusercontent.com/u/4248857?v=4?s=100" width="100px;" alt="David Gamero"/><br /><sub><b>David Gamero</b></sub></a><br /><a href="#infra-davidgamero" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    </tr>
   </tbody>
 </table>
 
