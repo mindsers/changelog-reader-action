@@ -17,6 +17,13 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm test
+      - name: Verify dist/ is up to date
+        run: |
+          npm run build
+          if ! git diff --exit-code --stat dist/; then
+            echo "::error::dist/ is out of sync with src/. Run 'npm run build' and commit the result." >&2
+            exit 1
+          fi
 
   # test action works running from the graph
   e2e:

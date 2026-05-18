@@ -15,7 +15,7 @@ This file is a set of guilines for contributing to *Changelog Reader Action* pro
 * [Did you fix whitespace, format code, or make a purely cosmetic patch?](#did-you-fix-whitespace-format-code-or-make-a-purely-cosmetic-patch)
 * [Do you intend to add a new feature or change an existing one?](#do-you-intend-to-add-a-new-feature-or-change-an-existing-one)
 * [Do you have questions about the source code?](#do-you-have-questions-about-the-source-code)
-* [Do you want to contribute to the Changelog Reader Action documentation?](#do-you-want-to-contribute-to-the-Configfile-documentation)
+* [Do you want to contribute to the Changelog Reader Action documentation?](#do-you-want-to-contribute-to-the-changelog-reader-action-documentation)
 
 [Styleguides](#styleguides)
 
@@ -56,9 +56,9 @@ This file is a set of guilines for contributing to *Changelog Reader Action* pro
 
 ### Do you have questions about the source code?
 
-* Ask any question about how to use Configfile in the [forum category][Forum] or on [Stack Overflow](https://stackoverflow.com).
+* Ask any question about how to use Changelog Reader Action in the [forum category][Forum] or on [Stack Overflow](https://stackoverflow.com).
 
-### Do you want to contribute to the Configfile documentation?
+### Do you want to contribute to the Changelog Reader Action documentation?
 
 Documentation file are stored in the project source code.
 
