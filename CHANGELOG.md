@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Use Node 24 as the action runtime.
+
+### Fixed
+
+- Declare `semver` as a runtime dependency instead of a dev dependency.
+- Stop dumping the full CHANGELOG content to debug logs when parsing entries and links.
+
 ## [2.2.3] - 2024-03-10
 
 ### Fixed
