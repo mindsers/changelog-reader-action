@@ -1,102 +1,64 @@
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+# Maintainer Guide
 
-# Create a JavaScript Action
+This document covers local development and releasing _Changelog Reader Action_.
+For end-user documentation, see the [README](../README.md).
 
-## Code in Develop
+## Local development
 
-Install the dependencies:
-
-```bash
-$ npm install
-```
-
-Run the tests:
+Install dependencies and run the test suite:
 
 ```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
+npm ci
+npm test
 ```
 
-## Change the Code
+`npm test` runs ESLint over `src/` followed by the Jest suite. All tests live next
+to the file they exercise (`src/foo.js` ↔ `src/foo.test.js`).
 
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
-
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
-
-Actions are run from GitHub repos. Packaging the action will create a packaged action in the `dist` folder.
-
-Run package:
+To rebuild the bundled action output after changing anything in `src/`:
 
 ```bash
-npm run package
+npm run build
 ```
 
-Since the packaged `index.js` is ran from the `dist` folder.
+This runs `@vercel/ncc` to bundle `index.js` and its dependencies into a single
+`dist/index.js` file. The `prepare` script in `package.json` runs the same
+command automatically on `npm install`, so the bundle stays in sync as long as
+you install before committing.
 
-```bash
-git add dist
-```
+## Why `dist/` is committed
 
-## Create a release tags
+GitHub Actions written in JavaScript run directly from the action repository at
+the SHA a consumer pins — there is no install step on the runner. The bundled
+`dist/index.js` is therefore the artifact that actually executes for every
+caller. CI enforces this with a drift check: after running the test suite, it
+re-runs `npm run build` and fails if the result differs from what is committed.
+If you see that step fail, run `npm run build` locally and commit the updated
+bundle.
 
-Changelog Reader follow semantic versionning. So you have to create your tag.
+## Releasing a new version
 
-```bash
-$ git tag -s v1.0.3
-```
+The action follows [Semantic Versioning](https://semver.org/). Releases also
+maintain a floating major-version tag (`v2`) so consumers can pin to
+`mindsers/changelog-reader-action@v2` and pick up patches automatically.
 
-To ease the work of maintainer we also create (or update) shortcut tags:
+1. Make sure the `Unreleased` section in `CHANGELOG.md` accurately reflects what
+   you are about to ship; move its contents under a new
+   `## [X.Y.Z] - YYYY-MM-DD` heading.
+2. Bump the `version` field in `package.json`.
+3. Commit the version bump and CHANGELOG update on `master`.
+4. Tag the exact version and move the floating major tag:
 
-```bash
-$ git tag -d v1
-$ git push --delete origin v1
-$ git tag -a v1
-```
+   ```bash
+   git tag -s vX.Y.Z -m "Release X.Y.Z"
+   git tag -f vX
+   git push origin vX.Y.Z
+   git push origin vX --force
+   ```
 
-```bash
-$ git push --tags
-```
+5. Create the matching GitHub Release for `vX.Y.Z`, with the new CHANGELOG
+   section as the release body, and tick the "Publish this Action to the
+   GitHub Marketplace" box.
 
-Now you have to create the GitHub Release for this new version (v1.0.3) and check "marketplace". This action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Usage
-
-You can now consume the action by referencing the v1 branch:
-
-```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+For background on action versioning, see
+[actions/toolkit's versioning guide](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md).
