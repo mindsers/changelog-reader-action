@@ -1,4 +1,4 @@
-const { parseEntry } = require('./parse-entry')
+import { parseEntry } from './parse-entry.js'
 
 const entryDescription = `
 ### Added

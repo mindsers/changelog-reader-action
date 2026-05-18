@@ -1,4 +1,4 @@
-const { validateEntry } = require('./validate-entry')
+import { validateEntry } from './validate-entry.js'
 
 const entryDescriptionMajor = `
 ### Added

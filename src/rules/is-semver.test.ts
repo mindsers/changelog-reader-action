@@ -1,4 +1,4 @@
-const { isSemVer } = require('./is-semver')
+import { isSemVer } from './is-semver.js'
 
 test('should not throw error', () => {
   const outputError = () => isSemVer({ id: 'a.b.c' })

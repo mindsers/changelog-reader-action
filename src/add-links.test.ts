@@ -1,4 +1,4 @@
-const { addLinks } = require('./add-links')
+import { addLinks } from './add-links.js'
 
 test('retreive add correct links to entry', () => {
   const output = addLinks([

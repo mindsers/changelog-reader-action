@@ -1,4 +1,4 @@
-const { getEntryByVersionID } = require('./get-entry-by-version-id')
+import { getEntryByVersionID } from './get-entry-by-version-id.js'
 
 test('get latest if no version provided', () => {
   const input = [
@@ -19,7 +19,7 @@ test('get latest if no version provided', () => {
   ]
   const output = getEntryByVersionID(input)
 
-  expect(output.id).toEqual(input[1].id)
+  expect(output?.id).toEqual(input[1]?.id)
 })
 
 test('return null if bad version provided', () => {
@@ -68,7 +68,7 @@ test('support X.X.X version patern', () => {
   ]
   const output = getEntryByVersionID(input, '2.0.1')
 
-  expect(output.id).toEqual('2.0.1')
+  expect(output?.id).toEqual('2.0.1')
 })
 
 test('get the correct version', () => {
@@ -100,7 +100,7 @@ test('get the correct version', () => {
   ]
   const output = getEntryByVersionID(input, 'v2.1.0')
 
-  expect(output.id).toEqual(input[2].id)
+  expect(output?.id).toEqual(input[2]?.id)
 })
 
 test('get the unreleased version', () => {
@@ -132,5 +132,5 @@ test('get the unreleased version', () => {
   ]
   const output = getEntryByVersionID(input, 'Unreleased')
 
-  expect(output.id).toEqual(input[0].id)
+  expect(output?.id).toEqual(input[0]?.id)
 })

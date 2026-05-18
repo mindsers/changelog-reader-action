@@ -1,4 +1,4 @@
-const { hasCorrectSections } = require('./has-correct-sections')
+import { hasCorrectSections } from './has-correct-sections.js'
 
 const entryDescriptionMajor = `
 ### Added

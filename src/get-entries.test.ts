@@ -1,4 +1,4 @@
-const { getEntries } = require('./get-entries')
+import { getEntries } from './get-entries.js'
 
 const DATA_v = `
 # Changelog

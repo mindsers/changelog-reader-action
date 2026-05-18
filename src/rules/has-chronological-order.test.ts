@@ -1,4 +1,4 @@
-const { hasChronologicalOrder } = require('./has-chronological-order')
+import { hasChronologicalOrder } from './has-chronological-order.js'
 
 test('should not throw error', () => {
   const outputError = () => hasChronologicalOrder([{ id: '1.0.1' }, { id: '1.0.0' }], 1)
