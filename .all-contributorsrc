@@ -93,6 +93,60 @@
         "bug",
         "infra"
       ]
+    },
+    {
+      "login": "SwabianCoder",
+      "name": "SwabianCoder",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43047586?v=4",
+      "profile": "https://github.com/SwabianCoder",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "jon-whit",
+      "name": "Jonathan Whitaker",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2899204?v=4",
+      "profile": "http://jon-whit.me",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "mrks115",
+      "name": "Markus Brüx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3636209?v=4",
+      "profile": "https://github.com/mrks115",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "guihkx",
+      "name": "Guilherme Silva",
+      "avatar_url": "https://avatars.githubusercontent.com/u/626206?v=4",
+      "profile": "https://github.com/guihkx",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "stronk7",
+      "name": "Eloy Lafuente",
+      "avatar_url": "https://avatars.githubusercontent.com/u/167147?v=4",
+      "profile": "https://github.com/stronk7",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "davidgamero",
+      "name": "David Gamero",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4248857?v=4",
+      "profile": "https://github.com/davidgamero",
+      "contributions": [
+        "infra"
+      ]
     }
   ],
   "projectName": "changelog-reader-action",

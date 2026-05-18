@@ -1,18 +1,19 @@
-
 <p align="center">
   <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
 </p>
 
 # Create a JavaScript Action
 
-## Code in Master
+## Code in Develop
 
 Install the dependencies:
+
 ```bash
 $ npm install
 ```
 
 Run the tests:
+
 ```bash
 $ npm test
 
@@ -23,14 +24,6 @@ $ npm test
 
 ...
 ```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
 
 ## Change the Code
 
@@ -58,7 +51,7 @@ See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/R
 
 GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
 
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the `dist` folder.
+Actions are run from GitHub repos. Packaging the action will create a packaged action in the `dist` folder.
 
 Run package:
 
@@ -72,22 +65,27 @@ Since the packaged `index.js` is ran from the `dist` folder.
 git add dist
 ```
 
-## Create a release branch
+## Create a release tags
 
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checking to the v1 release branch:
+Changelog Reader follow semantic versionning. So you have to create your tag.
 
 ```bash
-$ git checkout -b v1
-$ git commit -a -m "v1 release"
+$ git tag -s v1.0.3
+```
+
+To ease the work of maintainer we also create (or update) shortcut tags:
+
+```bash
+$ git tag -d v1
+$ git push --delete origin v1
+$ git tag -a v1
 ```
 
 ```bash
-$ git push origin v1
+$ git push --tags
 ```
 
-Your action is now published! :rocket:
+Now you have to create the GitHub Release for this new version (v1.0.3) and check "marketplace". This action is now published! :rocket:
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
