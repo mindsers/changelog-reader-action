@@ -25,9 +25,41 @@ jobs:
             exit 1
           fi
 
-  # test action works running from the graph
+  # End-to-end matrix: exercise the key code paths against this repo's
+  # CHANGELOG and a small set of fixture files. Each matrix entry runs
+  # the action as a consumer would, then asserts on the produced outputs.
   e2e:
+    name: e2e - ${{ matrix.scenario }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scenario: latest released (default)
+            expected_status: released
+          - scenario: specific version
+            version: '2.2.3'
+            expected_version: '2.2.3'
+            expected_status: released
+          - scenario: unreleased section
+            version: Unreleased
+            expected_version: Unreleased
+            expected_status: unreleased
+          - scenario: yanked fixture
+            path: ./.github/fixtures/changelog-yanked.md
+            expected_version: '2.0.0'
+            expected_status: yanked
+          - scenario: prereleased fixture
+            path: ./.github/fixtures/changelog-prereleased.md
+            expected_version: 2.0.0-alpha.1
+            expected_status: prereleased
+          - scenario: config file (yml)
+            config_file: ./.github/fixtures/.changelog-reader.yml
+            expected_version: '1.0.0'
+            expected_status: released
+          - scenario: validation warn on own changelog
+            validation_level: warn
+            expected_status: released
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -38,12 +70,33 @@ jobs:
       - name: Run the changelog reader
         id: changelog_reader
         uses: ./
-      - name: Display output
+        with:
+          config_file: ${{ matrix.config_file }}
+          path: ${{ matrix.path }}
+          version: ${{ matrix.version }}
+          validation_level: ${{ matrix.validation_level }}
+      - name: Assert outputs
+        env:
+          GOT_VERSION: ${{ steps.changelog_reader.outputs.version }}
+          GOT_DATE: ${{ steps.changelog_reader.outputs.date }}
+          GOT_STATUS: ${{ steps.changelog_reader.outputs.status }}
+          GOT_CHANGES: ${{ steps.changelog_reader.outputs.changes }}
+          EXPECTED_VERSION: ${{ matrix.expected_version }}
+          EXPECTED_STATUS: ${{ matrix.expected_status }}
         run: |
-          echo "Version: ${{ steps.changelog_reader.outputs.version }}"
-          echo "Date: ${{ steps.changelog_reader.outputs.date }}"
-          echo "Status: ${{ steps.changelog_reader.outputs.status }}"
-          echo "Changes: ${{ steps.changelog_reader.outputs.changes }}"
-      - name: Check output
-        run: |
-          test "Changes: ${{ steps.changelog_reader.outputs.changes }}" != ""
+          echo "version: $GOT_VERSION"
+          echo "date: $GOT_DATE"
+          echo "status: $GOT_STATUS"
+          echo "changes: ${#GOT_CHANGES} chars"
+          if [ -n "$EXPECTED_VERSION" ] && [ "$GOT_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "::error::version mismatch: got '$GOT_VERSION', expected '$EXPECTED_VERSION'"
+            exit 1
+          fi
+          if [ -n "$EXPECTED_STATUS" ] && [ "$GOT_STATUS" != "$EXPECTED_STATUS" ]; then
+            echo "::error::status mismatch: got '$GOT_STATUS', expected '$EXPECTED_STATUS'"
+            exit 1
+          fi
+          if [ -z "$GOT_CHANGES" ]; then
+            echo "::error::changes output is empty"
+            exit 1
+          fi
