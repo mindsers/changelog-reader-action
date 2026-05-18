@@ -1,4 +1,4 @@
-/******/ (() => { // webpackBootstrap
+require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 4914:
@@ -6673,480 +6673,502 @@ try {
 
 /***/ }),
 
-/***/ 5278:
+/***/ 6452:
 /***/ ((__unused_webpack_module, exports) => {
 
-exports.addLinks = links => entry => {
-  const { text } = entry
-  const linkRegex = /(\[.+\])\[\]/gi
+"use strict";
 
-  let tempText = `${text}`
-  let results = null
-  while ((results = linkRegex.exec(text)) != null) {
-    const link = links.find(element => element.includes(results[1]))
-    tempText = `${tempText}\n${link}`
-  }
-
-  return { ...entry, text: tempText.trim() }
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.addLinks = addLinks;
+function addLinks(links) {
+    return (entry) => {
+        const { text } = entry;
+        const linkRegex = /(\[.+\])\[\]/gi;
+        let tempText = `${text}`;
+        let match = linkRegex.exec(text);
+        while (match != null) {
+            const placeholder = match[1];
+            const link = links.find((element) => placeholder !== undefined && element.includes(placeholder));
+            tempText = `${tempText}\n${link}`;
+            match = linkRegex.exec(text);
+        }
+        return { ...entry, text: tempText.trim() };
+    };
 }
 
 
 /***/ }),
 
-/***/ 8256:
+/***/ 562:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-const fs = __nccwpck_require__(9896)
-const path = __nccwpck_require__(6928)
-const yaml = __nccwpck_require__(434)
+"use strict";
 
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getConfig = getConfig;
+const node_fs_1 = __nccwpck_require__(3024);
+const node_path_1 = __nccwpck_require__(6760);
+const yaml_1 = __nccwpck_require__(434);
 const CONFIG_FILE_NAMES = [
-  '.changelog-reader.json',
-  '.changelog-reader.yml',
-  '.changelog-reader.yaml',
-  '.changelogrc',
-  '.changelogrc.json',
-]
-
-/**
- * Loads configuration from a file
- * @param {string|null} configPath - Optional explicit path to config file
- * @returns {Object} - Configuration object with properties: path, validation_level, validation_depth
- */
-exports.getConfig = function getConfig(configPath = null) {
-  // If explicit path is provided, try to load from that path
-  if (configPath) {
-    return loadConfigFromPath(configPath)
-  }
-
-  // Otherwise, search for config files in the current directory
-  for (const fileName of CONFIG_FILE_NAMES) {
-    const filePath = path.resolve(process.cwd(), fileName)
-    if (fs.existsSync(filePath)) {
-      return loadConfigFromPath(filePath)
+    '.changelog-reader.json',
+    '.changelog-reader.yml',
+    '.changelog-reader.yaml',
+    '.changelogrc',
+    '.changelogrc.json',
+];
+function getConfig(configPath = null) {
+    if (configPath) {
+        return loadConfigFromPath(configPath);
     }
-  }
-
-  // Return empty config if no config file found
-  return {}
+    for (const fileName of CONFIG_FILE_NAMES) {
+        const filePath = (0, node_path_1.resolve)(process.cwd(), fileName);
+        if ((0, node_fs_1.existsSync)(filePath)) {
+            return loadConfigFromPath(filePath);
+        }
+    }
+    return {};
 }
-
-/**
- * Load configuration from a specific path
- * @param {string} configPath - Path to the config file
- * @returns {Object} - Configuration object
- */
 function loadConfigFromPath(configPath) {
-  const resolvedPath = path.resolve(process.cwd(), configPath)
-
-  if (!fs.existsSync(resolvedPath)) {
-    // Return empty config if file doesn't exist
-    return {}
-  }
-
-  const content = fs.readFileSync(resolvedPath, 'utf8')
-  const ext = path.extname(resolvedPath).toLowerCase()
-
-  if (ext === '.yml' || ext === '.yaml') {
-    return yaml.parse(content) || {}
-  }
-
-  // Default to JSON parsing
-  return JSON.parse(content)
+    const resolvedPath = (0, node_path_1.resolve)(process.cwd(), configPath);
+    if (!(0, node_fs_1.existsSync)(resolvedPath)) {
+        return {};
+    }
+    const content = (0, node_fs_1.readFileSync)(resolvedPath, 'utf8');
+    const ext = (0, node_path_1.extname)(resolvedPath).toLowerCase();
+    if (ext === '.yml' || ext === '.yaml') {
+        return (0, yaml_1.parse)(content) ?? {};
+    }
+    return JSON.parse(content);
 }
 
 
 /***/ }),
 
-/***/ 8068:
+/***/ 2502:
 /***/ ((__unused_webpack_module, exports) => {
 
-const versionSeparator = '\n## '
-const semverLinkRegex =
-  /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
-const unreleasedLinkRegex = /^\[unreleased\]/i
-const avoidNonVersionData = version =>
-  semverLinkRegex.test(version) || unreleasedLinkRegex.test(version)
+"use strict";
 
-exports.getEntries = rawData => {
-  const content = String(rawData)
-
-  return content.split(versionSeparator).filter(avoidNonVersionData)
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getEntries = getEntries;
+const versionSeparator = '\n## ';
+const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/;
+const unreleasedLinkRegex = /^\[unreleased\]/i;
+const avoidNonVersionData = (version) => semverLinkRegex.test(version) || unreleasedLinkRegex.test(version);
+function getEntries(rawData) {
+    const content = String(rawData);
+    return content.split(versionSeparator).filter(avoidNonVersionData);
 }
 
 
 /***/ }),
 
-/***/ 2103:
+/***/ 4729:
 /***/ ((__unused_webpack_module, exports) => {
 
-exports.getEntryByVersionID = (versions, id) => {
-  if (id != null) {
-    return versions.find(version => version.id === id)
-  }
+"use strict";
 
-  return [...versions].filter(version => !['Unreleased', 'unreleased'].includes(version.id)).shift()
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getEntryByVersionID = getEntryByVersionID;
+function getEntryByVersionID(versions, id) {
+    if (id != null) {
+        return versions.find((version) => version.id === id);
+    }
+    return versions.find((version) => !['Unreleased', 'unreleased'].includes(version.id));
 }
 
 
 /***/ }),
 
-/***/ 5045:
+/***/ 467:
 /***/ ((__unused_webpack_module, exports) => {
 
-const linkRegex =
-  /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/
-const avoidNonVersionData = text => linkRegex.test(text)
+"use strict";
 
-exports.getLinks = rawData => {
-  const content = String(rawData)
-
-  return content.trim().split('\n').filter(avoidNonVersionData)
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getLinks = getLinks;
+const linkRegex = /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
+const avoidNonVersionData = (text) => linkRegex.test(text);
+function getLinks(rawData) {
+    const content = String(rawData);
+    return content.trim().split('\n').filter(avoidNonVersionData);
 }
 
 
 /***/ }),
 
-/***/ 7936:
+/***/ 1730:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.main = main;
+const promises_1 = __nccwpck_require__(1455);
+const core = __importStar(__nccwpck_require__(7484));
+const add_links_js_1 = __nccwpck_require__(6452);
+const get_config_js_1 = __nccwpck_require__(562);
+const get_entries_js_1 = __nccwpck_require__(2502);
+const get_entry_by_version_id_js_1 = __nccwpck_require__(4729);
+const get_links_js_1 = __nccwpck_require__(467);
+const parse_entry_js_1 = __nccwpck_require__(8189);
+const validate_entry_js_1 = __nccwpck_require__(4212);
+async function main() {
+    try {
+        const configFilePath = core.getInput('config_file') || null;
+        const fileConfig = (0, get_config_js_1.getConfig)(configFilePath);
+        if (Object.keys(fileConfig).length > 0) {
+            core.info(`Configuration loaded from file`);
+            core.debug(`File configuration: ${JSON.stringify(fileConfig)}`);
+        }
+        // Action inputs take precedence over file config.
+        const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md';
+        const targetVersion = core.getInput('version') || fileConfig.version || null;
+        const validationLevel = (core.getInput('validation_level') ||
+            fileConfig.validation_level ||
+            'none');
+        if (targetVersion == null) {
+            core.warning(`No target version specified. Will try to return the most recent one in the changelog file.`);
+        }
+        core.startGroup('Parse data');
+        const rawData = await (0, promises_1.readFile)(changelogPath);
+        const linkList = (0, get_links_js_1.getLinks)(rawData);
+        const versions = (0, get_entries_js_1.getEntries)(rawData).map(parse_entry_js_1.parseEntry).map((0, add_links_js_1.addLinks)(linkList));
+        core.debug(`${versions.length} version logs found`);
+        core.endGroup();
+        core.startGroup('Validate data');
+        if (validationLevel === 'none') {
+            core.info(`Validation level set to 'none'. Skipping validation.`);
+        }
+        if (validationLevel !== 'none') {
+            const validationDepthInput = core.getInput('validation_depth');
+            const validationDepth = Number.parseInt(validationDepthInput || String(fileConfig.validation_depth ?? '10'), 10);
+            const releasedVersions = versions.filter((version) => version.status !== 'unreleased');
+            releasedVersions
+                .reverse()
+                .slice(Math.max(0, releasedVersions.length - validationDepth))
+                .forEach((0, validate_entry_js_1.validateEntry)(validationLevel));
+        }
+        core.endGroup();
+        const entry = (0, get_entry_by_version_id_js_1.getEntryByVersionID)(versions, targetVersion);
+        if (entry == null) {
+            throw new Error(`No log entry found${targetVersion != null ? ` for version ${targetVersion}` : ''}`);
+        }
+        core.setOutput('version', entry.id);
+        core.setOutput('date', entry.date);
+        core.setOutput('status', entry.status);
+        core.setOutput('changes', entry.text);
+    }
+    catch (error) {
+        core.setFailed(error instanceof Error ? error.message : String(error));
+    }
+}
+
+
+/***/ }),
+
+/***/ 2565:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseEntryContent = parseEntryContent;
+function parseEntryContent(text) {
+    return text
+        .split(/^###\s*/gm)
+        .filter((content) => content.replace(/\s+/g, '') !== '')
+        .map((content) => {
+        const [type = '', ...items] = content.trim().split(/\r*\n/);
+        return { type: type.toLowerCase().trim(), items };
+    });
+}
+
+
+/***/ }),
+
+/***/ 8189:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-const utils = __nccwpck_require__(9023)
-const fs = __nccwpck_require__(9896)
-const core = __nccwpck_require__(7484)
+"use strict";
 
-const { validateEntry } = __nccwpck_require__(9798)
-const { parseEntry } = __nccwpck_require__(1363)
-const { getEntries } = __nccwpck_require__(8068)
-const { getEntryByVersionID } = __nccwpck_require__(2103)
-const { getLinks } = __nccwpck_require__(5045)
-const { addLinks } = __nccwpck_require__(5278)
-const { getConfig } = __nccwpck_require__(8256)
-
-const readFile = utils.promisify(fs.readFile)
-
-exports.main = async function main() {
-  try {
-    // Load configuration from file (if available)
-    const configFilePath = core.getInput('config_file') || null
-    const fileConfig = getConfig(configFilePath)
-
-    if (Object.keys(fileConfig).length > 0) {
-      core.info(`Configuration loaded from file`)
-      core.debug(`File configuration: ${JSON.stringify(fileConfig)}`)
-    }
-
-    // Merge configuration: action inputs take precedence over file config
-    const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md'
-    const targetVersion = core.getInput('version') || fileConfig.version || null
-    const validationLevel = core.getInput('validation_level') || fileConfig.validation_level || 'none'
-
-    if (targetVersion == null) {
-      core.warning(
-        `No target version specified. Will try to return the most recent one in the changelog file.`
-      )
-    }
-
-    // Parse data
-    core.startGroup('Parse data')
-    const rawData = await readFile(changelogPath)
-    const linkList = getLinks(rawData)
-    const versions = getEntries(rawData).map(parseEntry).map(addLinks(linkList))
-
-    core.debug(`${versions.length} version logs found`)
-    core.endGroup()
-
-    // Validate data
-    core.startGroup('Validate data')
-    if (validationLevel === 'none') {
-      core.info(`Validation level set to 'none'. Skipping validation.`)
-    }
-
-    if (validationLevel !== 'none') {
-      const validationDepthInput = core.getInput('validation_depth')
-      const validationDepth = parseInt(validationDepthInput || fileConfig.validation_depth || '10', 10)
-      const releasedVersions = versions.filter(version => version.status != 'unreleased')
-      releasedVersions
-        .reverse()
-        .slice(Math.max(0, releasedVersions.length - validationDepth))
-        .forEach(validateEntry(validationLevel))
-    }
-    core.endGroup()
-
-    // Return data
-    const entry = getEntryByVersionID(versions, targetVersion)
-
-    if (entry == null) {
-      throw new Error(
-        `No log entry found${targetVersion != null ? ` for version ${targetVersion}` : ''}`
-      )
-    }
-
-    core.setOutput('version', entry.id)
-    core.setOutput('date', entry.date)
-    core.setOutput('status', entry.status)
-    core.setOutput('changes', entry.text)
-  } catch (error) {
-    core.setFailed(error.message)
-  }
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseEntry = parseEntry;
+const semver_1 = __nccwpck_require__(2088);
+function parseEntry(entry) {
+    const [title = '', ...other] = entry.trim().split('\n');
+    const [versionPart = '', datePart] = title.split(' - ');
+    const versionNumber = versionPart.match(/[a-zA-Z0-9.\-+]+/)?.[0] ?? '';
+    const versionDate = datePart != null ? datePart.match(/[0-9-]+/)?.[0] : undefined;
+    return {
+        id: versionNumber,
+        date: versionDate,
+        status: computeStatus(versionNumber, title),
+        text: other.filter((item) => !/\[.*\]: http/.test(item)).join('\n'),
+    };
 }
-
-
-/***/ }),
-
-/***/ 5235:
-/***/ ((__unused_webpack_module, exports) => {
-
-exports.parseEntryContent = function (text) {
-  return text
-    .split(/^###\s*/gm)
-    .filter(content => content.replace(/\s+/g, '') != '')
-    .map(content => {
-      const [type, ...items] = content.trim().split(/\r*\n/)
-
-      return { type: type.toLowerCase().trim(), items }
-    })
-}
-
-
-/***/ }),
-
-/***/ 1363:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-const { prerelease } = __nccwpck_require__(2088)
-
-exports.parseEntry = entry => {
-  const [title, ...other] = entry.trim().split('\n')
-
-  const [versionPart, datePart] = title.split(' - ')
-  const [versionNumber] = versionPart.match(/[a-zA-Z0-9.\-+]+/)
-  const [versionDate] = (datePart != null && datePart.match(/[0-9-]+/)) || []
-
-  return {
-    id: versionNumber,
-    date: versionDate,
-    status: computeStatus(versionNumber, title),
-    text: other.filter(item => !/\[.*\]: http/.test(item)).join('\n'),
-  }
-}
-
 function computeStatus(version, title) {
-  if (prerelease(version)) {
-    return 'prereleased'
-  }
-
-  if (title.match(/\[yanked\]/i)) {
-    return 'yanked'
-  }
-
-  if (title.match(/\[unreleased\]/i)) {
-    return 'unreleased'
-  }
-
-  return 'released'
-}
-
-
-/***/ }),
-
-/***/ 2927:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-const { lt, valid } = __nccwpck_require__(2088)
-
-exports.hasChronologicalOrder = function (entries, currentIndex) {
-  const currentEntry = entries[currentIndex]
-  const previousEntry = entries[currentIndex - 1]
-
-  if (previousEntry == null) {
-    return {}
-  }
-
-  if (!valid(previousEntry.id) || !valid(currentEntry.id)) {
-    return {}
-  }
-
-  if (lt(previousEntry.id, currentEntry.id)) {
-    return {}
-  }
-
-  return {
-    'has-chronological-order': {
-      previous: previousEntry.id,
-      current: currentEntry.id,
-    },
-  }
-}
-
-
-/***/ }),
-
-/***/ 4083:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-const { diff, valid } = __nccwpck_require__(2088)
-
-const { parseEntryContent } = __nccwpck_require__(5235)
-
-exports.hasCorrectSections = function (entries, currentIndex) {
-  const currentEntry = entries[currentIndex]
-  const previousEntry = entries[currentIndex - 1]
-
-  if (previousEntry == null) {
-    return {}
-  }
-
-  if (!valid(previousEntry.id) || !valid(currentEntry.id)) {
-    return {}
-  }
-
-  const entryTypes = parseEntryContent(currentEntry.changes || currentEntry.text).map(
-    change => change.type
-  )
-  const allowedTypes = getAllowedTypes(previousEntry.id, currentEntry.id)
-
-  if (entryTypes.some(type => allowedTypes.indexOf(type) === -1)) {
-    // Validates that only certain allowed types are in the change set
-    return {
-      'has-correct-sections': {
-        entryID: currentEntry.id,
-        types: allowedTypes,
-      },
+    if ((0, semver_1.prerelease)(version)) {
+        return 'prereleased';
     }
-  }
-
-  return {}
+    if (/\[yanked\]/i.test(title)) {
+        return 'yanked';
+    }
+    if (/\[unreleased\]/i.test(title)) {
+        return 'unreleased';
+    }
+    return 'released';
 }
 
+
+/***/ }),
+
+/***/ 3577:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.hasChronologicalOrder = hasChronologicalOrder;
+const semver_1 = __nccwpck_require__(2088);
+function hasChronologicalOrder(entries, currentIndex) {
+    const currentEntry = entries[currentIndex];
+    const previousEntry = entries[currentIndex - 1];
+    if (previousEntry == null || currentEntry == null) {
+        return {};
+    }
+    if (!(0, semver_1.valid)(previousEntry.id) || !(0, semver_1.valid)(currentEntry.id)) {
+        return {};
+    }
+    if ((0, semver_1.lt)(previousEntry.id, currentEntry.id)) {
+        return {};
+    }
+    return {
+        'has-chronological-order': {
+            previous: previousEntry.id,
+            current: currentEntry.id,
+        },
+    };
+}
+
+
+/***/ }),
+
+/***/ 7541:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.hasCorrectSections = hasCorrectSections;
+const semver_1 = __nccwpck_require__(2088);
+const parse_entry_content_js_1 = __nccwpck_require__(2565);
+function hasCorrectSections(entries, currentIndex) {
+    const currentEntry = entries[currentIndex];
+    const previousEntry = entries[currentIndex - 1];
+    if (previousEntry == null || currentEntry == null) {
+        return {};
+    }
+    if (!(0, semver_1.valid)(previousEntry.id) || !(0, semver_1.valid)(currentEntry.id)) {
+        return {};
+    }
+    const entryTypes = (0, parse_entry_content_js_1.parseEntryContent)(currentEntry.changes ?? currentEntry.text ?? '').map((change) => change.type);
+    const allowedTypes = getAllowedTypes(previousEntry.id, currentEntry.id);
+    if (entryTypes.some((type) => !allowedTypes.includes(type))) {
+        return {
+            'has-correct-sections': {
+                entryID: currentEntry.id,
+                types: allowedTypes,
+            },
+        };
+    }
+    return {};
+}
 function getAllowedTypes(v1, v2) {
-  const versionDiff = diff(v1, v2)
-
-  switch (versionDiff) {
-    case 'prepatch':
-    case 'patch':
-      return ['fixed', 'security']
-    case 'minor':
-    case 'preminor':
-      return ['added', 'changed', 'deprecated', 'fixed', 'security']
-    case 'premajor':
-    case 'major':
-    default:
-      return ['added', 'removed', 'changed', 'deprecated', 'fixed', 'security']
-  }
+    const versionDiff = (0, semver_1.diff)(v1, v2);
+    switch (versionDiff) {
+        case 'prepatch':
+        case 'patch':
+            return ['fixed', 'security'];
+        case 'minor':
+        case 'preminor':
+            return ['added', 'changed', 'deprecated', 'fixed', 'security'];
+        case 'premajor':
+        case 'major':
+        default:
+            return ['added', 'removed', 'changed', 'deprecated', 'fixed', 'security'];
+    }
 }
 
 
 /***/ }),
 
-/***/ 4338:
+/***/ 376:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
-const { parseEntryContent } = __nccwpck_require__(5235)
+"use strict";
 
-exports.hasSections = function (entry) {
-  const changes = parseEntryContent(entry.changes || entry.text)
-
-  for (const change of changes) {
-    if (change.items.length > 0) {
-      // Validate that there are changes listed under each section
-      continue
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.hasSections = hasSections;
+const parse_entry_content_js_1 = __nccwpck_require__(2565);
+function hasSections(entry) {
+    const changes = (0, parse_entry_content_js_1.parseEntryContent)(entry.changes ?? entry.text ?? '');
+    for (const change of changes) {
+        if (change.items.length > 0) {
+            continue;
+        }
+        return {
+            'has-section': {
+                type: change.type,
+                entryID: entry.id,
+            },
+        };
     }
+    return {};
+}
 
+
+/***/ }),
+
+/***/ 1740:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isSemVer = isSemVer;
+const semver_1 = __nccwpck_require__(2088);
+function isSemVer(entry) {
+    if ((0, semver_1.valid)(entry.id)) {
+        return {};
+    }
     return {
-      'has-section': {
-        type: change.type,
-        entryID: entry.id,
-      },
+        'is-semver': true,
+    };
+}
+
+
+/***/ }),
+
+/***/ 4212:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
-  }
-
-  return {}
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.validateEntry = validateEntry;
+const core = __importStar(__nccwpck_require__(7484));
+const has_chronological_order_js_1 = __nccwpck_require__(3577);
+const has_correct_sections_js_1 = __nccwpck_require__(7541);
+const has_sections_js_1 = __nccwpck_require__(376);
+const is_semver_js_1 = __nccwpck_require__(1740);
+function validateEntry(validationLevel) {
+    return (entry, index, entries) => {
+        if (entry.status === 'unreleased')
+            return;
+        const validationResults = {
+            ...(0, is_semver_js_1.isSemVer)(entry),
+            ...(0, has_chronological_order_js_1.hasChronologicalOrder)(entries, index),
+            ...(0, has_sections_js_1.hasSections)(entry),
+            ...(0, has_correct_sections_js_1.hasCorrectSections)(entries, index),
+        };
+        const errors = Object.keys(validationResults)
+            .filter((key) => validationResults[key] !== false)
+            .map((key) => buildError(key, validationResults[key], entry))
+            .filter((err) => err !== undefined);
+        const shouldBreakTheBuild = validationLevel === 'error';
+        const log = shouldBreakTheBuild ? core.error : core.warning;
+        for (const error of errors) {
+            log(error);
+        }
+        if (errors.length > 0 && shouldBreakTheBuild) {
+            throw new AggregateError(errors, `${entry.id} entry is invalid.`);
+        }
+    };
 }
-
-
-/***/ }),
-
-/***/ 7718:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-const { valid } = __nccwpck_require__(2088)
-
-exports.isSemVer = function (entry) {
-  if (valid(entry.id)) {
-    return {}
-  }
-
-  return {
-    'is-semver': true,
-  }
-}
-
-
-/***/ }),
-
-/***/ 9798:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-const core = __nccwpck_require__(7484)
-
-const { hasChronologicalOrder } = __nccwpck_require__(2927)
-const { hasCorrectSections } = __nccwpck_require__(4083)
-const { hasSections } = __nccwpck_require__(4338)
-const { isSemVer } = __nccwpck_require__(7718)
-
-exports.validateEntry = validationLevel => (entry, index, entries) => {
-  if (entry.status == 'unreleased') return // no validation on unreleased versions
-
-  const validationResults = {
-    ...isSemVer(entry),
-    ...hasChronologicalOrder(entries, index),
-    ...hasSections(entry),
-    ...hasCorrectSections(entries, index),
-  }
-
-  const errors = Object.keys(validationResults)
-    .filter(key => validationResults[key] != false)
-    .map(key => {
-      if (key === 'is-semver') {
-        return new Error(`${entry.id} is not a valid semantic version.`)
-      }
-
-      if (key === 'has-chronological-order') {
-        const { current, previous } = validationResults[key]
-
-        return new Error(
-          `Changelog versions out of order. Version ${current} cannot come after ${previous}.`
-        )
-      }
-
-      if (key === 'has-section') {
-        const { type, entryID } = validationResults[key]
-
-        return new Error(
-          `The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`
-        )
-      }
-
-      if (key === 'has-correct-sections') {
-        const { entryID, types } = validationResults[key]
-
-        return new Error(
-          `Only '${types.join(', ')}' section${
-            types.length == 1 ? '' : 's'
-          } are allowed for version ${entryID}.`
-        )
-      }
-    })
-
-  const shouldBreakTheBuild = validationLevel === 'error'
-  const log = shouldBreakTheBuild ? core.error : core.warning
-  for (const error of errors) {
-    log(error)
-  }
-
-  if (errors.length > 0 && shouldBreakTheBuild) {
-    throw new AggregateError(errors, `${entry.id} entry is invalid.`)
-  }
+function buildError(key, detail, entry) {
+    if (key === 'is-semver') {
+        return new Error(`${entry.id} is not a valid semantic version.`);
+    }
+    if (key === 'has-chronological-order') {
+        const { current, previous } = detail;
+        return new Error(`Changelog versions out of order. Version ${current} cannot come after ${previous}.`);
+    }
+    if (key === 'has-section') {
+        const { type, entryID } = detail;
+        return new Error(`The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`);
+    }
+    if (key === 'has-correct-sections') {
+        const { entryID, types } = detail;
+        return new Error(`Only '${types.join(', ')}' section${types.length === 1 ? '' : 's'} are allowed for version ${entryID}.`);
+    }
+    return undefined;
 }
 
 
@@ -7213,6 +7235,30 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
+
+/***/ }),
+
+/***/ 3024:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs");
+
+/***/ }),
+
+/***/ 1455:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs/promises");
+
+/***/ }),
+
+/***/ 6760:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:path");
 
 /***/ }),
 
@@ -13030,10 +13076,18 @@ module.exports = __nccwpck_require__(8815).YAML
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-const { main } = __nccwpck_require__(7936)
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+var exports = __webpack_exports__;
 
-main()
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const main_js_1 = __nccwpck_require__(1730);
+void (0, main_js_1.main)();
+
+})();
 
 module.exports = __webpack_exports__;
 /******/ })()
 ;
+//# sourceMappingURL=index.js.map
