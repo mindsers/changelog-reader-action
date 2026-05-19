@@ -23,6 +23,7 @@
   "scripts": {
     "build": "ncc build index.ts -o dist --source-map",
     "check": "biome check .",
+    "commitlint": "commitlint --from=origin/master --to=HEAD",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "package": "npm run build",
@@ -36,6 +37,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "@types/node": "^22.0.0",
     "@types/semver": "^7.3.13",
     "@vercel/ncc": "^0.38.4",
