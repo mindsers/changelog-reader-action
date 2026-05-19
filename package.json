@@ -1,6 +1,6 @@
 {
   "name": "changelog-reader-action",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "A GitHub Action to read your CHANGELOG",
   "main": "index.ts",
   "homepage": "https://github.com/mindsers/changelog-reader-action#readme",
@@ -15,7 +15,7 @@
   "author": {
     "name": "Nathanaël Cherrier",
     "email": "nathanael@cherrier.dev",
-    "url": "https://nathanaelcherrier.com"
+    "url": "https://nathanaelcherrier.dev"
   },
   "engines": {
     "node": ">=24"
