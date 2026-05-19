@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose a new capability or change in behavior.
+title: '[Feature]: '
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement. Filling in the form below helps
+        the maintainers understand the problem before evaluating solutions.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user-visible problem are you trying to solve? What's the pain today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: |
+        What would you like the action to do? Concrete input names, output
+        names, behaviors are helpful even if the design isn't final.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you thought about and why you ruled them out.
+    validations:
+      required: false

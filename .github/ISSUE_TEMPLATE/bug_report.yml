@@ -1,0 +1,73 @@
+name: Bug report
+description: Report a defect in how the action parses or reports a CHANGELOG.
+title: '[Bug]: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in the
+        sections below so we can reproduce and fix the issue quickly.
+
+  - type: input
+    id: action_version
+    attributes:
+      label: Action version
+      description: The pinned version in your workflow (e.g., `v2.2.3`, `v2`, or a SHA).
+      placeholder: v2.2.3
+    validations:
+      required: true
+
+  - type: input
+    id: node_version
+    attributes:
+      label: Node version
+      description: The Node version configured in the runner.
+      placeholder: '24'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runner_os
+    attributes:
+      label: Runner OS
+      description: Which runner image surfaced the bug.
+      options:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+        - self-hosted / other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: What did you expect to happen, and what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: |
+        A minimal workflow snippet that exercises the bug, plus the relevant
+        slice of CHANGELOG.md content (or a link to a public repo where it
+        reproduces).
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Action output from the failing job. Set `ACTIONS_STEP_DEBUG: true`
+        in repo secrets for verbose logs. Wrap large logs in `<details>`.
+      render: shell
+    validations:
+      required: false
