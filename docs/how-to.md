@@ -57,7 +57,7 @@ The release process is driven by a tag-triggered workflow
 Release and moves the floating major tag in one shot.
 
 1. On a branch (or directly on `master` if branch protection permits), make a
-   single `release: vX.Y.Z` commit that:
+   single `chore(release): vX.Y.Z` commit that:
 
    - Bumps the `version` field in `package.json` to `X.Y.Z`.
    - In `CHANGELOG.md`, renames the existing `## [Unreleased]` heading to
