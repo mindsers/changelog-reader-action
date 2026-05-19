@@ -18,7 +18,7 @@
     "url": "https://nathanaelcherrier.com"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
     "build": "ncc build index.ts -o dist --source-map",
@@ -31,19 +31,19 @@
     "test": "npm run check && tsc --noEmit && vitest run"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "semver": "^7.6.0",
-    "yaml": "^1.10.3"
+    "@actions/core": "^2.0.3",
+    "semver": "^7.7.1",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
-    "@commitlint/cli": "^19.0.0",
-    "@commitlint/config-conventional": "^19.0.0",
-    "@types/node": "^22.0.0",
-    "@types/semver": "^7.3.13",
+    "@biomejs/biome": "^2.4.15",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@types/node": "^25.9.0",
+    "@types/semver": "^7.7.1",
     "@vercel/ncc": "^0.38.4",
-    "typescript": "^5.6.0",
-    "vitest": "^2.0.0"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "keywords": [
     "GitHub",
