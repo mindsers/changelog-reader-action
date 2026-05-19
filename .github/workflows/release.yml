@@ -35,7 +35,9 @@ jobs:
         id: notes
         uses: mindsers/changelog-reader-action@v2
         with:
+          path: ./CHANGELOG.md
           version: ${{ steps.version.outputs.value }}
+          validation_level: warn
 
       - name: Create GitHub Release
         env:
