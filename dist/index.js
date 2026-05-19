@@ -34258,7 +34258,10 @@ function getEntryByVersionID(versions, id) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getLinks = getLinks;
-const linkRegex = /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
+// Hostname labels (`[\w-]+`) are separated by literal `.` — keeping `.`
+// out of the label character class prevents catastrophic backtracking
+// on hostile inputs like `[a]:-.-.-.-...-.X`. CodeQL: js/redos.
+const linkRegex = /^\[.+\]:\s?(?:http(s)?:\/\/)?[\w-]+(?:\.[\w-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
 const avoidNonVersionData = (text) => linkRegex.test(text);
 function getLinks(rawData) {
     const content = String(rawData);
