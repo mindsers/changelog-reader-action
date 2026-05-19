@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use Node 24 as the action runtime.
 - Refactor the internal entry, validation, and pipeline modules for type safety and easier maintenance. No change in observable behavior for action consumers.
+- Modernize the bundled runtime dependencies: `@actions/core` 1.x → 2.x and the YAML parser 1.x → 2.x. The action's input/output contract is unchanged.
 
 ### Fixed
 
