@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / discussion
+    url: https://github.com/mindsers/changelog-reader-action/discussions
+    about: For usage questions and open-ended discussion (not bug reports).
+  - name: Report a security vulnerability
+    url: https://github.com/mindsers/changelog-reader-action/security/advisories/new
+    about: Use GitHub's private advisory form. Do not open a public issue.
