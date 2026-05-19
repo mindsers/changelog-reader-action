@@ -1,9 +1,9 @@
 import { parseEntryContent } from '../parse-entry-content.js'
+import type { Entry, RuleResult } from '../types.js'
+import { ruleOk } from '../types.js'
 
-import type { RuleEntry, RuleResult } from '../types.js'
-
-export function hasSections(entry: RuleEntry): RuleResult {
-  const changes = parseEntryContent(entry.changes ?? entry.text ?? '')
+export function hasSections(entry: Entry): RuleResult {
+  const changes = parseEntryContent(entry.body)
 
   for (const change of changes) {
     if (change.items.length > 0) {
@@ -11,12 +11,11 @@ export function hasSections(entry: RuleEntry): RuleResult {
     }
 
     return {
-      'has-section': {
-        type: change.type,
-        entryID: entry.id,
-      },
+      type: 'missing-section-items',
+      sectionType: change.type,
+      entryID: entry.id,
     }
   }
 
-  return {}
+  return ruleOk
 }

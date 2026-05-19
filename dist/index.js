@@ -6679,20 +6679,36 @@ try {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addLinks = addLinks;
-function addLinks(links) {
-    return (entry) => {
-        const { text } = entry;
-        const linkRegex = /(\[.+\])\[\]/gi;
-        let tempText = `${text}`;
-        let match = linkRegex.exec(text);
-        while (match != null) {
-            const placeholder = match[1];
-            const link = links.find((element) => placeholder !== undefined && element.includes(placeholder));
-            tempText = `${tempText}\n${link}`;
-            match = linkRegex.exec(text);
+exports.buildLinkRegistry = buildLinkRegistry;
+exports.resolveLinks = resolveLinks;
+const linkDefinitionRegex = /^\[(.+?)\]:\s*http/;
+function buildLinkRegistry(linkLines) {
+    const registry = new Map();
+    for (const line of linkLines) {
+        const match = line.match(linkDefinitionRegex);
+        const name = match?.[1];
+        if (name !== undefined) {
+            registry.set(name.toLowerCase(), line);
         }
-        return { ...entry, text: tempText.trim() };
+    }
+    return registry;
+}
+function resolveLinks(registry) {
+    return (entry) => {
+        if (entry.references.length === 0) {
+            return entry;
+        }
+        const resolved = [];
+        for (const name of entry.references) {
+            const line = registry.get(name);
+            if (line !== undefined) {
+                resolved.push(line);
+            }
+        }
+        if (resolved.length === 0) {
+            return entry;
+        }
+        return { ...entry, text: `${entry.body}\n${resolved.join('\n')}` };
     };
 }
 
@@ -6774,7 +6790,7 @@ function getEntryByVersionID(versions, id) {
     if (id != null) {
         return versions.find((version) => version.id === id);
     }
-    return versions.find((version) => !['Unreleased', 'unreleased'].includes(version.id));
+    return versions.find((version) => version.id.toLowerCase() !== 'unreleased');
 }
 
 
@@ -6839,53 +6855,51 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.main = main;
 const promises_1 = __nccwpck_require__(1455);
 const core = __importStar(__nccwpck_require__(7484));
-const add_links_js_1 = __nccwpck_require__(6452);
 const get_config_js_1 = __nccwpck_require__(562);
-const get_entries_js_1 = __nccwpck_require__(2502);
-const get_entry_by_version_id_js_1 = __nccwpck_require__(4729);
-const get_links_js_1 = __nccwpck_require__(467);
-const parse_entry_js_1 = __nccwpck_require__(8189);
-const validate_entry_js_1 = __nccwpck_require__(4212);
+const pipeline_js_1 = __nccwpck_require__(5165);
 async function main() {
     try {
         const configFilePath = core.getInput('config_file') || null;
         const fileConfig = (0, get_config_js_1.getConfig)(configFilePath);
         if (Object.keys(fileConfig).length > 0) {
-            core.info(`Configuration loaded from file`);
+            core.info('Configuration loaded from file');
             core.debug(`File configuration: ${JSON.stringify(fileConfig)}`);
         }
-        // Action inputs take precedence over file config.
         const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md';
         const targetVersion = core.getInput('version') || fileConfig.version || null;
         const validationLevel = (core.getInput('validation_level') ||
             fileConfig.validation_level ||
             'none');
+        const validationDepthInput = core.getInput('validation_depth');
+        const validationDepth = Number.parseInt(validationDepthInput || String(fileConfig.validation_depth ?? '10'), 10);
         if (targetVersion == null) {
-            core.warning(`No target version specified. Will try to return the most recent one in the changelog file.`);
+            core.warning('No target version specified. Will try to return the most recent one in the changelog file.');
         }
         core.startGroup('Parse data');
         const rawData = await (0, promises_1.readFile)(changelogPath);
-        const linkList = (0, get_links_js_1.getLinks)(rawData);
-        const versions = (0, get_entries_js_1.getEntries)(rawData).map(parse_entry_js_1.parseEntry).map((0, add_links_js_1.addLinks)(linkList));
-        core.debug(`${versions.length} version logs found`);
         core.endGroup();
         core.startGroup('Validate data');
         if (validationLevel === 'none') {
             core.info(`Validation level set to 'none'. Skipping validation.`);
         }
-        if (validationLevel !== 'none') {
-            const validationDepthInput = core.getInput('validation_depth');
-            const validationDepth = Number.parseInt(validationDepthInput || String(fileConfig.validation_depth ?? '10'), 10);
-            const releasedVersions = versions.filter((version) => version.status !== 'unreleased');
-            releasedVersions
-                .reverse()
-                .slice(Math.max(0, releasedVersions.length - validationDepth))
-                .forEach((0, validate_entry_js_1.validateEntry)(validationLevel));
-        }
+        const { entry, diagnostics } = (0, pipeline_js_1.processChangelog)(rawData, {
+            targetVersion,
+            validationLevel,
+            validationDepth,
+        });
         core.endGroup();
-        const entry = (0, get_entry_by_version_id_js_1.getEntryByVersionID)(versions, targetVersion);
-        if (entry == null) {
-            throw new Error(`No log entry found${targetVersion != null ? ` for version ${targetVersion}` : ''}`);
+        const errors = [];
+        for (const diag of diagnostics) {
+            if (diag.severity === 'warn') {
+                core.warning(diag.message);
+            }
+            else {
+                core.error(diag.message);
+                errors.push(new Error(diag.message));
+            }
+        }
+        if (errors.length > 0) {
+            throw new AggregateError(errors, `${entry.id} entry is invalid.`);
         }
         core.setOutput('version', entry.id);
         core.setOutput('date', entry.date);
@@ -6928,17 +6942,33 @@ function parseEntryContent(text) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseEntry = parseEntry;
 const semver_1 = __nccwpck_require__(2088);
+const linkDefinitionRegex = /^\[.*\]:\s*http/;
+const placeholderRegex = /\[(.+?)\]\[\]/gi;
 function parseEntry(entry) {
     const [title = '', ...other] = entry.trim().split('\n');
     const [versionPart = '', datePart] = title.split(' - ');
     const versionNumber = versionPart.match(/[a-zA-Z0-9.\-+]+/)?.[0] ?? '';
     const versionDate = datePart != null ? datePart.match(/[0-9-]+/)?.[0] : undefined;
+    const body = other.filter((line) => !linkDefinitionRegex.test(line)).join('\n');
+    const references = collectReferences(body);
     return {
         id: versionNumber,
         date: versionDate,
         status: computeStatus(versionNumber, title),
-        text: other.filter((item) => !/\[.*\]: http/.test(item)).join('\n'),
+        body,
+        references,
+        text: body,
     };
+}
+function collectReferences(body) {
+    const seen = new Set();
+    for (const match of body.matchAll(placeholderRegex)) {
+        const name = match[1];
+        if (name !== undefined) {
+            seen.add(name.toLowerCase());
+        }
+    }
+    return Array.from(seen);
 }
 function computeStatus(version, title) {
     if ((0, semver_1.prerelease)(version)) {
@@ -6956,6 +6986,44 @@ function computeStatus(version, title) {
 
 /***/ }),
 
+/***/ 5165:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.processChangelog = processChangelog;
+const add_links_js_1 = __nccwpck_require__(6452);
+const get_entries_js_1 = __nccwpck_require__(2502);
+const get_entry_by_version_id_js_1 = __nccwpck_require__(4729);
+const get_links_js_1 = __nccwpck_require__(467);
+const parse_entry_js_1 = __nccwpck_require__(8189);
+const validate_entry_js_1 = __nccwpck_require__(4212);
+function processChangelog(rawData, options) {
+    const registry = (0, add_links_js_1.buildLinkRegistry)((0, get_links_js_1.getLinks)(rawData));
+    const versions = (0, get_entries_js_1.getEntries)(rawData).map(parse_entry_js_1.parseEntry).map((0, add_links_js_1.resolveLinks)(registry));
+    const diagnostics = [];
+    if (options.validationLevel !== 'none') {
+        const released = versions.filter((entry) => entry.status !== 'unreleased');
+        const window = released.reverse().slice(Math.max(0, released.length - options.validationDepth));
+        const runRule = (0, validate_entry_js_1.validateEntry)(options.validationLevel);
+        const severity = options.validationLevel === 'error' ? 'error' : 'warn';
+        window.forEach((entry, index, arr) => {
+            for (const err of runRule(entry, index, arr)) {
+                diagnostics.push({ severity, message: err.message });
+            }
+        });
+    }
+    const entry = (0, get_entry_by_version_id_js_1.getEntryByVersionID)(versions, options.targetVersion);
+    if (entry == null) {
+        throw new Error(`No log entry found${options.targetVersion != null ? ` for version ${options.targetVersion}` : ''}`);
+    }
+    return { entry, diagnostics };
+}
+
+
+/***/ }),
+
 /***/ 3577:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -6964,24 +7032,20 @@ function computeStatus(version, title) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.hasChronologicalOrder = hasChronologicalOrder;
 const semver_1 = __nccwpck_require__(2088);
+const types_js_1 = __nccwpck_require__(8522);
 function hasChronologicalOrder(entries, currentIndex) {
     const currentEntry = entries[currentIndex];
     const previousEntry = entries[currentIndex - 1];
     if (previousEntry == null || currentEntry == null) {
-        return {};
+        return types_js_1.ruleOk;
     }
     if (!(0, semver_1.valid)(previousEntry.id) || !(0, semver_1.valid)(currentEntry.id)) {
-        return {};
+        return types_js_1.ruleOk;
     }
     if ((0, semver_1.lt)(previousEntry.id, currentEntry.id)) {
-        return {};
+        return types_js_1.ruleOk;
     }
-    return {
-        'has-chronological-order': {
-            previous: previousEntry.id,
-            current: currentEntry.id,
-        },
-    };
+    return { type: 'out-of-order', previous: previousEntry.id, current: currentEntry.id };
 }
 
 
@@ -6996,40 +7060,48 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.hasCorrectSections = hasCorrectSections;
 const semver_1 = __nccwpck_require__(2088);
 const parse_entry_content_js_1 = __nccwpck_require__(2565);
+const types_js_1 = __nccwpck_require__(8522);
+const PATCH_ALLOWED = ['fixed', 'security'];
+const MINOR_ALLOWED = ['added', 'changed', 'deprecated', 'fixed', 'security'];
+const MAJOR_ALLOWED = [
+    'added',
+    'removed',
+    'changed',
+    'deprecated',
+    'fixed',
+    'security',
+];
 function hasCorrectSections(entries, currentIndex) {
     const currentEntry = entries[currentIndex];
     const previousEntry = entries[currentIndex - 1];
     if (previousEntry == null || currentEntry == null) {
-        return {};
+        return types_js_1.ruleOk;
     }
     if (!(0, semver_1.valid)(previousEntry.id) || !(0, semver_1.valid)(currentEntry.id)) {
-        return {};
+        return types_js_1.ruleOk;
     }
-    const entryTypes = (0, parse_entry_content_js_1.parseEntryContent)(currentEntry.changes ?? currentEntry.text ?? '').map((change) => change.type);
+    const entryTypes = (0, parse_entry_content_js_1.parseEntryContent)(currentEntry.body).map((change) => change.type);
     const allowedTypes = getAllowedTypes(previousEntry.id, currentEntry.id);
     if (entryTypes.some((type) => !allowedTypes.includes(type))) {
         return {
-            'has-correct-sections': {
-                entryID: currentEntry.id,
-                types: allowedTypes,
-            },
+            type: 'invalid-section-types',
+            entryID: currentEntry.id,
+            allowed: allowedTypes,
         };
     }
-    return {};
+    return types_js_1.ruleOk;
 }
 function getAllowedTypes(v1, v2) {
     const versionDiff = (0, semver_1.diff)(v1, v2);
     switch (versionDiff) {
         case 'prepatch':
         case 'patch':
-            return ['fixed', 'security'];
+            return PATCH_ALLOWED;
         case 'minor':
         case 'preminor':
-            return ['added', 'changed', 'deprecated', 'fixed', 'security'];
-        case 'premajor':
-        case 'major':
+            return MINOR_ALLOWED;
         default:
-            return ['added', 'removed', 'changed', 'deprecated', 'fixed', 'security'];
+            return MAJOR_ALLOWED;
     }
 }
 
@@ -7044,20 +7116,20 @@ function getAllowedTypes(v1, v2) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.hasSections = hasSections;
 const parse_entry_content_js_1 = __nccwpck_require__(2565);
+const types_js_1 = __nccwpck_require__(8522);
 function hasSections(entry) {
-    const changes = (0, parse_entry_content_js_1.parseEntryContent)(entry.changes ?? entry.text ?? '');
+    const changes = (0, parse_entry_content_js_1.parseEntryContent)(entry.body);
     for (const change of changes) {
         if (change.items.length > 0) {
             continue;
         }
         return {
-            'has-section': {
-                type: change.type,
-                entryID: entry.id,
-            },
+            type: 'missing-section-items',
+            sectionType: change.type,
+            entryID: entry.id,
         };
     }
-    return {};
+    return types_js_1.ruleOk;
 }
 
 
@@ -7071,104 +7143,66 @@ function hasSections(entry) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isSemVer = isSemVer;
 const semver_1 = __nccwpck_require__(2088);
+const types_js_1 = __nccwpck_require__(8522);
 function isSemVer(entry) {
-    if ((0, semver_1.valid)(entry.id)) {
-        return {};
-    }
-    return {
-        'is-semver': true,
-    };
+    return (0, semver_1.valid)(entry.id) ? types_js_1.ruleOk : { type: 'invalid-semver', id: entry.id };
 }
 
 
 /***/ }),
 
-/***/ 4212:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ 8522:
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ruleOk = void 0;
+exports.ruleOk = { type: 'ok' };
+
+
+/***/ }),
+
+/***/ 4212:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.validateEntry = validateEntry;
-const core = __importStar(__nccwpck_require__(7484));
 const has_chronological_order_js_1 = __nccwpck_require__(3577);
 const has_correct_sections_js_1 = __nccwpck_require__(7541);
 const has_sections_js_1 = __nccwpck_require__(376);
 const is_semver_js_1 = __nccwpck_require__(1740);
 function validateEntry(validationLevel) {
     return (entry, index, entries) => {
-        if (entry.status === 'unreleased')
-            return;
-        const validationResults = {
-            ...(0, is_semver_js_1.isSemVer)(entry),
-            ...(0, has_chronological_order_js_1.hasChronologicalOrder)(entries, index),
-            ...(0, has_sections_js_1.hasSections)(entry),
-            ...(0, has_correct_sections_js_1.hasCorrectSections)(entries, index),
-        };
-        const errors = Object.keys(validationResults)
-            .filter((key) => validationResults[key] !== false)
-            .map((key) => buildError(key, validationResults[key], entry))
-            .filter((err) => err !== undefined);
-        const shouldBreakTheBuild = validationLevel === 'error';
-        const log = shouldBreakTheBuild ? core.error : core.warning;
-        for (const error of errors) {
-            log(error);
+        if (validationLevel === 'none' || entry.status === 'unreleased') {
+            return [];
         }
-        if (errors.length > 0 && shouldBreakTheBuild) {
-            throw new AggregateError(errors, `${entry.id} entry is invalid.`);
-        }
+        const results = [
+            (0, is_semver_js_1.isSemVer)(entry),
+            (0, has_chronological_order_js_1.hasChronologicalOrder)(entries, index),
+            (0, has_sections_js_1.hasSections)(entry),
+            (0, has_correct_sections_js_1.hasCorrectSections)(entries, index),
+        ];
+        return results
+            .map((result) => formatError(result, entry))
+            .filter((err) => err !== null);
     };
 }
-function buildError(key, detail, entry) {
-    if (key === 'is-semver') {
-        return new Error(`${entry.id} is not a valid semantic version.`);
+function formatError(result, entry) {
+    switch (result.type) {
+        case 'ok':
+            return null;
+        case 'invalid-semver':
+            return new Error(`${result.id} is not a valid semantic version.`);
+        case 'out-of-order':
+            return new Error(`Changelog versions out of order. Version ${result.current} cannot come after ${result.previous}.`);
+        case 'missing-section-items':
+            return new Error(`The '${result.sectionType}' section under version ${result.entryID} does not contain any listed changes under the heading.`);
+        case 'invalid-section-types':
+            return new Error(`Only '${result.allowed.join(', ')}' section${result.allowed.length === 1 ? '' : 's'} are allowed for version ${entry.id}.`);
     }
-    if (key === 'has-chronological-order') {
-        const { current, previous } = detail;
-        return new Error(`Changelog versions out of order. Version ${current} cannot come after ${previous}.`);
-    }
-    if (key === 'has-section') {
-        const { type, entryID } = detail;
-        return new Error(`The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`);
-    }
-    if (key === 'has-correct-sections') {
-        const { entryID, types } = detail;
-        return new Error(`Only '${types.join(', ')}' section${types.length === 1 ? '' : 's'} are allowed for version ${entryID}.`);
-    }
-    return undefined;
 }
 
 

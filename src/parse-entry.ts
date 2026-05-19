@@ -2,6 +2,9 @@ import { prerelease } from 'semver'
 
 import type { Entry, EntryStatus } from './types.js'
 
+const linkDefinitionRegex = /^\[.*\]:\s*http/
+const placeholderRegex = /\[(.+?)\]\[\]/gi
+
 export function parseEntry(entry: string): Entry {
   const [title = '', ...other] = entry.trim().split('\n')
 
@@ -9,12 +12,28 @@ export function parseEntry(entry: string): Entry {
   const versionNumber = versionPart.match(/[a-zA-Z0-9.\-+]+/)?.[0] ?? ''
   const versionDate = datePart != null ? datePart.match(/[0-9-]+/)?.[0] : undefined
 
+  const body = other.filter((line) => !linkDefinitionRegex.test(line)).join('\n')
+  const references = collectReferences(body)
+
   return {
     id: versionNumber,
     date: versionDate,
     status: computeStatus(versionNumber, title),
-    text: other.filter((item) => !/\[.*\]: http/.test(item)).join('\n'),
+    body,
+    references,
+    text: body,
   }
+}
+
+function collectReferences(body: string): string[] {
+  const seen = new Set<string>()
+  for (const match of body.matchAll(placeholderRegex)) {
+    const name = match[1]
+    if (name !== undefined) {
+      seen.add(name.toLowerCase())
+    }
+  }
+  return Array.from(seen)
 }
 
 function computeStatus(version: string, title: string): EntryStatus {

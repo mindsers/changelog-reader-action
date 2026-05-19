@@ -6,6 +6,8 @@ export interface Entry {
   id: string
   date: string | undefined
   status: EntryStatus
+  body: string
+  references: string[]
   text: string
 }
 
@@ -14,17 +16,14 @@ export interface Section {
   items: string[]
 }
 
-export type RuleResult = Record<string, unknown>
+export type RuleResult =
+  | { type: 'ok' }
+  | { type: 'invalid-semver'; id: string }
+  | { type: 'out-of-order'; previous: string; current: string }
+  | { type: 'missing-section-items'; sectionType: string; entryID: string }
+  | { type: 'invalid-section-types'; entryID: string; allowed: readonly string[] }
 
-// Rules accept either a fully-built Entry (production path, where `text`
-// holds the body) or a hand-rolled object with a `changes` field
-// (validation tests have historically passed that shape). Tightening
-// this into a single canonical input is a Phase 5 refactor.
-export interface RuleEntry {
-  id: string
-  text?: string
-  changes?: string
-}
+export const ruleOk: RuleResult = { type: 'ok' }
 
 export interface Config {
   path?: string

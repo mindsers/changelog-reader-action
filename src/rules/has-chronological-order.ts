@@ -1,27 +1,22 @@
 import { lt, valid } from 'semver'
+import type { Entry, RuleResult } from '../types.js'
+import { ruleOk } from '../types.js'
 
-import type { RuleEntry, RuleResult } from '../types.js'
-
-export function hasChronologicalOrder(entries: RuleEntry[], currentIndex: number): RuleResult {
+export function hasChronologicalOrder(entries: Entry[], currentIndex: number): RuleResult {
   const currentEntry = entries[currentIndex]
   const previousEntry = entries[currentIndex - 1]
 
   if (previousEntry == null || currentEntry == null) {
-    return {}
+    return ruleOk
   }
 
   if (!valid(previousEntry.id) || !valid(currentEntry.id)) {
-    return {}
+    return ruleOk
   }
 
   if (lt(previousEntry.id, currentEntry.id)) {
-    return {}
+    return ruleOk
   }
 
-  return {
-    'has-chronological-order': {
-      previous: previousEntry.id,
-      current: currentEntry.id,
-    },
-  }
+  return { type: 'out-of-order', previous: previousEntry.id, current: currentEntry.id }
 }
