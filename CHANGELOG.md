@@ -10,11 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use Node 24 as the action runtime.
+- Refactor the internal entry, validation, and pipeline modules for type safety and easier maintenance. No change in observable behavior for action consumers.
 
 ### Fixed
 
 - Declare `semver` as a runtime dependency instead of a dev dependency.
 - Stop dumping the full CHANGELOG content to debug logs when parsing entries and links.
+- Detect the `Unreleased` heading case-insensitively when picking the most recent released entry.
 
 ## [2.2.3] - 2024-03-10
 
