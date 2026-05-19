@@ -1,88 +1,47 @@
-import * as core from '@actions/core'
-
 import { hasChronologicalOrder } from './rules/has-chronological-order.js'
 import { hasCorrectSections } from './rules/has-correct-sections.js'
 import { hasSections } from './rules/has-sections.js'
 import { isSemVer } from './rules/is-semver.js'
-import type { RuleEntry, ValidationLevel } from './types.js'
-
-interface ChronologicalDetails {
-  previous: string
-  current: string
-}
-
-interface SectionDetails {
-  type: string
-  entryID: string
-}
-
-interface CorrectSectionsDetails {
-  entryID: string
-  types: string[]
-}
-
-// `entry` accepts the production Entry shape (id + status + text) AND the
-// historical test-fixture shape ({ id, changes, status? }). status may be
-// absent on hand-rolled fixtures; treat absent as "not unreleased".
-type ValidatableEntry = RuleEntry & { status?: string }
+import type { Entry, RuleResult, ValidationLevel } from './types.js'
 
 export function validateEntry(
   validationLevel: ValidationLevel
-): (entry: ValidatableEntry, index: number, entries: ValidatableEntry[]) => void {
+): (entry: Entry, index: number, entries: Entry[]) => Error[] {
   return (entry, index, entries) => {
-    if (entry.status === 'unreleased') return
-
-    const validationResults: Record<string, unknown> = {
-      ...isSemVer(entry),
-      ...hasChronologicalOrder(entries, index),
-      ...hasSections(entry),
-      ...hasCorrectSections(entries, index),
+    if (validationLevel === 'none' || entry.status === 'unreleased') {
+      return []
     }
 
-    const errors = Object.keys(validationResults)
-      .filter((key) => validationResults[key] !== false)
-      .map((key) => buildError(key, validationResults[key], entry))
-      .filter((err): err is Error => err !== undefined)
+    const results: RuleResult[] = [
+      isSemVer(entry),
+      hasChronologicalOrder(entries, index),
+      hasSections(entry),
+      hasCorrectSections(entries, index),
+    ]
 
-    const shouldBreakTheBuild = validationLevel === 'error'
-    const log = shouldBreakTheBuild ? core.error : core.warning
-    for (const error of errors) {
-      log(error)
-    }
-
-    if (errors.length > 0 && shouldBreakTheBuild) {
-      throw new AggregateError(errors, `${entry.id} entry is invalid.`)
-    }
+    return results
+      .map((result) => formatError(result, entry))
+      .filter((err): err is Error => err !== null)
   }
 }
 
-function buildError(key: string, detail: unknown, entry: ValidatableEntry): Error | undefined {
-  if (key === 'is-semver') {
-    return new Error(`${entry.id} is not a valid semantic version.`)
+function formatError(result: RuleResult, entry: Entry): Error | null {
+  switch (result.type) {
+    case 'ok':
+      return null
+    case 'invalid-semver':
+      return new Error(`${result.id} is not a valid semantic version.`)
+    case 'out-of-order':
+      return new Error(
+        `Changelog versions out of order. Version ${result.current} cannot come after ${result.previous}.`
+      )
+    case 'missing-section-items':
+      return new Error(
+        `The '${result.sectionType}' section under version ${result.entryID} does not contain any listed changes under the heading.`
+      )
+    case 'invalid-section-types':
+      return new Error(
+        `Only '${result.allowed.join(', ')}' section${result.allowed.length === 1 ? '' : 's'} are allowed for version ${entry.id}.`
+      )
   }
-
-  if (key === 'has-chronological-order') {
-    const { current, previous } = detail as ChronologicalDetails
-    return new Error(
-      `Changelog versions out of order. Version ${current} cannot come after ${previous}.`
-    )
-  }
-
-  if (key === 'has-section') {
-    const { type, entryID } = detail as SectionDetails
-    return new Error(
-      `The '${type}' section under version ${entryID} does not contain any listed changes under the heading.`
-    )
-  }
-
-  if (key === 'has-correct-sections') {
-    const { entryID, types } = detail as CorrectSectionsDetails
-    return new Error(
-      `Only '${types.join(', ')}' section${
-        types.length === 1 ? '' : 's'
-      } are allowed for version ${entryID}.`
-    )
-  }
-
-  return undefined
 }

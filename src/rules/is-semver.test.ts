@@ -1,21 +1,22 @@
+import { makeEntry } from '../__fixtures__/entry.js'
 import { isSemVer } from './is-semver.js'
 
-test('should not throw error', () => {
-  const outputError = () => isSemVer({ id: 'a.b.c' })
-  const outputNoError = () => isSemVer({ id: '2.0.0' })
-
-  expect(outputError).not.toThrow()
-  expect(outputNoError).not.toThrow()
+test('does not throw on valid or invalid input', () => {
+  expect(() => isSemVer(makeEntry('a.b.c'))).not.toThrow()
+  expect(() => isSemVer(makeEntry('2.0.0'))).not.toThrow()
 })
 
-test('should return error on version that is not semantic', () => {
-  const output = isSemVer({ id: 'a.b.c' })
+test('returns invalid-semver for a non-semantic id', () => {
+  const output = isSemVer(makeEntry('a.b.c'))
 
-  expect(output['is-semver']).toBeTruthy()
+  expect(output.type).toEqual('invalid-semver')
+  if (output.type === 'invalid-semver') {
+    expect(output.id).toEqual('a.b.c')
+  }
 })
 
-test('should not return error on version that is not semantic', () => {
-  const output = isSemVer({ id: '2.0.0' })
+test('returns ok for a valid semantic id', () => {
+  const output = isSemVer(makeEntry('2.0.0'))
 
-  expect(output['is-semver']).toBeFalsy()
+  expect(output.type).toEqual('ok')
 })

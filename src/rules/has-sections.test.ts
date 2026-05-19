@@ -1,32 +1,27 @@
+import { makeEntry } from '../__fixtures__/entry.js'
 import { hasSections } from './has-sections.js'
 
-test('should not throw error', () => {
-  const outputError = () => hasSections({ id: '1.0.0', changes: '### Added\r\n' })
-  const output = () =>
-    hasSections({
-      id: '1.0.0',
-      changes: `### Fixed
+const POPULATED_SECTIONS = `### Fixed
   - Update types to allow no theme data into ThemeProvider.
-  - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`,
-    })
+  - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`
 
-  expect(outputError).not.toThrow()
-  expect(output).not.toThrow()
+test('does not throw on populated or empty sections', () => {
+  expect(() => hasSections(makeEntry('1.0.0', '### Added\r\n'))).not.toThrow()
+  expect(() => hasSections(makeEntry('1.0.0', POPULATED_SECTIONS))).not.toThrow()
 })
 
-test('should return error when no listed changes under the heading', () => {
-  const output = hasSections({ id: '1.0.0', changes: '### Added\r\n' })
+test('reports a missing-section-items error when no listed changes appear under a heading', () => {
+  const output = hasSections(makeEntry('1.0.0', '### Added\r\n'))
 
-  expect(output['has-section']).toBeTruthy()
+  expect(output.type).toEqual('missing-section-items')
+  if (output.type === 'missing-section-items') {
+    expect(output.sectionType).toEqual('added')
+    expect(output.entryID).toEqual('1.0.0')
+  }
 })
 
-test('should not return error when listed changes under the heading', () => {
-  const output = hasSections({
-    id: '1.0.0',
-    changes: `### Fixed
-  - Update types to allow no theme data into ThemeProvider.
-  - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`,
-  })
+test('returns ok when every section has listed changes', () => {
+  const output = hasSections(makeEntry('1.0.0', POPULATED_SECTIONS))
 
-  expect(output['has-section']).toBeFalsy()
+  expect(output.type).toEqual('ok')
 })

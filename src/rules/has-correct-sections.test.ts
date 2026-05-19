@@ -1,6 +1,7 @@
+import { makeEntry } from '../__fixtures__/entry.js'
 import { hasCorrectSections } from './has-correct-sections.js'
 
-const entryDescriptionMajor = `
+const entryBodyMajor = `
 ### Added
 - New attribute isOrdered on TextFieldList. Basicaly, <ol> becomes <ul> when not ordered.
 - It is possible to change the row count of the TextField in TextFieldList.
@@ -27,48 +28,34 @@ const entryDescriptionMajor = `
 - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.
 `
 
-test('should not throw error', () => {
-  const outputError = () =>
-    hasCorrectSections(
-      [
-        { id: '1.0.0', changes: entryDescriptionMajor },
-        { id: '1.0.1', changes: entryDescriptionMajor },
-      ],
-      1
-    )
-  const output = () =>
-    hasCorrectSections(
-      [
-        { id: '1.0.0', changes: entryDescriptionMajor },
-        { id: '2.0.0', changes: entryDescriptionMajor },
-      ],
-      1
-    )
+test('does not throw on either valid or invalid section sets', () => {
+  const patchWithMajorSections = () =>
+    hasCorrectSections([makeEntry('1.0.0', entryBodyMajor), makeEntry('1.0.1', entryBodyMajor)], 1)
+  const majorBumpWithMajorSections = () =>
+    hasCorrectSections([makeEntry('1.0.0', entryBodyMajor), makeEntry('2.0.0', entryBodyMajor)], 1)
 
-  expect(output).not.toThrow()
-  expect(outputError).not.toThrow()
+  expect(majorBumpWithMajorSections).not.toThrow()
+  expect(patchWithMajorSections).not.toThrow()
 })
 
-test('should return error when added section in patch release', () => {
+test('reports invalid-section-types when a patch release lists added sections', () => {
   const output = hasCorrectSections(
-    [
-      { id: '1.0.0', changes: entryDescriptionMajor },
-      { id: '1.0.1', changes: entryDescriptionMajor },
-    ],
+    [makeEntry('1.0.0', entryBodyMajor), makeEntry('1.0.1', entryBodyMajor)],
     1
   )
 
-  expect(output['has-correct-sections']).toBeTruthy()
+  expect(output.type).toEqual('invalid-section-types')
+  if (output.type === 'invalid-section-types') {
+    expect(output.entryID).toEqual('1.0.1')
+    expect(output.allowed).toEqual(['fixed', 'security'])
+  }
 })
 
-test('should return error when removed section in minor release should throw error', () => {
+test('reports invalid-section-types when a minor release lists removed sections', () => {
   const output = hasCorrectSections(
-    [
-      { id: '1.0.0', changes: entryDescriptionMajor },
-      { id: '1.1.0', changes: entryDescriptionMajor },
-    ],
+    [makeEntry('1.0.0', entryBodyMajor), makeEntry('1.1.0', entryBodyMajor)],
     1
   )
 
-  expect(output['has-correct-sections']).toBeTruthy()
+  expect(output.type).toEqual('invalid-section-types')
 })

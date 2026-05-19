@@ -6,5 +6,5 @@ export function getEntryByVersionID<T extends { id: string }>(
     return versions.find((version) => version.id === id)
   }
 
-  return versions.find((version) => !['Unreleased', 'unreleased'].includes(version.id))
+  return versions.find((version) => version.id.toLowerCase() !== 'unreleased')
 }

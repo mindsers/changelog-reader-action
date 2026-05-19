@@ -1,33 +1,7 @@
+import { makeEntry } from './__fixtures__/entry.js'
 import { validateEntry } from './validate-entry.js'
 
-const entryDescriptionMajor = `
-### Added
-- New attribute isOrdered on TextFieldList. Basicaly, <ol> becomes <ul> when not ordered.
-- It is possible to change the row count of the TextField in TextFieldList.
-- New attribute maxFieldCount on TextFieldList. It hides the add button when the value of maxFieldCount is reached.
-- New DatePickerField component to display a date input.
-- New attribute isSmall on TextField to display a smaller version of he TextField.
-
-### Removed
-- Legacy DatePicker library.
-
-### Changed
-- All form components can be updated using the value attribute.
-- **BREACKING CHANGES** The default behavior of TextFieldList is to be "not ordered".
-  You'll have to add the new isOrdered attribute on your existing components.
-- FormErrors become FormErrorMessages.
-- FormErrorMessages try to translate the error key automatically.
-- ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.
-- FormErrorMessages filter error that are equal to false
-- If an error is equal to en object instead of true, the object is passed to the translator as variables by FormErrorMessages.
-- RadioButton and CheckboxButton support other type than string for their children attribute.
-
-### Fixed
-- Update types to allow no theme data into ThemeProvider.
-- **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.
-`
-
-const entryDescriptionMinor = `
+const entryBodyMajor = `
 ### Added
 - New attribute isOrdered on TextFieldList. Basicaly, <ol> becomes <ul> when not ordered.
 - It is possible to change the row count of the TextField in TextFieldList.
@@ -40,44 +14,61 @@ const entryDescriptionMinor = `
 - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.
 `
 
-const entryDescriptionPatch = `
+const entryBodyMinor = entryBodyMajor
+
+const entryBodyPatch = `
 ### Fixed
 - Update types to allow no theme data into ThemeProvider.
 - **SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.
 `
 
-test('validate multiple versions', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.0.1', changes: entryDescriptionPatch },
-    { id: '1.1.0', changes: entryDescriptionMinor },
-    { id: '2.0.0', changes: entryDescriptionMajor },
-  ]
-  const output = () => input.forEach(validateEntry('error'))
+function collectErrors(level: 'warn' | 'error', entries: ReturnType<typeof makeEntry>[]): Error[] {
+  const run = validateEntry(level)
+  return entries.flatMap((entry, index, arr) => run(entry, index, arr))
+}
 
-  expect(output).not.toThrow()
+test('returns no errors for a valid changelog history', () => {
+  const errors = collectErrors('error', [
+    makeEntry('1.0.0', entryBodyMajor),
+    makeEntry('1.0.1', entryBodyPatch),
+    makeEntry('1.1.0', entryBodyMinor),
+    makeEntry('2.0.0', entryBodyMajor),
+  ])
+
+  expect(errors).toEqual([])
 })
 
-test('throw error on error', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.0.1', changes: entryDescriptionPatch },
-    { id: 'a.b.c', changes: entryDescriptionMinor },
-    { id: '2.0.0', changes: entryDescriptionMajor },
-  ]
-  const output = () => input.forEach(validateEntry('error'))
+test('returns errors when an entry id is not a valid semantic version', () => {
+  const errors = collectErrors('error', [
+    makeEntry('1.0.0', entryBodyMajor),
+    makeEntry('1.0.1', entryBodyPatch),
+    makeEntry('a.b.c', entryBodyMinor),
+    makeEntry('2.0.0', entryBodyMajor),
+  ])
 
-  expect(output).toThrow()
+  expect(errors.length).toBeGreaterThan(0)
+  expect(errors.some((e) => e.message.includes('a.b.c'))).toBe(true)
 })
 
-test('not throw error on error [warn]', () => {
-  const input = [
-    { id: '1.0.0', changes: entryDescriptionMajor },
-    { id: '1.0.1', changes: entryDescriptionPatch },
-    { id: 'a.b.c', changes: entryDescriptionMinor },
-    { id: '2.0.0', changes: entryDescriptionMajor },
+test("reports the same errors under 'warn' as under 'error'", () => {
+  const inputs = [
+    makeEntry('1.0.0', entryBodyMajor),
+    makeEntry('1.0.1', entryBodyPatch),
+    makeEntry('a.b.c', entryBodyMinor),
+    makeEntry('2.0.0', entryBodyMajor),
   ]
-  const output = () => input.forEach(validateEntry('warn'))
 
-  expect(output).not.toThrow()
+  const errorMessages = collectErrors('error', inputs).map((e) => e.message)
+  const warnMessages = collectErrors('warn', inputs).map((e) => e.message)
+
+  expect(warnMessages).toEqual(errorMessages)
+})
+
+test("returns no errors when level is 'none'", () => {
+  const errors = collectErrors('none' as 'warn', [
+    makeEntry('a.b.c', entryBodyMinor),
+    makeEntry('1.0.0', entryBodyMajor),
+  ])
+
+  expect(errors).toEqual([])
 })
