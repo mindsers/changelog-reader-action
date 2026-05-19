@@ -42,6 +42,7 @@ jobs:
             expected_version: '2.2.3'
             expected_status: released
           - scenario: unreleased section
+            path: ./.github/fixtures/changelog-unreleased.md
             version: Unreleased
             expected_version: Unreleased
             expected_status: unreleased
