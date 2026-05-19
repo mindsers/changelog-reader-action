@@ -18,7 +18,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate tag matches package.json version
+      - name: Resolve version and validate against package.json
+        id: version
         env:
           TAG: ${{ github.ref_name }}
         run: |
@@ -28,33 +29,19 @@ jobs:
             echo "::error::Tag $TAG does not match package.json version $pkg_version"
             exit 1
           fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Extract release notes from CHANGELOG.md
+      - name: Extract release notes from CHANGELOG
         id: notes
-        env:
-          TAG: ${{ github.ref_name }}
-        run: |
-          version="${TAG#v}"
-          notes=$(awk -v ver="$version" '
-            $0 ~ "^## \\[" ver "\\]" { capture = 1; next }
-            capture && /^## / { exit }
-            capture { print }
-          ' CHANGELOG.md)
-          if [ -z "$notes" ]; then
-            echo "::error::No CHANGELOG section found for $TAG"
-            exit 1
-          fi
-          {
-            echo "notes<<RELEASE_NOTES_EOF"
-            echo "$notes"
-            echo "RELEASE_NOTES_EOF"
-          } >> "$GITHUB_OUTPUT"
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.version.outputs.value }}
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
-          NOTES: ${{ steps.notes.outputs.notes }}
+          NOTES: ${{ steps.notes.outputs.changes }}
         run: |
           gh release create "$TAG" --title "$TAG" --notes "$NOTES" --verify-tag
 
