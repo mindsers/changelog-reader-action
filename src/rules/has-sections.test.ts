@@ -1,4 +1,4 @@
-const { hasSections } = require('./has-sections')
+import { hasSections } from './has-sections.js'
 
 test('should not throw error', () => {
   const outputError = () => hasSections({ id: '1.0.0', changes: '### Added\r\n' })

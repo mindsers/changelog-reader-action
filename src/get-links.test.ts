@@ -1,4 +1,4 @@
-const { getLinks } = require('./get-links')
+import { getLinks } from './get-links.js'
 
 const DATA_v = `
 # Changelog

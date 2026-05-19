@@ -1,27 +1,35 @@
-// Factory mocks: @actions/core loads code from fs.promises at import time,
-// which breaks when fs is auto-mocked. Pinning explicit shapes here keeps
-// both mocks self-contained.
-jest.mock('fs', () => ({
-  readFile: jest.fn(),
-  existsSync: jest.fn(),
-  readFileSync: jest.fn(),
+import { existsSync, readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import * as core from '@actions/core'
+import { vi } from 'vitest'
+
+import { main } from './main.js'
+
+vi.mock('node:fs', () => ({
+  existsSync: vi.fn(),
+  readFileSync: vi.fn(),
 }))
 
-jest.mock('@actions/core', () => ({
-  getInput: jest.fn(),
-  setOutput: jest.fn(),
-  setFailed: jest.fn(),
-  info: jest.fn(),
-  debug: jest.fn(),
-  warning: jest.fn(),
-  error: jest.fn(),
-  startGroup: jest.fn(),
-  endGroup: jest.fn(),
+vi.mock('node:fs/promises', () => ({
+  readFile: vi.fn(),
 }))
 
-const fs = require('fs')
-const core = require('@actions/core')
-const { main } = require('./main')
+vi.mock('@actions/core', () => ({
+  getInput: vi.fn(),
+  setOutput: vi.fn(),
+  setFailed: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warning: vi.fn(),
+  error: vi.fn(),
+  startGroup: vi.fn(),
+  endGroup: vi.fn(),
+}))
+
+const mockedReadFile = vi.mocked(readFile)
+const mockedExistsSync = vi.mocked(existsSync)
+const mockedReadFileSync = vi.mocked(readFileSync)
+const mockedCore = vi.mocked(core)
 
 const HAPPY_CHANGELOG = `# Changelog
 
@@ -82,26 +90,23 @@ const INVALID_CHANGELOG = `# Changelog
 - This should be at the top
 `
 
-function setInputs(values) {
-  core.getInput.mockImplementation(name => values[name] || '')
+function setInputs(values: Record<string, string>) {
+  mockedCore.getInput.mockImplementation((name: string) => values[name] || '')
 }
 
-function setChangelogContents(contents) {
-  // util.promisify(fs.readFile) calls fs.readFile with a Node-style
-  // callback. Make the mock invoke that callback with the canned data.
-  fs.readFile.mockImplementation((_path, cb) => cb(null, Buffer.from(contents)))
+function setChangelogContents(contents: string) {
+  mockedReadFile.mockResolvedValue(Buffer.from(contents))
 }
 
-function getOutput(name) {
-  const call = core.setOutput.mock.calls.find(([key]) => key === name)
+function getOutput(name: string): unknown {
+  const call = mockedCore.setOutput.mock.calls.find(([key]) => key === name)
   return call ? call[1] : undefined
 }
 
 describe('main', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    // Default: no config file on disk.
-    fs.existsSync.mockReturnValue(false)
+    vi.clearAllMocks()
+    mockedExistsSync.mockReturnValue(false)
   })
 
   test('returns the most recent released entry when no version input is given', async () => {
@@ -110,7 +115,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('2.0.0')
     expect(getOutput('date')).toEqual('2024-01-15')
     expect(getOutput('status')).toEqual('released')
@@ -123,7 +128,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('1.0.0')
     expect(getOutput('date')).toEqual('2023-06-01')
     expect(getOutput('status')).toEqual('released')
@@ -136,7 +141,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).toHaveBeenCalledWith(
+    expect(mockedCore.setFailed).toHaveBeenCalledWith(
       expect.stringContaining('No log entry found for version 9.9.9')
     )
   })
@@ -147,7 +152,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('Unreleased')
     expect(getOutput('status')).toEqual('unreleased')
     expect(getOutput('changes')).toContain('Future feature')
@@ -159,7 +164,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('2.0.0')
     expect(getOutput('status')).toEqual('yanked')
   })
@@ -170,7 +175,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('2.0.0-alpha.1')
     expect(getOutput('status')).toEqual('prereleased')
   })
@@ -181,11 +186,11 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
-    expect(core.warning).not.toHaveBeenCalledWith(
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.warning).not.toHaveBeenCalledWith(
       expect.stringContaining('Changelog versions out of order')
     )
-    expect(core.error).not.toHaveBeenCalledWith(
+    expect(mockedCore.error).not.toHaveBeenCalledWith(
       expect.stringContaining('Changelog versions out of order')
     )
   })
@@ -196,8 +201,8 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
-    expect(core.warning).toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.warning).toHaveBeenCalled()
     expect(getOutput('version')).toEqual('1.0.0')
   })
 
@@ -207,7 +212,7 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).toHaveBeenCalled()
+    expect(mockedCore.setFailed).toHaveBeenCalled()
   })
 
   test("does not fail when validation_level is 'error' and the changelog is valid", async () => {
@@ -216,29 +221,29 @@ describe('main', () => {
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('2.0.0')
   })
 
   test('applies values from a config file when no overriding action input is set', async () => {
     setInputs({ config_file: '.changelog-reader.json' })
-    fs.existsSync.mockReturnValue(true)
-    fs.readFileSync.mockReturnValue(
+    mockedExistsSync.mockReturnValue(true)
+    mockedReadFileSync.mockReturnValue(
       JSON.stringify({ version: '1.0.0', validation_level: 'none' })
     )
     setChangelogContents(HAPPY_CHANGELOG)
 
     await main()
 
-    expect(core.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
     expect(getOutput('version')).toEqual('1.0.0')
     expect(getOutput('date')).toEqual('2023-06-01')
   })
 
   test('action input takes precedence over config file value', async () => {
     setInputs({ config_file: '.changelog-reader.json', version: '2.0.0' })
-    fs.existsSync.mockReturnValue(true)
-    fs.readFileSync.mockReturnValue(JSON.stringify({ version: '1.0.0' }))
+    mockedExistsSync.mockReturnValue(true)
+    mockedReadFileSync.mockReturnValue(JSON.stringify({ version: '1.0.0' }))
     setChangelogContents(HAPPY_CHANGELOG)
 
     await main()
@@ -252,7 +257,7 @@ describe('main', () => {
 
     await main()
 
-    expect(fs.readFile).toHaveBeenCalledWith('./CHANGELOG.md', expect.any(Function))
+    expect(mockedReadFile).toHaveBeenCalledWith('./CHANGELOG.md')
   })
 
   test('uses the configured changelog path when set via action input', async () => {
@@ -261,6 +266,6 @@ describe('main', () => {
 
     await main()
 
-    expect(fs.readFile).toHaveBeenCalledWith('./docs/CHANGELOG.md', expect.any(Function))
+    expect(mockedReadFile).toHaveBeenCalledWith('./docs/CHANGELOG.md')
   })
 })

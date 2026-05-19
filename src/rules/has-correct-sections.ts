@@ -1,12 +1,13 @@
-const { diff, valid } = require('semver')
+import { diff, valid } from 'semver'
 
-const { parseEntryContent } = require('../parse-entry-content')
+import { parseEntryContent } from '../parse-entry-content.js'
+import type { RuleEntry, RuleResult } from '../types.js'
 
-exports.hasCorrectSections = function (entries, currentIndex) {
+export function hasCorrectSections(entries: RuleEntry[], currentIndex: number): RuleResult {
   const currentEntry = entries[currentIndex]
   const previousEntry = entries[currentIndex - 1]
 
-  if (previousEntry == null) {
+  if (previousEntry == null || currentEntry == null) {
     return {}
   }
 
@@ -14,13 +15,12 @@ exports.hasCorrectSections = function (entries, currentIndex) {
     return {}
   }
 
-  const entryTypes = parseEntryContent(currentEntry.changes || currentEntry.text).map(
-    change => change.type
+  const entryTypes = parseEntryContent(currentEntry.changes ?? currentEntry.text ?? '').map(
+    (change) => change.type
   )
   const allowedTypes = getAllowedTypes(previousEntry.id, currentEntry.id)
 
-  if (entryTypes.some(type => allowedTypes.indexOf(type) === -1)) {
-    // Validates that only certain allowed types are in the change set
+  if (entryTypes.some((type) => !allowedTypes.includes(type))) {
     return {
       'has-correct-sections': {
         entryID: currentEntry.id,
@@ -32,7 +32,7 @@ exports.hasCorrectSections = function (entries, currentIndex) {
   return {}
 }
 
-function getAllowedTypes(v1, v2) {
+function getAllowedTypes(v1: string, v2: string): string[] {
   const versionDiff = diff(v1, v2)
 
   switch (versionDiff) {

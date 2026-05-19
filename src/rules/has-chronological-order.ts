@@ -1,10 +1,12 @@
-const { lt, valid } = require('semver')
+import { lt, valid } from 'semver'
 
-exports.hasChronologicalOrder = function (entries, currentIndex) {
+import type { RuleEntry, RuleResult } from '../types.js'
+
+export function hasChronologicalOrder(entries: RuleEntry[], currentIndex: number): RuleResult {
   const currentEntry = entries[currentIndex]
   const previousEntry = entries[currentIndex - 1]
 
-  if (previousEntry == null) {
+  if (previousEntry == null || currentEntry == null) {
     return {}
   }
 

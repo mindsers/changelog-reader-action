@@ -1,4 +1,4 @@
-const { parseEntryContent } = require('./parse-entry-content')
+import { parseEntryContent } from './parse-entry-content.js'
 
 describe('parseEntryContent', () => {
   test('parses a single section with one item', () => {
@@ -40,9 +40,7 @@ describe('parseEntryContent', () => {
   })
 
   test('lowercases the section type', () => {
-    expect(parseEntryContent('### ADDED\n- foo')).toEqual([
-      { type: 'added', items: ['- foo'] },
-    ])
+    expect(parseEntryContent('### ADDED\n- foo')).toEqual([{ type: 'added', items: ['- foo'] }])
   })
 
   test('handles mixed-case section types', () => {
@@ -52,9 +50,7 @@ describe('parseEntryContent', () => {
   })
 
   test('trims trailing whitespace from the section header line', () => {
-    expect(parseEntryContent('### Added   \n- foo')).toEqual([
-      { type: 'added', items: ['- foo'] },
-    ])
+    expect(parseEntryContent('### Added   \n- foo')).toEqual([{ type: 'added', items: ['- foo'] }])
   })
 
   test('handles CRLF line endings', () => {
