@@ -4,12 +4,18 @@ import * as core from '@actions/core'
 import { getConfig } from './get-config.js'
 import { processChangelog } from './pipeline.js'
 import type { ValidationLevel } from './types.js'
+import { isValidationLevel, VALIDATION_LEVELS } from './types.js'
+
+const DEFAULT_VALIDATION_DEPTH = 10
 
 export async function main(): Promise<void> {
   try {
     const configFilePath = core.getInput('config_file') || null
-    const fileConfig = getConfig(configFilePath)
+    const { config: fileConfig, missingExplicitPath } = getConfig(configFilePath)
 
+    if (missingExplicitPath !== null) {
+      core.warning(`Config file '${missingExplicitPath}' not found. Falling back to action inputs.`)
+    }
     if (Object.keys(fileConfig).length > 0) {
       core.info('Configuration loaded from file')
       core.debug(`File configuration: ${JSON.stringify(fileConfig)}`)
@@ -17,14 +23,29 @@ export async function main(): Promise<void> {
 
     const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md'
     const targetVersion = core.getInput('version') || fileConfig.version || null
-    const validationLevel = (core.getInput('validation_level') ||
-      fileConfig.validation_level ||
-      'none') as ValidationLevel
+
+    const rawValidationLevel =
+      core.getInput('validation_level') || fileConfig.validation_level || 'none'
+    let validationLevel: ValidationLevel = 'none'
+    if (isValidationLevel(rawValidationLevel)) {
+      validationLevel = rawValidationLevel
+    } else {
+      core.warning(
+        `Invalid validation_level '${rawValidationLevel}'. Expected one of: ${VALIDATION_LEVELS.join(', ')}. Falling back to 'none'.`
+      )
+    }
+
     const validationDepthInput = core.getInput('validation_depth')
-    const validationDepth = Number.parseInt(
-      validationDepthInput || String(fileConfig.validation_depth ?? '10'),
-      10
-    )
+    const rawDepth = validationDepthInput || String(fileConfig.validation_depth ?? '10')
+    let validationDepth = DEFAULT_VALIDATION_DEPTH
+    const parsedDepth = Number.parseInt(rawDepth, 10)
+    if (Number.isInteger(parsedDepth) && parsedDepth >= 0) {
+      validationDepth = parsedDepth
+    } else {
+      core.warning(
+        `Invalid validation_depth '${rawDepth}'. Falling back to ${DEFAULT_VALIDATION_DEPTH}.`
+      )
+    }
 
     if (targetVersion == null) {
       core.warning(

@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import * as core from '@actions/core'
 import { vi } from 'vitest'
 
 import { getConfig } from './get-config.js'
@@ -9,8 +10,16 @@ vi.mock('node:fs', () => ({
   readFileSync: vi.fn(),
 }))
 
+vi.mock('@actions/core', () => ({
+  warning: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  error: vi.fn(),
+}))
+
 const mockedExistsSync = vi.mocked(existsSync)
 const mockedReadFileSync = vi.mocked(readFileSync)
+const mockedWarning = vi.mocked(core.warning)
 
 describe('getConfig', () => {
   const originalCwd = process.cwd
@@ -24,10 +33,13 @@ describe('getConfig', () => {
     process.cwd = originalCwd
   })
 
-  test('returns empty object when no config file exists', () => {
+  test('returns empty config when no auto-discovered file exists', () => {
     mockedExistsSync.mockReturnValue(false)
-    const config = getConfig()
-    expect(config).toEqual({})
+
+    const result = getConfig()
+
+    expect(result.config).toEqual({})
+    expect(result.missingExplicitPath).toBeNull()
   })
 
   test('loads config from explicit JSON path', () => {
@@ -40,13 +52,14 @@ describe('getConfig', () => {
     mockedExistsSync.mockReturnValue(true)
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig('.changelog-reader.json')
+    const result = getConfig('.changelog-reader.json')
 
-    expect(config).toEqual({
+    expect(result.config).toEqual({
       path: './custom/CHANGELOG.md',
       validation_level: 'warn',
       validation_depth: 5,
     })
+    expect(result.missingExplicitPath).toBeNull()
   })
 
   test('loads config from explicit YAML path', () => {
@@ -60,9 +73,9 @@ validation_depth: 20
     mockedExistsSync.mockReturnValue(true)
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig('.changelog-reader.yml')
+    const result = getConfig('.changelog-reader.yml')
 
-    expect(config).toEqual({
+    expect(result.config).toEqual({
       path: './custom/CHANGELOG.md',
       validation_level: 'error',
       validation_depth: 20,
@@ -70,58 +83,45 @@ validation_depth: 20
   })
 
   test('auto-discovers .changelog-reader.json', () => {
-    const configContent = JSON.stringify({
-      validation_level: 'warn',
-    })
+    const configContent = JSON.stringify({ validation_level: 'warn' })
 
     mockedExistsSync.mockImplementation(
       (filePath) => filePath === resolve('/test', '.changelog-reader.json')
     )
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig()
+    const result = getConfig()
 
-    expect(config).toEqual({
-      validation_level: 'warn',
-    })
+    expect(result.config).toEqual({ validation_level: 'warn' })
   })
 
   test('auto-discovers .changelog-reader.yml', () => {
-    const configContent = `validation_level: error`
-
     mockedExistsSync.mockImplementation(
       (filePath) => filePath === resolve('/test', '.changelog-reader.yml')
     )
-    mockedReadFileSync.mockReturnValue(configContent)
+    mockedReadFileSync.mockReturnValue(`validation_level: error`)
 
-    const config = getConfig()
+    const result = getConfig()
 
-    expect(config).toEqual({
-      validation_level: 'error',
-    })
+    expect(result.config).toEqual({ validation_level: 'error' })
   })
 
   test('auto-discovers .changelogrc', () => {
-    const configContent = JSON.stringify({
-      path: './docs/CHANGELOG.md',
-    })
-
     mockedExistsSync.mockImplementation((filePath) => filePath === resolve('/test', '.changelogrc'))
-    mockedReadFileSync.mockReturnValue(configContent)
+    mockedReadFileSync.mockReturnValue(JSON.stringify({ path: './docs/CHANGELOG.md' }))
 
-    const config = getConfig()
+    const result = getConfig()
 
-    expect(config).toEqual({
-      path: './docs/CHANGELOG.md',
-    })
+    expect(result.config).toEqual({ path: './docs/CHANGELOG.md' })
   })
 
-  test('returns empty object when explicit path does not exist', () => {
+  test('flags an explicit path that does not exist', () => {
     mockedExistsSync.mockReturnValue(false)
 
-    const config = getConfig('./non-existent-config.json')
+    const result = getConfig('./non-existent-config.json')
 
-    expect(config).toEqual({})
+    expect(result.config).toEqual({})
+    expect(result.missingExplicitPath).toEqual('./non-existent-config.json')
   })
 
   test('parses YAML with quoted values', () => {
@@ -133,30 +133,11 @@ validation_level: 'warn'
     mockedExistsSync.mockReturnValue(true)
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig('.changelog-reader.yaml')
+    const result = getConfig('.changelog-reader.yaml')
 
-    expect(config).toEqual({
+    expect(result.config).toEqual({
       path: './custom/CHANGELOG.md',
       validation_level: 'warn',
-    })
-  })
-
-  test('parses YAML with boolean and numeric values', () => {
-    const configContent = `
-validation_depth: 15
-some_bool: true
-another_bool: false
-`
-
-    mockedExistsSync.mockReturnValue(true)
-    mockedReadFileSync.mockReturnValue(configContent)
-
-    const config = getConfig('.changelog-reader.yml')
-
-    expect(config).toEqual({
-      validation_depth: 15,
-      some_bool: true,
-      another_bool: false,
     })
   })
 
@@ -171,39 +152,85 @@ validation_level: warn # inline comment
     mockedExistsSync.mockReturnValue(true)
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig('.changelog-reader.yml')
+    const result = getConfig('.changelog-reader.yml')
 
-    expect(config.path).toEqual('./CHANGELOG.md')
-    expect(config.validation_level).toEqual('warn')
+    expect(result.config.path).toEqual('./CHANGELOG.md')
+    expect(result.config.validation_level).toEqual('warn')
   })
 
-  test('handles numeric edge cases correctly', () => {
-    const configContent = `
-integer_value: 42
-negative_value: -10
-decimal_value: 3.14
-version_string: "1.2.3"
-`
+  test('returns empty config for empty YAML file', () => {
+    mockedExistsSync.mockReturnValue(true)
+    mockedReadFileSync.mockReturnValue('')
+
+    const result = getConfig('.changelog-reader.yml')
+
+    expect(result.config).toEqual({})
+  })
+
+  test('throws when the config root is an array', () => {
+    mockedExistsSync.mockReturnValue(true)
+    mockedReadFileSync.mockReturnValue('[1, 2, 3]')
+
+    expect(() => getConfig('.changelog-reader.json')).toThrow(/must contain an object at the root/)
+  })
+
+  test('throws when the config root is a scalar', () => {
+    mockedExistsSync.mockReturnValue(true)
+    mockedReadFileSync.mockReturnValue('"just a string"')
+
+    expect(() => getConfig('.changelog-reader.json')).toThrow(/must contain an object at the root/)
+  })
+
+  test('warns and ignores fields with the wrong type', () => {
+    const configContent = JSON.stringify({
+      path: 42,
+      version: ['1.0.0'],
+      validation_level: 'verbose',
+      validation_depth: 'abc',
+    })
 
     mockedExistsSync.mockReturnValue(true)
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig('.changelog-reader.yml') as Record<string, unknown>
+    const result = getConfig('.changelog-reader.json')
 
-    expect(config.integer_value).toEqual(42)
-    expect(config.negative_value).toEqual(-10)
-    expect(config.decimal_value).toEqual(3.14)
-    expect(config.version_string).toEqual('1.2.3')
+    expect(result.config).toEqual({})
+    expect(mockedWarning).toHaveBeenCalledWith(expect.stringContaining("'path' must be a string"))
+    expect(mockedWarning).toHaveBeenCalledWith(
+      expect.stringContaining("'version' must be a string")
+    )
+    expect(mockedWarning).toHaveBeenCalledWith(
+      expect.stringContaining("'validation_level' must be one of")
+    )
+    expect(mockedWarning).toHaveBeenCalledWith(
+      expect.stringContaining("'validation_depth' must be a non-negative integer")
+    )
   })
 
-  test('returns empty object for empty YAML file', () => {
-    const configContent = ``
+  test('warns when validation_depth is a non-integer or negative', () => {
+    mockedExistsSync.mockReturnValue(true)
+    mockedReadFileSync.mockReturnValue(JSON.stringify({ validation_depth: -5 }))
+
+    const result = getConfig('.changelog-reader.json')
+
+    expect(result.config).toEqual({})
+    expect(mockedWarning).toHaveBeenCalledWith(
+      expect.stringContaining("'validation_depth' must be a non-negative integer")
+    )
+  })
+
+  test('drops unknown fields silently', () => {
+    const configContent = JSON.stringify({
+      path: './CHANGELOG.md',
+      unknown_option: 42,
+    })
 
     mockedExistsSync.mockReturnValue(true)
     mockedReadFileSync.mockReturnValue(configContent)
 
-    const config = getConfig('.changelog-reader.yml')
+    const result = getConfig('.changelog-reader.json')
 
-    expect(config).toEqual({})
+    expect(result.config).toEqual({ path: './CHANGELOG.md' })
+    expect(mockedWarning).not.toHaveBeenCalled()
   })
 })

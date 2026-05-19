@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { extname, resolve } from 'node:path'
+import * as core from '@actions/core'
 import { parse as parseYaml } from 'yaml'
-
 import type { Config } from './types.js'
+import { isValidationLevel, VALIDATION_LEVELS } from './types.js'
 
 const CONFIG_FILE_NAMES = [
   '.changelog-reader.json',
@@ -12,34 +13,89 @@ const CONFIG_FILE_NAMES = [
   '.changelogrc.json',
 ]
 
-export function getConfig(configPath: string | null = null): Config {
+export interface ConfigLoadResult {
+  config: Config
+  missingExplicitPath: string | null
+}
+
+export function getConfig(configPath: string | null = null): ConfigLoadResult {
   if (configPath) {
-    return loadConfigFromPath(configPath)
+    const resolvedPath = resolve(process.cwd(), configPath)
+    if (!existsSync(resolvedPath)) {
+      return { config: {}, missingExplicitPath: configPath }
+    }
+    return { config: loadConfigFromPath(resolvedPath), missingExplicitPath: null }
   }
 
   for (const fileName of CONFIG_FILE_NAMES) {
     const filePath = resolve(process.cwd(), fileName)
     if (existsSync(filePath)) {
-      return loadConfigFromPath(filePath)
+      return { config: loadConfigFromPath(filePath), missingExplicitPath: null }
     }
   }
 
-  return {}
+  return { config: {}, missingExplicitPath: null }
 }
 
-function loadConfigFromPath(configPath: string): Config {
-  const resolvedPath = resolve(process.cwd(), configPath)
-
-  if (!existsSync(resolvedPath)) {
-    return {}
-  }
-
+function loadConfigFromPath(resolvedPath: string): Config {
   const content = readFileSync(resolvedPath, 'utf8')
   const ext = extname(resolvedPath).toLowerCase()
+  const parsed = ext === '.yml' || ext === '.yaml' ? parseYaml(content) : JSON.parse(content)
+  return validateConfig(parsed, resolvedPath)
+}
 
-  if (ext === '.yml' || ext === '.yaml') {
-    return (parseYaml(content) as Config | null) ?? {}
+function validateConfig(value: unknown, source: string): Config {
+  if (value === null || value === undefined) {
+    return {}
+  }
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(
+      `Config file ${source} must contain an object at the root, got ${Array.isArray(value) ? 'array' : typeof value}.`
+    )
   }
 
-  return JSON.parse(content) as Config
+  const raw = value as Record<string, unknown>
+  const config: Config = {}
+
+  if (raw.path !== undefined) {
+    if (typeof raw.path === 'string') {
+      config.path = raw.path
+    } else {
+      core.warning(`Config '${source}': 'path' must be a string. Ignoring.`)
+    }
+  }
+
+  if (raw.version !== undefined) {
+    if (typeof raw.version === 'string') {
+      config.version = raw.version
+    } else {
+      core.warning(`Config '${source}': 'version' must be a string. Ignoring.`)
+    }
+  }
+
+  if (raw.validation_level !== undefined) {
+    if (isValidationLevel(raw.validation_level)) {
+      config.validation_level = raw.validation_level
+    } else {
+      core.warning(
+        `Config '${source}': 'validation_level' must be one of ${VALIDATION_LEVELS.join(', ')}. Ignoring.`
+      )
+    }
+  }
+
+  if (raw.validation_depth !== undefined) {
+    if (
+      typeof raw.validation_depth === 'number' &&
+      Number.isInteger(raw.validation_depth) &&
+      raw.validation_depth >= 0
+    ) {
+      config.validation_depth = raw.validation_depth
+    } else {
+      core.warning(
+        `Config '${source}': 'validation_depth' must be a non-negative integer. Ignoring.`
+      )
+    }
+  }
+
+  return config
 }

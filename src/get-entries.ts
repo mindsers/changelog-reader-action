@@ -1,7 +1,7 @@
 const versionSeparator = '\n## '
 const semverLinkRegex =
   /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
-const unreleasedLinkRegex = /^\[unreleased\]/i
+const unreleasedLinkRegex = /^\[?unreleased\]?/i
 const avoidNonVersionData = (version: string): boolean =>
   semverLinkRegex.test(version) || unreleasedLinkRegex.test(version)
 
