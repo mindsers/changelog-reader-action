@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-05-19
+
 ### Changed
 
 - Use Node 24 as the action runtime.
@@ -150,7 +152,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CHANGELOG can be parsed by the github action
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.2.3...HEAD
+[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.3.0...HEAD
+[2.2.3]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.3...v2.3.0
 [2.2.3]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.0...v2.2.1
