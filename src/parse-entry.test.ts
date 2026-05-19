@@ -111,6 +111,14 @@ test('get readable data from text entry | unreleased version', () => {
   expect(output.id).toEqual('Unreleased')
   expect(output.date).toBeUndefined()
   expect(output.status).toEqual('unreleased')
+
+  // Bare `## Unreleased` (no brackets) also classifies as unreleased.
+  const bareOutput = parseEntry(`
+    ## Unreleased
+    ${entryDescription}
+  `)
+  expect(bareOutput.id).toEqual('Unreleased')
+  expect(bareOutput.status).toEqual('unreleased')
   expect(output.text).toContain(`### Added`)
   expect(output.text).toContain(
     `ThemeProvider doesn't loads the font anymore. We created a more generic component (UIKitInitializer) that'll do it.`

@@ -45,7 +45,8 @@ function computeStatus(version: string, title: string): EntryStatus {
     return 'yanked'
   }
 
-  if (/\[unreleased\]/i.test(title)) {
+  // Accept both `[Unreleased]` and bare `Unreleased` (and case variants).
+  if (/\bunreleased\b/i.test(title)) {
     return 'unreleased'
   }
 

@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Declare `semver` as a runtime dependency instead of a dev dependency.
 - Stop dumping the full CHANGELOG content to debug logs when parsing entries and links.
 - Detect the `Unreleased` heading case-insensitively when picking the most recent released entry.
+- Warn (instead of silently degrading) when `validation_level` or `validation_depth` inputs are invalid; fall back to safe defaults.
+- Warn (instead of silently using an empty config) when an explicit `config_file` does not exist.
+- Validate the shape of YAML/JSON config files; warn on per-field type mismatches and reject non-object roots.
+- Recognize bare `## Unreleased` headings in addition to the bracketed `## [Unreleased]` form.
 
 ## [2.2.3] - 2024-03-10
 

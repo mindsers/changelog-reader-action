@@ -1,6 +1,12 @@
 export type EntryStatus = 'released' | 'prereleased' | 'unreleased' | 'yanked'
 
-export type ValidationLevel = 'none' | 'warn' | 'error'
+export const VALIDATION_LEVELS = ['none', 'warn', 'error'] as const
+
+export type ValidationLevel = (typeof VALIDATION_LEVELS)[number]
+
+export function isValidationLevel(value: unknown): value is ValidationLevel {
+  return typeof value === 'string' && (VALIDATION_LEVELS as readonly string[]).includes(value)
+}
 
 export interface Entry {
   id: string
@@ -23,7 +29,7 @@ export type RuleResult =
   | { type: 'missing-section-items'; sectionType: string; entryID: string }
   | { type: 'invalid-section-types'; entryID: string; allowed: readonly string[] }
 
-export const ruleOk: RuleResult = { type: 'ok' }
+export const ruleOk = { type: 'ok' } as const satisfies RuleResult
 
 export interface Config {
   path?: string

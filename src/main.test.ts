@@ -268,4 +268,56 @@ describe('main', () => {
 
     expect(mockedReadFile).toHaveBeenCalledWith('./docs/CHANGELOG.md')
   })
+
+  test('warns and falls back when validation_level is an unknown value', async () => {
+    setInputs({ validation_level: 'verbose' })
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Invalid validation_level 'verbose'")
+    )
+    // Falls back to 'none' so no validation runs against this valid changelog.
+    expect(getOutput('version')).toEqual('2.0.0')
+  })
+
+  test('warns and falls back when validation_depth is not a number', async () => {
+    setInputs({ validation_level: 'warn', validation_depth: 'abc' })
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Invalid validation_depth 'abc'")
+    )
+  })
+
+  test('warns and falls back when validation_depth is negative', async () => {
+    setInputs({ validation_level: 'warn', validation_depth: '-5' })
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedCore.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Invalid validation_depth '-5'")
+    )
+  })
+
+  test('warns when an explicit config_file path does not exist', async () => {
+    setInputs({ config_file: './missing-config.json' })
+    mockedExistsSync.mockReturnValue(false)
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Config file './missing-config.json' not found")
+    )
+    // Action still produces output from inputs / defaults.
+    expect(getOutput('version')).toEqual('2.0.0')
+  })
 })

@@ -34093,15 +34093,50 @@ function resolveLinks(registry) {
 /***/ }),
 
 /***/ 562:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getConfig = getConfig;
 const node_fs_1 = __nccwpck_require__(3024);
 const node_path_1 = __nccwpck_require__(6760);
+const core = __importStar(__nccwpck_require__(7484));
 const yaml_1 = __nccwpck_require__(8815);
+const types_js_1 = __nccwpck_require__(6141);
 const CONFIG_FILE_NAMES = [
     '.changelog-reader.json',
     '.changelog-reader.yml',
@@ -34111,27 +34146,70 @@ const CONFIG_FILE_NAMES = [
 ];
 function getConfig(configPath = null) {
     if (configPath) {
-        return loadConfigFromPath(configPath);
+        const resolvedPath = (0, node_path_1.resolve)(process.cwd(), configPath);
+        if (!(0, node_fs_1.existsSync)(resolvedPath)) {
+            return { config: {}, missingExplicitPath: configPath };
+        }
+        return { config: loadConfigFromPath(resolvedPath), missingExplicitPath: null };
     }
     for (const fileName of CONFIG_FILE_NAMES) {
         const filePath = (0, node_path_1.resolve)(process.cwd(), fileName);
         if ((0, node_fs_1.existsSync)(filePath)) {
-            return loadConfigFromPath(filePath);
+            return { config: loadConfigFromPath(filePath), missingExplicitPath: null };
         }
     }
-    return {};
+    return { config: {}, missingExplicitPath: null };
 }
-function loadConfigFromPath(configPath) {
-    const resolvedPath = (0, node_path_1.resolve)(process.cwd(), configPath);
-    if (!(0, node_fs_1.existsSync)(resolvedPath)) {
-        return {};
-    }
+function loadConfigFromPath(resolvedPath) {
     const content = (0, node_fs_1.readFileSync)(resolvedPath, 'utf8');
     const ext = (0, node_path_1.extname)(resolvedPath).toLowerCase();
-    if (ext === '.yml' || ext === '.yaml') {
-        return (0, yaml_1.parse)(content) ?? {};
+    const parsed = ext === '.yml' || ext === '.yaml' ? (0, yaml_1.parse)(content) : JSON.parse(content);
+    return validateConfig(parsed, resolvedPath);
+}
+function validateConfig(value, source) {
+    if (value === null || value === undefined) {
+        return {};
     }
-    return JSON.parse(content);
+    if (typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error(`Config file ${source} must contain an object at the root, got ${Array.isArray(value) ? 'array' : typeof value}.`);
+    }
+    const raw = value;
+    const config = {};
+    if (raw.path !== undefined) {
+        if (typeof raw.path === 'string') {
+            config.path = raw.path;
+        }
+        else {
+            core.warning(`Config '${source}': 'path' must be a string. Ignoring.`);
+        }
+    }
+    if (raw.version !== undefined) {
+        if (typeof raw.version === 'string') {
+            config.version = raw.version;
+        }
+        else {
+            core.warning(`Config '${source}': 'version' must be a string. Ignoring.`);
+        }
+    }
+    if (raw.validation_level !== undefined) {
+        if ((0, types_js_1.isValidationLevel)(raw.validation_level)) {
+            config.validation_level = raw.validation_level;
+        }
+        else {
+            core.warning(`Config '${source}': 'validation_level' must be one of ${types_js_1.VALIDATION_LEVELS.join(', ')}. Ignoring.`);
+        }
+    }
+    if (raw.validation_depth !== undefined) {
+        if (typeof raw.validation_depth === 'number' &&
+            Number.isInteger(raw.validation_depth) &&
+            raw.validation_depth >= 0) {
+            config.validation_depth = raw.validation_depth;
+        }
+        else {
+            core.warning(`Config '${source}': 'validation_depth' must be a non-negative integer. Ignoring.`);
+        }
+    }
+    return config;
 }
 
 
@@ -34146,7 +34224,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEntries = getEntries;
 const versionSeparator = '\n## ';
 const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/;
-const unreleasedLinkRegex = /^\[unreleased\]/i;
+const unreleasedLinkRegex = /^\[?unreleased\]?/i;
 const avoidNonVersionData = (version) => semverLinkRegex.test(version) || unreleasedLinkRegex.test(version);
 function getEntries(rawData) {
     const content = String(rawData);
@@ -34234,21 +34312,39 @@ const promises_1 = __nccwpck_require__(1455);
 const core = __importStar(__nccwpck_require__(7484));
 const get_config_js_1 = __nccwpck_require__(562);
 const pipeline_js_1 = __nccwpck_require__(5165);
+const types_js_1 = __nccwpck_require__(6141);
+const DEFAULT_VALIDATION_DEPTH = 10;
 async function main() {
     try {
         const configFilePath = core.getInput('config_file') || null;
-        const fileConfig = (0, get_config_js_1.getConfig)(configFilePath);
+        const { config: fileConfig, missingExplicitPath } = (0, get_config_js_1.getConfig)(configFilePath);
+        if (missingExplicitPath !== null) {
+            core.warning(`Config file '${missingExplicitPath}' not found. Falling back to action inputs.`);
+        }
         if (Object.keys(fileConfig).length > 0) {
             core.info('Configuration loaded from file');
             core.debug(`File configuration: ${JSON.stringify(fileConfig)}`);
         }
         const changelogPath = core.getInput('path') || fileConfig.path || './CHANGELOG.md';
         const targetVersion = core.getInput('version') || fileConfig.version || null;
-        const validationLevel = (core.getInput('validation_level') ||
-            fileConfig.validation_level ||
-            'none');
+        const rawValidationLevel = core.getInput('validation_level') || fileConfig.validation_level || 'none';
+        let validationLevel = 'none';
+        if ((0, types_js_1.isValidationLevel)(rawValidationLevel)) {
+            validationLevel = rawValidationLevel;
+        }
+        else {
+            core.warning(`Invalid validation_level '${rawValidationLevel}'. Expected one of: ${types_js_1.VALIDATION_LEVELS.join(', ')}. Falling back to 'none'.`);
+        }
         const validationDepthInput = core.getInput('validation_depth');
-        const validationDepth = Number.parseInt(validationDepthInput || String(fileConfig.validation_depth ?? '10'), 10);
+        const rawDepth = validationDepthInput || String(fileConfig.validation_depth ?? '10');
+        let validationDepth = DEFAULT_VALIDATION_DEPTH;
+        const parsedDepth = Number.parseInt(rawDepth, 10);
+        if (Number.isInteger(parsedDepth) && parsedDepth >= 0) {
+            validationDepth = parsedDepth;
+        }
+        else {
+            core.warning(`Invalid validation_depth '${rawDepth}'. Falling back to ${DEFAULT_VALIDATION_DEPTH}.`);
+        }
         if (targetVersion == null) {
             core.warning('No target version specified. Will try to return the most recent one in the changelog file.');
         }
@@ -34354,7 +34450,8 @@ function computeStatus(version, title) {
     if (/\[yanked\]/i.test(title)) {
         return 'yanked';
     }
-    if (/\[unreleased\]/i.test(title)) {
+    // Accept both `[Unreleased]` and bare `Unreleased` (and case variants).
+    if (/\bunreleased\b/i.test(title)) {
         return 'unreleased';
     }
     return 'released';
@@ -34534,7 +34631,12 @@ function isSemVer(entry) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ruleOk = void 0;
+exports.ruleOk = exports.VALIDATION_LEVELS = void 0;
+exports.isValidationLevel = isValidationLevel;
+exports.VALIDATION_LEVELS = ['none', 'warn', 'error'];
+function isValidationLevel(value) {
+    return typeof value === 'string' && exports.VALIDATION_LEVELS.includes(value);
+}
 exports.ruleOk = { type: 'ok' };
 
 

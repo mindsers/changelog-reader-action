@@ -118,3 +118,23 @@ test('retreive entries from test (complex SEMVER)', () => {
   expect(output[2]).toMatch(versionRegex)
   expect(output[3]).toMatch(versionRegex)
 })
+
+test('captures a bare `## Unreleased` heading (no brackets)', () => {
+  const data = `
+# Changelog
+
+## Unreleased
+### Added
+- Future feature
+
+## [1.0.0] - 2024-01-15
+### Added
+- Initial release
+`
+
+  const output = getEntries(data)
+
+  expect(output.length).toEqual(2)
+  expect(output[0]).toMatch(/^Unreleased/i)
+  expect(output[1]).toMatch(/^\[1\.0\.0\]/)
+})
