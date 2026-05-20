@@ -1,4 +1,6 @@
 import { parseEntry } from './parse-entry.js'
+import { pep440Adapter } from './version/adapters/pep440.js'
+import { semverAdapter } from './version/adapters/semver.js'
 
 const entryDescription = `
 ### Added
@@ -29,7 +31,7 @@ test('get readable data from text entry', () => {
     ## [v0.0.26] - 2019-02-10
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('v0.0.26')
   expect(output.date).toEqual('2019-02-10')
@@ -48,7 +50,7 @@ test('get readable data from text entry | no title for version', () => {
     [v0.0.26] - 2019-02-10
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('v0.0.26')
   expect(output.date).toEqual('2019-02-10')
@@ -67,7 +69,7 @@ test('get readable data from text entry | version patern X.X.X', () => {
     [0.0.26] - 2019-02-10
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('0.0.26')
   expect(output.date).toEqual('2019-02-10')
@@ -86,7 +88,7 @@ test('get readable data from text entry | raw version number', () => {
     v0.0.26 - 2019-02-10
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('v0.0.26')
   expect(output.date).toEqual('2019-02-10')
@@ -106,17 +108,20 @@ test('get readable data from text entry | unreleased version', () => {
     ## [Unreleased]
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('Unreleased')
   expect(output.date).toBeUndefined()
   expect(output.status).toEqual('unreleased')
 
   // Bare `## Unreleased` (no brackets) also classifies as unreleased.
-  const bareOutput = parseEntry(`
+  const bareOutput = parseEntry(
+    `
     ## Unreleased
     ${entryDescription}
-  `)
+  `,
+    semverAdapter
+  )
   expect(bareOutput.id).toEqual('Unreleased')
   expect(bareOutput.status).toEqual('unreleased')
   expect(output.text).toContain(`### Added`)
@@ -134,7 +139,7 @@ test('get readable data from text entry | unreleased version', () => {
     ## [1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay] - 2019-02-10
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay')
   expect(output.date).toEqual('2019-02-10')
@@ -153,7 +158,7 @@ test('get readable data from text entry | unexpected characters between version 
     ## [1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay] |+. - \\\\  2019-02-10
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay')
   expect(output.date).toEqual('2019-02-10')
@@ -173,7 +178,7 @@ test('get readable data from text entry | Fake date', () => {
     ## [1.0.0] - SomeWords instead of a Date
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('1.0.0')
   expect(output.date).toBeUndefined()
@@ -192,7 +197,7 @@ test('get readable data from text entry | build number with plus sign', () => {
     ## [2.0.0+build.1848] - SomeWords instead of a Date
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('2.0.0+build.1848')
   expect(output.date).toBeUndefined()
@@ -211,7 +216,7 @@ test('get readable data from text entry | yanked release', () => {
     ## [2.0.0] - 2019-02-10 [YANKED]
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('2.0.0')
   expect(output.date).toEqual('2019-02-10')
@@ -230,7 +235,7 @@ test('get readable data from text entry | yanked release with no date', () => {
     ## [2.0.0] [YANKED]
     ${entryDescription}
   `
-  const output = parseEntry(input)
+  const output = parseEntry(input, semverAdapter)
 
   expect(output.id).toEqual('2.0.0')
   expect(output.date).toBeUndefined()
@@ -242,4 +247,21 @@ test('get readable data from text entry | yanked release with no date', () => {
   expect(output.text).toContain(
     `**SECURITY** The list components don't use the nth-child CSS attributes in favor of nth-of-type.`
   )
+})
+
+// https://github.com/mindsers/changelog-reader-action/issues/38
+test('classifies a PEP 440 prerelease under the pep440 scheme', () => {
+  const input = `
+    ## [0.1.0a1] - 2024-01-15
+    ${entryDescription}
+  `
+  const output = parseEntry(input, pep440Adapter)
+
+  expect(output.id).toEqual('0.1.0a1')
+  expect(output.date).toEqual('2024-01-15')
+  expect(output.status).toEqual('prereleased')
+
+  // The same id is NOT a prerelease under semver (it's not valid SemVer at
+  // all), so it falls through to 'released'.
+  expect(parseEntry(input, semverAdapter).status).toEqual('released')
 })

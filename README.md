@@ -4,7 +4,7 @@
 
 A GitHub action to read and get data from the `CHANGELOG.md` file :rocket:
 
-**This action only works if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.**
+**This action only works if your `CHANGELOG.md` file follows the [_Keep a Changelog_](https://github.com/olivierlacan/keep-a-changelog) standard for now.** Version identifiers may follow [Semantic Versioning](https://semver.org) (the default) or [PEP 440](https://peps.python.org/pep-0440/) — set the `version_scheme` input to `pep440` for the latter.
 
 ## Usage
 
@@ -19,6 +19,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 - `version`: The [exact version](https://semver.org) of the log entry you want to retreive or "Unreleased" for the unreleased entry. Optional. Defaults to the last version number.
 - `validation_level`: Specifies at which level the validation system is set. Can be 'none', 'warn', 'error'. Optional. Defaults to `none`.
 - `validation_depth`: Specifies how many entries to validate in the CHANGELOG.md file. Optional. Defaults to `10`.
+- `version_scheme`: Versioning scheme used by the version identifiers in your CHANGELOG. Can be `semver` or `pep440`. Set `pep440` for Python projects whose versions look like `0.1.0a1`. Optional. Defaults to `semver`.
 
 ### Outputs
 

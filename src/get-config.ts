@@ -3,7 +3,7 @@ import { extname, resolve } from 'node:path'
 import * as core from '@actions/core'
 import { parse as parseYaml } from 'yaml'
 import type { Config } from './types.js'
-import { isValidationLevel, VALIDATION_LEVELS } from './types.js'
+import { isValidationLevel, isVersionScheme, VALIDATION_LEVELS, VERSION_SCHEMES } from './types.js'
 
 const CONFIG_FILE_NAMES = [
   '.changelog-reader.json',
@@ -93,6 +93,16 @@ function validateConfig(value: unknown, source: string): Config {
     } else {
       core.warning(
         `Config '${source}': 'validation_depth' must be a non-negative integer. Ignoring.`
+      )
+    }
+  }
+
+  if (raw.version_scheme !== undefined) {
+    if (isVersionScheme(raw.version_scheme)) {
+      config.version_scheme = raw.version_scheme
+    } else {
+      core.warning(
+        `Config '${source}': 'version_scheme' must be one of ${VERSION_SCHEMES.join(', ')}. Ignoring.`
       )
     }
   }

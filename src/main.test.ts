@@ -327,6 +327,19 @@ describe('main', () => {
     expect(getOutput('version')).toEqual('2.0.0')
   })
 
+  test('warns and falls back to semver when version_scheme is unknown', async () => {
+    setInputs({ version_scheme: 'calver' })
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(mockedCore.warning).toHaveBeenCalledWith(
+      expect.stringContaining("Invalid version_scheme 'calver'")
+    )
+    expect(getOutput('version')).toEqual('2.0.0')
+  })
+
   test('sets changes_file to a path inside the created temp directory', async () => {
     setInputs({})
     setChangelogContents(HAPPY_CHANGELOG)

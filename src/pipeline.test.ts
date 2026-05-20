@@ -1,4 +1,5 @@
 import { processChangelog } from './pipeline.js'
+import { semverAdapter } from './version/adapters/semver.js'
 
 const HAPPY_CHANGELOG = `# Changelog
 
@@ -63,6 +64,7 @@ test('returns the most recent released entry when no targetVersion is given', ()
     targetVersion: null,
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.id).toEqual('2.0.0')
@@ -76,6 +78,7 @@ test('returns the requested entry when targetVersion matches', () => {
     targetVersion: '1.0.0',
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.id).toEqual('1.0.0')
@@ -88,6 +91,7 @@ test('throws when the requested version is not present', () => {
       targetVersion: '9.9.9',
       validationLevel: 'none',
       validationDepth: 10,
+      scheme: semverAdapter,
     })
   ).toThrow(/No log entry found for version 9.9.9/)
 })
@@ -97,6 +101,7 @@ test('returns the unreleased entry when targetVersion=Unreleased', () => {
     targetVersion: 'Unreleased',
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.id).toEqual('Unreleased')
@@ -108,6 +113,7 @@ test('propagates yanked status', () => {
     targetVersion: null,
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.id).toEqual('2.0.0')
@@ -119,6 +125,7 @@ test('propagates prereleased status', () => {
     targetVersion: null,
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.id).toEqual('2.0.0-alpha.1')
@@ -130,6 +137,7 @@ test('returns no diagnostics when validationLevel is none', () => {
     targetVersion: null,
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(diagnostics).toEqual([])
@@ -140,6 +148,7 @@ test("flags warn-severity diagnostics under 'warn'", () => {
     targetVersion: null,
     validationLevel: 'warn',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.id).toEqual('1.0.0')
@@ -152,6 +161,7 @@ test("flags error-severity diagnostics under 'error'", () => {
     targetVersion: null,
     validationLevel: 'error',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(diagnostics.length).toBeGreaterThan(0)
@@ -174,6 +184,7 @@ test('appends resolved link definitions to entry.text when references appear', (
     targetVersion: '1.0.0',
     validationLevel: 'none',
     validationDepth: 10,
+    scheme: semverAdapter,
   })
 
   expect(entry.text).toContain('[unreleased]: https://github.com/foo/bar/compare/v1.0.0...HEAD')

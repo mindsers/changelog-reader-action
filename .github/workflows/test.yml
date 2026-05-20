@@ -61,6 +61,11 @@ jobs:
           - scenario: validation warn on own changelog
             validation_level: warn
             expected_status: released
+          - scenario: pep440 prerelease fixture
+            path: ./.github/fixtures/changelog-pep440.md
+            version_scheme: pep440
+            expected_version: 0.1.0a1
+            expected_status: prereleased
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -76,6 +81,7 @@ jobs:
           path: ${{ matrix.path }}
           version: ${{ matrix.version }}
           validation_level: ${{ matrix.validation_level }}
+          version_scheme: ${{ matrix.version_scheme }}
       - name: Assert outputs
         env:
           GOT_VERSION: ${{ steps.changelog_reader.outputs.version }}

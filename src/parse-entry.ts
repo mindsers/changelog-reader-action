@@ -1,11 +1,10 @@
-import { prerelease } from 'semver'
-
 import type { Entry, EntryStatus } from './types.js'
+import type { VersionSchemeAdapter } from './version/scheme.js'
 
 const linkDefinitionRegex = /^\[.*\]:\s*http/
 const placeholderRegex = /\[(.+?)\]\[\]/gi
 
-export function parseEntry(entry: string): Entry {
+export function parseEntry(entry: string, scheme: VersionSchemeAdapter): Entry {
   const [title = '', ...other] = entry.trim().split('\n')
 
   const [versionPart = '', datePart] = title.split(' - ')
@@ -18,7 +17,7 @@ export function parseEntry(entry: string): Entry {
   return {
     id: versionNumber,
     date: versionDate,
-    status: computeStatus(versionNumber, title),
+    status: computeStatus(versionNumber, title, scheme),
     body,
     references,
     text: body,
@@ -36,8 +35,8 @@ function collectReferences(body: string): string[] {
   return Array.from(seen)
 }
 
-function computeStatus(version: string, title: string): EntryStatus {
-  if (prerelease(version)) {
+function computeStatus(version: string, title: string, scheme: VersionSchemeAdapter): EntryStatus {
+  if (scheme.isPrerelease(version)) {
     return 'prereleased'
   }
 

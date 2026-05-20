@@ -1,8 +1,12 @@
-import { lt, valid } from 'semver'
 import type { Entry, RuleResult } from '../types.js'
 import { ruleOk } from '../types.js'
+import type { VersionSchemeAdapter } from '../version/scheme.js'
 
-export function hasChronologicalOrder(entries: Entry[], currentIndex: number): RuleResult {
+export function hasChronologicalOrder(
+  entries: Entry[],
+  currentIndex: number,
+  scheme: VersionSchemeAdapter
+): RuleResult {
   const currentEntry = entries[currentIndex]
   const previousEntry = entries[currentIndex - 1]
 
@@ -10,11 +14,9 @@ export function hasChronologicalOrder(entries: Entry[], currentIndex: number): R
     return ruleOk
   }
 
-  if (!valid(previousEntry.id) || !valid(currentEntry.id)) {
-    return ruleOk
-  }
-
-  if (lt(previousEntry.id, currentEntry.id)) {
+  const order = scheme.compare(previousEntry.id, currentEntry.id)
+  // null = incomparable in this scheme (e.g. an invalid id); skip.
+  if (order === null || order < 0) {
     return ruleOk
   }
 

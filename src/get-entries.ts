@@ -1,12 +1,29 @@
-const versionSeparator = '\n## '
-const semverLinkRegex =
-  /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/
-const unreleasedLinkRegex = /^\[?unreleased\]?/i
-const avoidNonVersionData = (version: string): boolean =>
-  semverLinkRegex.test(version) || unreleasedLinkRegex.test(version)
+import type { VersionSchemeAdapter } from './version/scheme.js'
 
-export function getEntries(rawData: Buffer | string): string[] {
+const versionSeparator = '\n## '
+
+// The leading token of an entry chunk: either bracketed (`[1.0.0] - date`,
+// `[Unreleased]`) or a bare word (`Unreleased`).
+function extractVersionToken(chunk: string): string | null {
+  const bracketed = chunk.match(/^\[([^\]]+)\]/)
+  if (bracketed?.[1] !== undefined) {
+    return bracketed[1]
+  }
+  const bare = chunk.match(/^(\S+)/)
+  return bare?.[1] ?? null
+}
+
+export function getEntries(rawData: Buffer | string, scheme: VersionSchemeAdapter): string[] {
   const content = String(rawData)
 
-  return content.split(versionSeparator).filter(avoidNonVersionData)
+  return content.split(versionSeparator).filter((chunk) => {
+    const token = extractVersionToken(chunk)
+    if (token === null) {
+      return false
+    }
+    if (/^unreleased$/i.test(token)) {
+      return true
+    }
+    return scheme.isValid(token)
+  })
 }
