@@ -34312,6 +34312,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.main = main;
 const promises_1 = __nccwpck_require__(1455);
+const node_os_1 = __nccwpck_require__(8161);
+const node_path_1 = __nccwpck_require__(6760);
 const core = __importStar(__nccwpck_require__(7484));
 const get_config_js_1 = __nccwpck_require__(562);
 const pipeline_js_1 = __nccwpck_require__(5165);
@@ -34381,6 +34383,11 @@ async function main() {
         core.setOutput('date', entry.date);
         core.setOutput('status', entry.status);
         core.setOutput('changes', entry.text);
+        const baseTmp = process.env.RUNNER_TEMP || (0, node_os_1.tmpdir)();
+        const dir = await (0, promises_1.mkdtemp)((0, node_path_1.join)(baseTmp, 'changelog-reader-'));
+        const changesFile = (0, node_path_1.join)(dir, 'changelog-entry.md');
+        await (0, promises_1.writeFile)(changesFile, entry.text, 'utf8');
+        core.setOutput('changes_file', changesFile);
     }
     catch (error) {
         core.setFailed(error instanceof Error ? error.message : String(error));
@@ -34863,6 +34870,14 @@ module.exports = require("node:http2");
 
 "use strict";
 module.exports = require("node:net");
+
+/***/ }),
+
+/***/ 8161:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:os");
 
 /***/ }),
 
