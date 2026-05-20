@@ -34209,6 +34209,14 @@ function validateConfig(value, source) {
             core.warning(`Config '${source}': 'validation_depth' must be a non-negative integer. Ignoring.`);
         }
     }
+    if (raw.version_scheme !== undefined) {
+        if ((0, types_js_1.isVersionScheme)(raw.version_scheme)) {
+            config.version_scheme = raw.version_scheme;
+        }
+        else {
+            core.warning(`Config '${source}': 'version_scheme' must be one of ${types_js_1.VERSION_SCHEMES.join(', ')}. Ignoring.`);
+        }
+    }
     return config;
 }
 
@@ -34223,12 +34231,28 @@ function validateConfig(value, source) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getEntries = getEntries;
 const versionSeparator = '\n## ';
-const semverLinkRegex = /^\[v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]/;
-const unreleasedLinkRegex = /^\[?unreleased\]?/i;
-const avoidNonVersionData = (version) => semverLinkRegex.test(version) || unreleasedLinkRegex.test(version);
-function getEntries(rawData) {
+// The leading token of an entry chunk: either bracketed (`[1.0.0] - date`,
+// `[Unreleased]`) or a bare word (`Unreleased`).
+function extractVersionToken(chunk) {
+    const bracketed = chunk.match(/^\[([^\]]+)\]/);
+    if (bracketed?.[1] !== undefined) {
+        return bracketed[1];
+    }
+    const bare = chunk.match(/^(\S+)/);
+    return bare?.[1] ?? null;
+}
+function getEntries(rawData, scheme) {
     const content = String(rawData);
-    return content.split(versionSeparator).filter(avoidNonVersionData);
+    return content.split(versionSeparator).filter((chunk) => {
+        const token = extractVersionToken(chunk);
+        if (token === null) {
+            return false;
+        }
+        if (/^unreleased$/i.test(token)) {
+            return true;
+        }
+        return scheme.isValid(token);
+    });
 }
 
 
@@ -34318,6 +34342,7 @@ const core = __importStar(__nccwpck_require__(7484));
 const get_config_js_1 = __nccwpck_require__(562);
 const pipeline_js_1 = __nccwpck_require__(5165);
 const types_js_1 = __nccwpck_require__(6141);
+const registry_js_1 = __nccwpck_require__(6245);
 const DEFAULT_VALIDATION_DEPTH = 10;
 async function main() {
     try {
@@ -34350,6 +34375,15 @@ async function main() {
         else {
             core.warning(`Invalid validation_depth '${rawDepth}'. Falling back to ${DEFAULT_VALIDATION_DEPTH}.`);
         }
+        const rawVersionScheme = core.getInput('version_scheme') || fileConfig.version_scheme || 'semver';
+        let versionScheme = 'semver';
+        if ((0, types_js_1.isVersionScheme)(rawVersionScheme)) {
+            versionScheme = rawVersionScheme;
+        }
+        else {
+            core.warning(`Invalid version_scheme '${rawVersionScheme}'. Expected one of: ${types_js_1.VERSION_SCHEMES.join(', ')}. Falling back to 'semver'.`);
+        }
+        const scheme = (0, registry_js_1.resolveScheme)(versionScheme);
         if (targetVersion == null) {
             core.warning('No target version specified. Will try to return the most recent one in the changelog file.');
         }
@@ -34364,6 +34398,7 @@ async function main() {
             targetVersion,
             validationLevel,
             validationDepth,
+            scheme,
         });
         core.endGroup();
         const errors = [];
@@ -34418,16 +34453,15 @@ function parseEntryContent(text) {
 /***/ }),
 
 /***/ 8189:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseEntry = parseEntry;
-const semver_1 = __nccwpck_require__(2088);
 const linkDefinitionRegex = /^\[.*\]:\s*http/;
 const placeholderRegex = /\[(.+?)\]\[\]/gi;
-function parseEntry(entry) {
+function parseEntry(entry, scheme) {
     const [title = '', ...other] = entry.trim().split('\n');
     const [versionPart = '', datePart] = title.split(' - ');
     const versionNumber = versionPart.match(/[a-zA-Z0-9.\-+]+/)?.[0] ?? '';
@@ -34437,7 +34471,7 @@ function parseEntry(entry) {
     return {
         id: versionNumber,
         date: versionDate,
-        status: computeStatus(versionNumber, title),
+        status: computeStatus(versionNumber, title, scheme),
         body,
         references,
         text: body,
@@ -34453,8 +34487,8 @@ function collectReferences(body) {
     }
     return Array.from(seen);
 }
-function computeStatus(version, title) {
-    if ((0, semver_1.prerelease)(version)) {
+function computeStatus(version, title, scheme) {
+    if (scheme.isPrerelease(version)) {
         return 'prereleased';
     }
     if (/\[yanked\]/i.test(title)) {
@@ -34485,12 +34519,14 @@ const parse_entry_js_1 = __nccwpck_require__(8189);
 const validate_entry_js_1 = __nccwpck_require__(4212);
 function processChangelog(rawData, options) {
     const registry = (0, add_links_js_1.buildLinkRegistry)((0, get_links_js_1.getLinks)(rawData));
-    const versions = (0, get_entries_js_1.getEntries)(rawData).map(parse_entry_js_1.parseEntry).map((0, add_links_js_1.resolveLinks)(registry));
+    const versions = (0, get_entries_js_1.getEntries)(rawData, options.scheme)
+        .map((entry) => (0, parse_entry_js_1.parseEntry)(entry, options.scheme))
+        .map((0, add_links_js_1.resolveLinks)(registry));
     const diagnostics = [];
     if (options.validationLevel !== 'none') {
         const released = versions.filter((entry) => entry.status !== 'unreleased');
         const window = released.reverse().slice(Math.max(0, released.length - options.validationDepth));
-        const runRule = (0, validate_entry_js_1.validateEntry)(options.validationLevel);
+        const runRule = (0, validate_entry_js_1.validateEntry)(options.validationLevel, options.scheme);
         const severity = options.validationLevel === 'error' ? 'error' : 'warn';
         window.forEach((entry, index, arr) => {
             for (const err of runRule(entry, index, arr)) {
@@ -34515,18 +34551,16 @@ function processChangelog(rawData, options) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.hasChronologicalOrder = hasChronologicalOrder;
-const semver_1 = __nccwpck_require__(2088);
 const types_js_1 = __nccwpck_require__(6141);
-function hasChronologicalOrder(entries, currentIndex) {
+function hasChronologicalOrder(entries, currentIndex, scheme) {
     const currentEntry = entries[currentIndex];
     const previousEntry = entries[currentIndex - 1];
     if (previousEntry == null || currentEntry == null) {
         return types_js_1.ruleOk;
     }
-    if (!(0, semver_1.valid)(previousEntry.id) || !(0, semver_1.valid)(currentEntry.id)) {
-        return types_js_1.ruleOk;
-    }
-    if ((0, semver_1.lt)(previousEntry.id, currentEntry.id)) {
+    const order = scheme.compare(previousEntry.id, currentEntry.id);
+    // null = incomparable in this scheme (e.g. an invalid id); skip.
+    if (order === null || order < 0) {
         return types_js_1.ruleOk;
     }
     return { type: 'out-of-order', previous: previousEntry.id, current: currentEntry.id };
@@ -34542,7 +34576,6 @@ function hasChronologicalOrder(entries, currentIndex) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.hasCorrectSections = hasCorrectSections;
-const semver_1 = __nccwpck_require__(2088);
 const parse_entry_content_js_1 = __nccwpck_require__(2565);
 const types_js_1 = __nccwpck_require__(6141);
 const PATCH_ALLOWED = ['fixed', 'security'];
@@ -34555,17 +34588,18 @@ const MAJOR_ALLOWED = [
     'fixed',
     'security',
 ];
-function hasCorrectSections(entries, currentIndex) {
+function hasCorrectSections(entries, currentIndex, scheme) {
     const currentEntry = entries[currentIndex];
     const previousEntry = entries[currentIndex - 1];
     if (previousEntry == null || currentEntry == null) {
         return types_js_1.ruleOk;
     }
-    if (!(0, semver_1.valid)(previousEntry.id) || !(0, semver_1.valid)(currentEntry.id)) {
+    const release = scheme.diff(previousEntry.id, currentEntry.id);
+    if (release === null) {
         return types_js_1.ruleOk;
     }
     const entryTypes = (0, parse_entry_content_js_1.parseEntryContent)(currentEntry.body).map((change) => change.type);
-    const allowedTypes = getAllowedTypes(previousEntry.id, currentEntry.id);
+    const allowedTypes = allowedSectionsFor(release);
     if (entryTypes.some((type) => !allowedTypes.includes(type))) {
         return {
             type: 'invalid-section-types',
@@ -34575,16 +34609,15 @@ function hasCorrectSections(entries, currentIndex) {
     }
     return types_js_1.ruleOk;
 }
-function getAllowedTypes(v1, v2) {
-    const versionDiff = (0, semver_1.diff)(v1, v2);
-    switch (versionDiff) {
-        case 'prepatch':
+function allowedSectionsFor(release) {
+    switch (release) {
         case 'patch':
             return PATCH_ALLOWED;
         case 'minor':
-        case 'preminor':
             return MINOR_ALLOWED;
         default:
+            // major / prerelease / other → the most permissive set (preserves the
+            // prior lenient behavior for prereleases and unusual bumps).
             return MAJOR_ALLOWED;
     }
 }
@@ -34619,17 +34652,18 @@ function hasSections(entry) {
 
 /***/ }),
 
-/***/ 1740:
+/***/ 8401:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isSemVer = isSemVer;
-const semver_1 = __nccwpck_require__(2088);
+exports.isValidVersion = isValidVersion;
 const types_js_1 = __nccwpck_require__(6141);
-function isSemVer(entry) {
-    return (0, semver_1.valid)(entry.id) ? types_js_1.ruleOk : { type: 'invalid-semver', id: entry.id };
+function isValidVersion(entry, scheme) {
+    return scheme.isValid(entry.id)
+        ? types_js_1.ruleOk
+        : { type: 'invalid-version', id: entry.id, scheme: scheme.name };
 }
 
 
@@ -34641,11 +34675,16 @@ function isSemVer(entry) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ruleOk = exports.VALIDATION_LEVELS = void 0;
+exports.ruleOk = exports.VERSION_SCHEMES = exports.VALIDATION_LEVELS = void 0;
 exports.isValidationLevel = isValidationLevel;
+exports.isVersionScheme = isVersionScheme;
 exports.VALIDATION_LEVELS = ['none', 'warn', 'error'];
 function isValidationLevel(value) {
     return typeof value === 'string' && exports.VALIDATION_LEVELS.includes(value);
+}
+exports.VERSION_SCHEMES = ['semver', 'pep440'];
+function isVersionScheme(value) {
+    return typeof value === 'string' && exports.VERSION_SCHEMES.includes(value);
 }
 exports.ruleOk = { type: 'ok' };
 
@@ -34662,17 +34701,17 @@ exports.validateEntry = validateEntry;
 const has_chronological_order_js_1 = __nccwpck_require__(3577);
 const has_correct_sections_js_1 = __nccwpck_require__(7541);
 const has_sections_js_1 = __nccwpck_require__(376);
-const is_semver_js_1 = __nccwpck_require__(1740);
-function validateEntry(validationLevel) {
+const is_valid_version_js_1 = __nccwpck_require__(8401);
+function validateEntry(validationLevel, scheme) {
     return (entry, index, entries) => {
         if (validationLevel === 'none' || entry.status === 'unreleased') {
             return [];
         }
         const results = [
-            (0, is_semver_js_1.isSemVer)(entry),
-            (0, has_chronological_order_js_1.hasChronologicalOrder)(entries, index),
+            (0, is_valid_version_js_1.isValidVersion)(entry, scheme),
+            (0, has_chronological_order_js_1.hasChronologicalOrder)(entries, index, scheme),
             (0, has_sections_js_1.hasSections)(entry),
-            (0, has_correct_sections_js_1.hasCorrectSections)(entries, index),
+            (0, has_correct_sections_js_1.hasCorrectSections)(entries, index, scheme),
         ];
         return results
             .map((result) => formatError(result, entry))
@@ -34683,8 +34722,8 @@ function formatError(result, entry) {
     switch (result.type) {
         case 'ok':
             return null;
-        case 'invalid-semver':
-            return new Error(`${result.id} is not a valid semantic version.`);
+        case 'invalid-version':
+            return new Error(`${result.id} is not a valid ${result.scheme} version.`);
         case 'out-of-order':
             return new Error(`Changelog versions out of order. Version ${result.current} cannot come after ${result.previous}.`);
         case 'missing-section-items':
@@ -34692,6 +34731,139 @@ function formatError(result, entry) {
         case 'invalid-section-types':
             return new Error(`Only '${result.allowed.join(', ')}' section${result.allowed.length === 1 ? '' : 's'} are allowed for version ${entry.id}.`);
     }
+}
+
+
+/***/ }),
+
+/***/ 9778:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.pep440Adapter = void 0;
+const pep440_1 = __nccwpck_require__(9687);
+function describe(raw) {
+    if ((0, pep440_1.valid)(raw) === null) {
+        return null;
+    }
+    return (0, pep440_1.explain)(raw);
+}
+exports.pep440Adapter = {
+    name: 'pep440',
+    isValid(raw) {
+        return (0, pep440_1.valid)(raw) !== null;
+    },
+    isPrerelease(raw) {
+        const info = describe(raw);
+        // Both alpha/beta/rc ("a1", "rc2") and dev releases (".dev1") are
+        // pre-stable; post releases (".post1") come after a release and are not.
+        return info !== null && (info.is_prerelease || info.is_devrelease);
+    },
+    compare(a, b) {
+        if ((0, pep440_1.valid)(a) === null || (0, pep440_1.valid)(b) === null) {
+            return null;
+        }
+        return (0, pep440_1.compare)(a, b);
+    },
+    diff(a, b) {
+        const left = describe(a);
+        const right = describe(b);
+        if (left === null || right === null) {
+            return null;
+        }
+        const length = Math.max(left.release.length, right.release.length);
+        for (let index = 0; index < length; index++) {
+            const l = left.release[index] ?? 0;
+            const r = right.release[index] ?? 0;
+            if (l !== r) {
+                if (index === 0)
+                    return 'major';
+                if (index === 1)
+                    return 'minor';
+                return 'patch';
+            }
+        }
+        // Release segments are equal — any difference is in pre/dev/post.
+        if ((0, pep440_1.compare)(a, b) !== 0) {
+            return 'prerelease';
+        }
+        return 'other';
+    },
+};
+
+
+/***/ }),
+
+/***/ 3001:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.semverAdapter = void 0;
+const semver_1 = __nccwpck_require__(2088);
+exports.semverAdapter = {
+    name: 'semver',
+    isValid(raw) {
+        return (0, semver_1.valid)(raw) !== null;
+    },
+    isPrerelease(raw) {
+        return (0, semver_1.prerelease)(raw) !== null;
+    },
+    compare(a, b) {
+        if ((0, semver_1.valid)(a) === null || (0, semver_1.valid)(b) === null) {
+            return null;
+        }
+        return (0, semver_1.compare)(a, b);
+    },
+    diff(a, b) {
+        if ((0, semver_1.valid)(a) === null || (0, semver_1.valid)(b) === null) {
+            return null;
+        }
+        const result = (0, semver_1.diff)(a, b);
+        switch (result) {
+            case 'major':
+            case 'premajor':
+                return 'major';
+            case 'minor':
+            case 'preminor':
+                return 'minor';
+            case 'patch':
+            case 'prepatch':
+                return 'patch';
+            case 'prerelease':
+                return 'prerelease';
+            case null:
+                return null;
+            default:
+                return 'other';
+        }
+    },
+};
+
+
+/***/ }),
+
+/***/ 6245:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveScheme = resolveScheme;
+const pep440_js_1 = __nccwpck_require__(9778);
+const semver_js_1 = __nccwpck_require__(3001);
+// Record<VersionScheme, …> makes the compiler enforce that every scheme in the
+// VersionScheme union has a registered adapter. Adding a new scheme to the
+// union won't compile until its adapter is added here.
+const ADAPTERS = {
+    semver: semver_js_1.semverAdapter,
+    pep440: pep440_js_1.pep440Adapter,
+};
+function resolveScheme(name) {
+    return ADAPTERS[name];
 }
 
 
@@ -43650,6 +43822,746 @@ exports.visit = visit;
 exports.visitAsync = visitAsync;
 
 
+/***/ }),
+
+/***/ 9687:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+// ESM COMPAT FLAG
+__nccwpck_require__.r(__webpack_exports__);
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  RANGE_PATTERN: () => (/* reexport */ RANGE_PATTERN),
+  clean: () => (/* reexport */ clean),
+  compare: () => (/* reexport */ compare),
+  eq: () => (/* reexport */ eq),
+  explain: () => (/* reexport */ explain),
+  filter: () => (/* reexport */ filter),
+  ge: () => (/* reexport */ ge),
+  gt: () => (/* reexport */ gt),
+  gte: () => (/* reexport */ ge),
+  inc: () => (/* reexport */ inc),
+  le: () => (/* reexport */ le),
+  lt: () => (/* reexport */ lt),
+  lte: () => (/* reexport */ le),
+  major: () => (/* reexport */ major),
+  maxSatisfying: () => (/* reexport */ maxSatisfying),
+  minSatisfying: () => (/* reexport */ minSatisfying),
+  minor: () => (/* reexport */ minor),
+  ne: () => (/* reexport */ ne),
+  neq: () => (/* reexport */ ne),
+  parse: () => (/* reexport */ parse),
+  patch: () => (/* reexport */ patch),
+  rcompare: () => (/* reexport */ rcompare),
+  satisfies: () => (/* reexport */ satisfies),
+  valid: () => (/* reexport */ valid),
+  validRange: () => (/* reexport */ validRange)
+});
+
+// NAMESPACE OBJECT: ./node_modules/@renovatebot/pep440/lib/operator.js
+var operator_namespaceObject = {};
+__nccwpck_require__.r(operator_namespaceObject);
+__nccwpck_require__.d(operator_namespaceObject, {
+  "!=": () => (ne),
+  "<": () => (lt),
+  "<=": () => (le),
+  "==": () => (eq),
+  "===": () => (arbitrary),
+  ">": () => (gt),
+  ">=": () => (ge),
+  compare: () => (compare),
+  eq: () => (eq),
+  ge: () => (ge),
+  gt: () => (gt),
+  le: () => (le),
+  lt: () => (lt),
+  ne: () => (ne),
+  rcompare: () => (rcompare)
+});
+
+;// CONCATENATED MODULE: ./node_modules/@renovatebot/pep440/lib/version.js
+const VERSION_PATTERN = [
+  'v?',
+  '(?:',
+  /* */ '(?:(?<epoch>[0-9]+)!)?', // epoch
+  /* */ '(?<release>[0-9]+(?:\\.[0-9]+)*)', // release segment
+  /* */ '(?<pre>', // pre-release
+  /*    */ '[-_\\.]?',
+  /*    */ '(?<pre_l>(a|b|c|rc|alpha|beta|pre|preview))',
+  /*    */ '[-_\\.]?',
+  /*    */ '(?<pre_n>[0-9]+)?',
+  /* */ ')?',
+  /* */ '(?<post>', // post release
+  /*    */ '(?:-(?<post_n1>[0-9]+))',
+  /*    */ '|',
+  /*    */ '(?:',
+  /*        */ '[-_\\.]?',
+  /*        */ '(?<post_l>post|rev|r)',
+  /*        */ '[-_\\.]?',
+  /*        */ '(?<post_n2>[0-9]+)?',
+  /*    */ ')',
+  /* */ ')?',
+  /* */ '(?<dev>', // dev release
+  /*    */ '[-_\\.]?',
+  /*    */ '(?<dev_l>dev)',
+  /*    */ '[-_\\.]?',
+  /*    */ '(?<dev_n>[0-9]+)?',
+  /* */ ')?',
+  ')',
+  '(?:\\+(?<local>[a-z0-9]+(?:[-_\\.][a-z0-9]+)*))?', // local version
+].join('');
+
+
+
+const validRegex = new RegExp('^' + VERSION_PATTERN + '$', 'i');
+
+function valid(version) {
+  return validRegex.test(version) ? version : null;
+}
+
+const cleanRegex = new RegExp('^\\s*' + VERSION_PATTERN + '\\s*$', 'i');
+function clean(version) {
+  return stringify(parse(version, cleanRegex));
+}
+
+function parse(version, regex) {
+  // Validate the version and parse it into pieces
+  const { groups } = (regex || validRegex).exec(version) || {};
+  if (!groups) {
+    return null;
+  }
+
+  // Store the parsed out pieces of the version
+  const parsed = {
+    epoch: Number(groups.epoch ? groups.epoch : 0),
+    release: groups.release.split('.').map(Number),
+    pre: normalize_letter_version(groups.pre_l, groups.pre_n),
+    post: normalize_letter_version(
+      groups.post_l,
+      groups.post_n1 || groups.post_n2,
+    ),
+    dev: normalize_letter_version(groups.dev_l, groups.dev_n),
+    local: parse_local_version(groups.local),
+  };
+
+  return parsed;
+}
+
+function stringify(parsed) {
+  if (!parsed) {
+    return null;
+  }
+  const { epoch, release, pre, post, dev, local } = parsed;
+  const parts = [];
+
+  // Epoch
+  if (epoch !== 0) {
+    parts.push(`${epoch}!`);
+  }
+  // Release segment
+  parts.push(release.join('.'));
+
+  // Pre-release
+  if (pre) {
+    parts.push(pre.join(''));
+  }
+  // Post-release
+  if (post) {
+    parts.push('.' + post.join(''));
+  }
+  // Development release
+  if (dev) {
+    parts.push('.' + dev.join(''));
+  }
+  // Local version segment
+  if (local) {
+    parts.push(`+${local}`);
+  }
+  return parts.join('');
+}
+
+function normalize_letter_version(letterIn, numberIn) {
+  let letter = letterIn;
+  let number = numberIn;
+  if (letter) {
+    // We consider there to be an implicit 0 in a pre-release if there is
+    // not a numeral associated with it.
+    if (!number) {
+      number = 0;
+    }
+    // We normalize any letters to their lower case form
+    letter = letter.toLowerCase();
+
+    // We consider some words to be alternate spellings of other words and
+    // in those cases we want to normalize the spellings to our preferred
+    // spelling.
+    if (letter === 'alpha') {
+      letter = 'a';
+    } else if (letter === 'beta') {
+      letter = 'b';
+    } else if (['c', 'pre', 'preview'].includes(letter)) {
+      letter = 'rc';
+    } else if (['rev', 'r'].includes(letter)) {
+      letter = 'post';
+    }
+    return [letter, Number(number)];
+  }
+  if (!letter && number) {
+    // We assume if we are given a number, but we are not given a letter
+    // then this is using the implicit post release syntax (e.g. 1.0-1)
+    letter = 'post';
+
+    return [letter, Number(number)];
+  }
+  return null;
+}
+
+function parse_local_version(local) {
+  /*
+    Takes a string like abc.1.twelve and turns it into("abc", 1, "twelve").
+    */
+  if (local) {
+    return local
+      .split(/[._-]/)
+      .map((part) =>
+        Number.isNaN(Number(part)) ? part.toLowerCase() : Number(part),
+      );
+  }
+  return null;
+}
+
+function explain(version) {
+  const parsed = parse(version);
+  if (!parsed) {
+    return parsed;
+  }
+  const { epoch, release, pre, post, dev, local } = parsed;
+
+  let base_version = '';
+  if (epoch !== 0) {
+    base_version += epoch + '!';
+  }
+  base_version += release.join('.');
+
+  const is_prerelease = Boolean(dev || pre);
+  const is_devrelease = Boolean(dev);
+  const is_postrelease = Boolean(post);
+
+  // return
+
+  return {
+    epoch,
+    release,
+    pre,
+    post: post ? post[1] : post,
+    dev: dev ? dev[1] : dev,
+    local: local ? local.join('.') : local,
+    public: stringify(parsed).split('+', 1)[0],
+    base_version,
+    is_prerelease,
+    is_devrelease,
+    is_postrelease,
+  };
+}
+
+;// CONCATENATED MODULE: ./node_modules/@renovatebot/pep440/lib/operator.js
+
+
+
+
+function lt(version, other) {
+  return compare(version, other) < 0;
+}
+
+function le(version, other) {
+  return compare(version, other) <= 0;
+}
+
+function eq(version, other) {
+  return compare(version, other) === 0;
+}
+
+function ne(version, other) {
+  return compare(version, other) !== 0;
+}
+
+function ge(version, other) {
+  return compare(version, other) >= 0;
+}
+
+function gt(version, other) {
+  return compare(version, other) > 0;
+}
+
+function arbitrary(version, other) {
+  return version.toLowerCase() === other.toLowerCase();
+}
+
+function compare(version, other) {
+  const parsedVersion = parse(version);
+  const parsedOther = parse(other);
+
+  const keyVersion = calculateKey(parsedVersion);
+  const keyOther = calculateKey(parsedOther);
+
+  return pyCompare(keyVersion, keyOther);
+}
+
+function rcompare(version, other) {
+  return -compare(version, other);
+}
+
+// this logic is buitin in python, but we need to port it to js
+// see https://stackoverflow.com/a/5292332/1438522
+function pyCompare(elemIn, otherIn) {
+  let elem = elemIn;
+  let other = otherIn;
+  if (elem === other) {
+    return 0;
+  }
+  if (Array.isArray(elem) !== Array.isArray(other)) {
+    elem = Array.isArray(elem) ? elem : [elem];
+    other = Array.isArray(other) ? other : [other];
+  }
+  if (Array.isArray(elem)) {
+    const len = Math.min(elem.length, other.length);
+    for (let i = 0; i < len; i += 1) {
+      const res = pyCompare(elem[i], other[i]);
+      if (res !== 0) {
+        return res;
+      }
+    }
+    return elem.length - other.length;
+  }
+  if (elem === -Infinity || other === Infinity) {
+    return -1;
+  }
+  if (elem === Infinity || other === -Infinity) {
+    return 1;
+  }
+  return elem < other ? -1 : 1;
+}
+
+function calculateKey(input) {
+  const { epoch } = input;
+  let { release, pre, post, local, dev } = input;
+  // When we compare a release version, we want to compare it with all of the
+  // trailing zeros removed. So we'll use a reverse the list, drop all the now
+  // leading zeros until we come to something non zero, then take the rest
+  // re-reverse it back into the correct order and make it a tuple and use
+  // that for our sorting key.
+  release = release.concat();
+  release.reverse();
+  while (release.length && release[0] === 0) {
+    release.shift();
+  }
+  release.reverse();
+
+  // We need to "trick" the sorting algorithm to put 1.0.dev0 before 1.0a0.
+  // We'll do this by abusing the pre segment, but we _only_ want to do this
+  // if there is !a pre or a post segment. If we have one of those then
+  // the normal sorting rules will handle this case correctly.
+  if (!pre && !post && dev) pre = -Infinity;
+  // Versions without a pre-release (except as noted above) should sort after
+  // those with one.
+  else if (!pre) pre = Infinity;
+
+  // Versions without a post segment should sort before those with one.
+  if (!post) post = -Infinity;
+
+  // Versions without a development segment should sort after those with one.
+  if (!dev) dev = Infinity;
+
+  if (!local) {
+    // Versions without a local segment should sort before those with one.
+    local = -Infinity;
+  } else {
+    // Versions with a local segment need that segment parsed to implement
+    // the sorting rules in PEP440.
+    // - Alpha numeric segments sort before numeric segments
+    // - Alpha numeric segments sort lexicographically
+    // - Numeric segments sort numerically
+    // - Shorter versions sort before longer versions when the prefixes
+    //   match exactly
+    local = local.map((i) =>
+      Number.isNaN(Number(i)) ? [-Infinity, i] : [Number(i), ''],
+    );
+  }
+
+  return [epoch, release, pre, post, dev, local];
+}
+
+;// CONCATENATED MODULE: ./node_modules/@renovatebot/pep440/lib/specifier.js
+// This file is dual licensed under the terms of the Apache License, Version
+// 2.0, and the BSD License. See the LICENSE file in the root of this repository
+// for complete details.
+
+
+
+
+
+const RANGE_PATTERN = [
+  '(?<operator>(===|~=|==|!=|<=|>=|<|>))',
+  '\\s*',
+  '(',
+  /*  */ '(?<version>(?:' + VERSION_PATTERN.replace(/\?<\w+>/g, '?:') + '))',
+  /*  */ '(?<prefix>\\.\\*)?',
+  /*  */ '|',
+  /*  */ '(?<legacy>[^,;\\s)]+)',
+  ')',
+].join('');
+
+
+
+const isEqualityOperator = (op) => ['==', '!=', '==='].includes(op);
+
+const rangeRegex = new RegExp('^' + RANGE_PATTERN + '$', 'i');
+
+function specifier_parse(ranges) {
+  if (!ranges.trim()) {
+    return [];
+  }
+
+  const specifiers = ranges
+    .split(',')
+    .map((range) => rangeRegex.exec(range.trim()) || {})
+    .map(({ groups }) => {
+      if (!groups) {
+        return null;
+      }
+
+      let { ...spec } = groups;
+      const { operator, version, prefix, legacy } = groups;
+
+      if (version) {
+        spec = { ...spec, ...explain(version) };
+        if (operator === '~=') {
+          if (spec.release.length < 2) {
+            return null;
+          }
+        }
+        if (!isEqualityOperator(operator) && spec.local) {
+          return null;
+        }
+
+        if (prefix) {
+          if (!isEqualityOperator(operator) || spec.dev || spec.local) {
+            return null;
+          }
+        }
+      }
+      if (legacy && operator !== '===') {
+        return null;
+      }
+
+      return spec;
+    });
+
+  if (specifiers.filter(Boolean).length !== specifiers.length) {
+    return null;
+  }
+
+  return specifiers;
+}
+
+function filter(versions, specifier, options = {}) {
+  const filtered = pick(versions, specifier, options);
+  if (filtered.length === 0 && options.prereleases === undefined) {
+    return pick(versions, specifier, { prereleases: true });
+  }
+  return filtered;
+}
+
+function maxSatisfying(versions, range, options) {
+  const found = filter(versions, range, options).sort(compare);
+  return found.length === 0 ? null : found[found.length - 1];
+}
+
+function minSatisfying(versions, range, options) {
+  const found = filter(versions, range, options).sort(compare);
+  return found.length === 0 ? null : found[0];
+}
+
+function pick(versions, specifier, options) {
+  const parsed = specifier_parse(specifier);
+
+  if (!parsed) {
+    return [];
+  }
+
+  return versions.filter((version) => {
+    const explained = explain(version);
+
+    if (!parsed.length) {
+      return explained && !(explained.is_prerelease && !options.prereleases);
+    }
+
+    return parsed.reduce((pass, spec) => {
+      if (!pass) {
+        return false;
+      }
+      return contains({ ...spec, ...options }, { version, explained });
+    }, true);
+  });
+}
+
+function satisfies(version, specifier, options = {}) {
+  const filtered = pick([version], specifier, options);
+
+  return filtered.length === 1;
+}
+
+function arrayStartsWith(array, prefix) {
+  if (prefix.length > array.length) {
+    return false;
+  }
+
+  for (let i = 0; i < prefix.length; i += 1) {
+    if (prefix[i] !== array[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function contains(specifier, input) {
+  const { explained } = input;
+  let { version } = input;
+  const { ...spec } = specifier;
+
+  if (spec.prereleases === undefined) {
+    spec.prereleases = spec.is_prerelease;
+  }
+
+  if (explained && explained.is_prerelease && !spec.prereleases) {
+    return false;
+  }
+
+  if (spec.operator === '~=') {
+    let compatiblePrefix = spec.release.slice(0, -1).concat('*').join('.');
+    if (spec.epoch) {
+      compatiblePrefix = spec.epoch + '!' + compatiblePrefix;
+    }
+    return satisfies(version, `>=${spec.version}, ==${compatiblePrefix}`, {
+      prereleases: spec.prereleases,
+    });
+  }
+
+  if (spec.prefix) {
+    const isMatching =
+      explained.epoch === spec.epoch &&
+      arrayStartsWith(explained.release, spec.release);
+    const isEquality = spec.operator !== '!=';
+    return isEquality ? isMatching : !isMatching;
+  }
+
+  if (explained)
+    if (explained.local && spec.version) {
+      version = explained.public;
+      spec.version = explain(spec.version).public;
+    }
+
+  if (spec.operator === '<' || spec.operator === '>') {
+    // simplified version of https://www.python.org/dev/peps/pep-0440/#exclusive-ordered-comparison
+    if (eq(spec.release.join('.'), explained.release.join('.'))) {
+      return false;
+    }
+  }
+
+  // TODO: fix me?
+  // eslint-disable-next-line import-x/namespace
+  const op = operator_namespaceObject[spec.operator];
+  return op(version, spec.version || spec.legacy);
+}
+
+function validRange(specifier) {
+  return Boolean(specifier_parse(specifier));
+}
+
+;// CONCATENATED MODULE: ./node_modules/@renovatebot/pep440/lib/semantic.js
+
+
+// those notation are borrowed from semver
+
+
+function major(input) {
+  const version = explain(input);
+  if (!version) {
+    throw new TypeError('Invalid Version: ' + input);
+  }
+  return version.release[0];
+}
+
+function minor(input) {
+  const version = explain(input);
+  if (!version) {
+    throw new TypeError('Invalid Version: ' + input);
+  }
+  if (version.release.length < 2) {
+    return 0;
+  }
+  return version.release[1];
+}
+
+function patch(input) {
+  const version = explain(input);
+  if (!version) {
+    throw new TypeError('Invalid Version: ' + input);
+  }
+  if (version.release.length < 3) {
+    return 0;
+  }
+  return version.release[2];
+}
+
+function inc(input, release, preReleaseIdentifier) {
+  let identifier = preReleaseIdentifier || `a`;
+  const version = parse(input);
+
+  if (!version) {
+    return null;
+  }
+
+  if (
+    !['a', 'b', 'c', 'rc', 'alpha', 'beta', 'pre', 'preview'].includes(
+      identifier,
+    )
+  ) {
+    return null;
+  }
+
+  switch (release) {
+    case 'premajor':
+      {
+        const [majorVersion] = version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion + 1;
+      }
+      version.pre = [identifier, 0];
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    case 'preminor':
+      {
+        const [majorVersion, minorVersion = 0] = version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion;
+        version.release[1] = minorVersion + 1;
+      }
+      version.pre = [identifier, 0];
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    case 'prepatch':
+      {
+        const [majorVersion, minorVersion = 0, patchVersion = 0] =
+          version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion;
+        version.release[1] = minorVersion;
+        version.release[2] = patchVersion + 1;
+      }
+      version.pre = [identifier, 0];
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    case 'prerelease':
+      if (version.pre === null) {
+        const [majorVersion, minorVersion = 0, patchVersion = 0] =
+          version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion;
+        version.release[1] = minorVersion;
+        version.release[2] = patchVersion + 1;
+        version.pre = [identifier, 0];
+      } else {
+        if (preReleaseIdentifier === undefined && version.pre !== null) {
+          [identifier] = version.pre;
+        }
+
+        const [letter, number] = version.pre;
+        if (letter === identifier) {
+          version.pre = [letter, number + 1];
+        } else {
+          version.pre = [identifier, 0];
+        }
+      }
+
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    case 'major':
+      if (
+        version.release.slice(1).some((value) => value !== 0) ||
+        version.pre === null
+      ) {
+        const [majorVersion] = version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion + 1;
+      }
+      delete version.pre;
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    case 'minor':
+      if (
+        version.release.slice(2).some((value) => value !== 0) ||
+        version.pre === null
+      ) {
+        const [majorVersion, minorVersion = 0] = version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion;
+        version.release[1] = minorVersion + 1;
+      }
+      delete version.pre;
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    case 'patch':
+      if (
+        version.release.slice(3).some((value) => value !== 0) ||
+        version.pre === null
+      ) {
+        const [majorVersion, minorVersion = 0, patchVersion = 0] =
+          version.release;
+        version.release.fill(0);
+        version.release[0] = majorVersion;
+        version.release[1] = minorVersion;
+        version.release[2] = patchVersion + 1;
+      }
+      delete version.pre;
+      delete version.post;
+      delete version.dev;
+      delete version.local;
+      break;
+    default:
+      return null;
+  }
+
+  return stringify(version);
+}
+
+;// CONCATENATED MODULE: ./node_modules/@renovatebot/pep440/index.js
+
+
+
+
+
+
+
+
+
+
+
 /***/ })
 
 /******/ 	});
@@ -43685,6 +44597,34 @@ exports.visitAsync = visitAsync;
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
