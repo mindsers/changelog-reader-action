@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New `changes_file` output: a path to a temporary file containing the matched entry's text, for tools that consume release notes as a file (goreleaser, `gh release create --notes-file`, etc.). Resolves #68.
+
 ### Security
 
 - Harden the reference-link parsing regex against catastrophic backtracking (CodeQL `js/redos`). The previous pattern had a `.` character in two overlapping character classes; a hostile CHANGELOG line could in principle trigger exponential matching time. The fix tightens the label character class without changing the regex's accepted inputs.

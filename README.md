@@ -26,6 +26,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 - `date`: Release date of the log entry found. Ex: `2020-08-22`.
 - `status`: Status of the log entry found (`prereleased`, `released`, `unreleased`, or `yanked`).
 - `changes`: Description text of the log entry found.
+- `changes_file`: Path to a temporary file containing the same text as `changes`. Useful for tools that read release notes from a file path (e.g. [goreleaser](https://goreleaser.com/)'s `--release-notes`, or `gh release create --notes-file`), avoiding shell-escaping issues with rich markdown.
 
 ### Validation / Linting
 
@@ -117,6 +118,44 @@ jobs:
           draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Example workflow - pass release notes to a tool by file path
+
+Some tools take release notes as a file rather than an inline string. Use the
+`changes_file` output to avoid shell-escaping issues with rich markdown:
+
+```yaml
+on:
+  push:
+    tags:
+      - 'v*'
+
+name: Release
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version from tag
+        id: tag_name
+        run: echo "current_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+        shell: bash
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.tag_name.outputs.current_version }}
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          args: release --clean --release-notes ${{ steps.changelog_reader.outputs.changes_file }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Contribution

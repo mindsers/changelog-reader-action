@@ -1,4 +1,6 @@
-import { readFile } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import * as core from '@actions/core'
 
 import { getConfig } from './get-config.js'
@@ -85,6 +87,12 @@ export async function main(): Promise<void> {
     core.setOutput('date', entry.date)
     core.setOutput('status', entry.status)
     core.setOutput('changes', entry.text)
+
+    const baseTmp = process.env.RUNNER_TEMP || tmpdir()
+    const dir = await mkdtemp(join(baseTmp, 'changelog-reader-'))
+    const changesFile = join(dir, 'changelog-entry.md')
+    await writeFile(changesFile, entry.text, 'utf8')
+    core.setOutput('changes_file', changesFile)
   } catch (error) {
     core.setFailed(error instanceof Error ? error.message : String(error))
   }
