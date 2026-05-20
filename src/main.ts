@@ -5,8 +5,9 @@ import * as core from '@actions/core'
 
 import { getConfig } from './get-config.js'
 import { processChangelog } from './pipeline.js'
-import type { ValidationLevel } from './types.js'
-import { isValidationLevel, VALIDATION_LEVELS } from './types.js'
+import type { ValidationLevel, VersionScheme } from './types.js'
+import { isValidationLevel, isVersionScheme, VALIDATION_LEVELS, VERSION_SCHEMES } from './types.js'
+import { resolveScheme } from './version/registry.js'
 
 const DEFAULT_VALIDATION_DEPTH = 10
 
@@ -49,6 +50,18 @@ export async function main(): Promise<void> {
       )
     }
 
+    const rawVersionScheme =
+      core.getInput('version_scheme') || fileConfig.version_scheme || 'semver'
+    let versionScheme: VersionScheme = 'semver'
+    if (isVersionScheme(rawVersionScheme)) {
+      versionScheme = rawVersionScheme
+    } else {
+      core.warning(
+        `Invalid version_scheme '${rawVersionScheme}'. Expected one of: ${VERSION_SCHEMES.join(', ')}. Falling back to 'semver'.`
+      )
+    }
+    const scheme = resolveScheme(versionScheme)
+
     if (targetVersion == null) {
       core.warning(
         'No target version specified. Will try to return the most recent one in the changelog file.'
@@ -67,6 +80,7 @@ export async function main(): Promise<void> {
       targetVersion,
       validationLevel,
       validationDepth,
+      scheme,
     })
     core.endGroup()
 

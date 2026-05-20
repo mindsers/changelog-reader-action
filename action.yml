@@ -22,6 +22,10 @@ inputs:
     description: 'Specifies how many entries to validate in the CHANGELOG.md file'
     required: false
     default: '10'
+  version_scheme:
+    description: 'Versioning scheme used by the version identifiers in the CHANGELOG. One of: semver, pep440'
+    required: false
+    default: 'semver'
 outputs:
   version:
     description: 'Version of the log entry found'

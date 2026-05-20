@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New `changes_file` output: a path to a temporary file containing the matched entry's text, for tools that consume release notes as a file (goreleaser, `gh release create --notes-file`, etc.). Resolves #68.
+- New `version_scheme` input (`semver` default, or `pep440`) enabling extraction and validation of Python PEP 440 version identifiers like `0.1.0a1`. Resolves #38.
 
 ### Security
 

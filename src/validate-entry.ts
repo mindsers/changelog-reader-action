@@ -1,11 +1,13 @@
 import { hasChronologicalOrder } from './rules/has-chronological-order.js'
 import { hasCorrectSections } from './rules/has-correct-sections.js'
 import { hasSections } from './rules/has-sections.js'
-import { isSemVer } from './rules/is-semver.js'
+import { isValidVersion } from './rules/is-valid-version.js'
 import type { Entry, RuleResult, ValidationLevel } from './types.js'
+import type { VersionSchemeAdapter } from './version/scheme.js'
 
 export function validateEntry(
-  validationLevel: ValidationLevel
+  validationLevel: ValidationLevel,
+  scheme: VersionSchemeAdapter
 ): (entry: Entry, index: number, entries: Entry[]) => Error[] {
   return (entry, index, entries) => {
     if (validationLevel === 'none' || entry.status === 'unreleased') {
@@ -13,10 +15,10 @@ export function validateEntry(
     }
 
     const results: RuleResult[] = [
-      isSemVer(entry),
-      hasChronologicalOrder(entries, index),
+      isValidVersion(entry, scheme),
+      hasChronologicalOrder(entries, index, scheme),
       hasSections(entry),
-      hasCorrectSections(entries, index),
+      hasCorrectSections(entries, index, scheme),
     ]
 
     return results
@@ -29,8 +31,8 @@ function formatError(result: RuleResult, entry: Entry): Error | null {
   switch (result.type) {
     case 'ok':
       return null
-    case 'invalid-semver':
-      return new Error(`${result.id} is not a valid semantic version.`)
+    case 'invalid-version':
+      return new Error(`${result.id} is not a valid ${result.scheme} version.`)
     case 'out-of-order':
       return new Error(
         `Changelog versions out of order. Version ${result.current} cannot come after ${result.previous}.`

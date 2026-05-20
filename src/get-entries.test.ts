@@ -1,4 +1,6 @@
 import { getEntries } from './get-entries.js'
+import { pep440Adapter } from './version/adapters/pep440.js'
+import { semverAdapter } from './version/adapters/semver.js'
 
 const DATA_v = `
 # Changelog
@@ -87,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `
 
 test('retreive entries from test (tag patern: vX.X.X)', () => {
-  const output = getEntries(DATA_v)
+  const output = getEntries(DATA_v, semverAdapter)
   const versionRegex = /^\[(v[0-1]+|unreleased)/i
 
   expect(output.length).toEqual(3)
@@ -97,7 +99,7 @@ test('retreive entries from test (tag patern: vX.X.X)', () => {
 })
 
 test('retreive entries from test (tag patern: X.X.X)', () => {
-  const output = getEntries(DATA)
+  const output = getEntries(DATA, semverAdapter)
   const versionRegex = /^\[([0-1]+|unreleased)/i
 
   expect(output.length).toEqual(3)
@@ -108,7 +110,7 @@ test('retreive entries from test (tag patern: X.X.X)', () => {
 
 // https://github.com/mindsers/changelog-reader-action/issues/8
 test('retreive entries from test (complex SEMVER)', () => {
-  const output = getEntries(DATA_complex)
+  const output = getEntries(DATA_complex, semverAdapter)
   const versionRegex =
     /^\[(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/
 
@@ -132,9 +134,29 @@ test('captures a bare `## Unreleased` heading (no brackets)', () => {
 - Initial release
 `
 
-  const output = getEntries(data)
+  const output = getEntries(data, semverAdapter)
 
   expect(output.length).toEqual(2)
   expect(output[0]).toMatch(/^Unreleased/i)
   expect(output[1]).toMatch(/^\[1\.0\.0\]/)
+})
+
+test('captures a PEP 440 heading under pep440 but drops it under semver', () => {
+  const data = `
+# Changelog
+
+## [0.1.0a1] - 2024-01-15
+### Added
+- Python alpha prerelease
+
+## [1.0.0] - 2023-06-01
+### Added
+- Stable
+`
+
+  expect(getEntries(data, pep440Adapter).length).toEqual(2)
+  // Under semver, [0.1.0a1] isn't a valid version → dropped; only [1.0.0] stays.
+  const semverEntries = getEntries(data, semverAdapter)
+  expect(semverEntries.length).toEqual(1)
+  expect(semverEntries[0]).toMatch(/^\[1\.0\.0\]/)
 })

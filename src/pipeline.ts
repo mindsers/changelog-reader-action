@@ -5,11 +5,13 @@ import { getLinks } from './get-links.js'
 import { parseEntry } from './parse-entry.js'
 import type { Entry, ValidationLevel } from './types.js'
 import { validateEntry } from './validate-entry.js'
+import type { VersionSchemeAdapter } from './version/scheme.js'
 
 export interface PipelineOptions {
   targetVersion?: string | null
   validationLevel: ValidationLevel
   validationDepth: number
+  scheme: VersionSchemeAdapter
 }
 
 export interface PipelineDiagnostic {
@@ -27,14 +29,16 @@ export function processChangelog(
   options: PipelineOptions
 ): PipelineResult {
   const registry = buildLinkRegistry(getLinks(rawData))
-  const versions = getEntries(rawData).map(parseEntry).map(resolveLinks(registry))
+  const versions = getEntries(rawData, options.scheme)
+    .map((entry) => parseEntry(entry, options.scheme))
+    .map(resolveLinks(registry))
 
   const diagnostics: PipelineDiagnostic[] = []
 
   if (options.validationLevel !== 'none') {
     const released = versions.filter((entry) => entry.status !== 'unreleased')
     const window = released.reverse().slice(Math.max(0, released.length - options.validationDepth))
-    const runRule = validateEntry(options.validationLevel)
+    const runRule = validateEntry(options.validationLevel, options.scheme)
     const severity: PipelineDiagnostic['severity'] =
       options.validationLevel === 'error' ? 'error' : 'warn'
 

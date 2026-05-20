@@ -1,4 +1,5 @@
 import { makeEntry } from '../__fixtures__/entry.js'
+import { semverAdapter } from '../version/adapters/semver.js'
 import { hasCorrectSections } from './has-correct-sections.js'
 
 const entryBodyMajor = `
@@ -30,9 +31,17 @@ const entryBodyMajor = `
 
 test('does not throw on either valid or invalid section sets', () => {
   const patchWithMajorSections = () =>
-    hasCorrectSections([makeEntry('1.0.0', entryBodyMajor), makeEntry('1.0.1', entryBodyMajor)], 1)
+    hasCorrectSections(
+      [makeEntry('1.0.0', entryBodyMajor), makeEntry('1.0.1', entryBodyMajor)],
+      1,
+      semverAdapter
+    )
   const majorBumpWithMajorSections = () =>
-    hasCorrectSections([makeEntry('1.0.0', entryBodyMajor), makeEntry('2.0.0', entryBodyMajor)], 1)
+    hasCorrectSections(
+      [makeEntry('1.0.0', entryBodyMajor), makeEntry('2.0.0', entryBodyMajor)],
+      1,
+      semverAdapter
+    )
 
   expect(majorBumpWithMajorSections).not.toThrow()
   expect(patchWithMajorSections).not.toThrow()
@@ -41,7 +50,8 @@ test('does not throw on either valid or invalid section sets', () => {
 test('reports invalid-section-types when a patch release lists added sections', () => {
   const output = hasCorrectSections(
     [makeEntry('1.0.0', entryBodyMajor), makeEntry('1.0.1', entryBodyMajor)],
-    1
+    1,
+    semverAdapter
   )
 
   expect(output.type).toEqual('invalid-section-types')
@@ -54,7 +64,8 @@ test('reports invalid-section-types when a patch release lists added sections', 
 test('reports invalid-section-types when a minor release lists removed sections', () => {
   const output = hasCorrectSections(
     [makeEntry('1.0.0', entryBodyMajor), makeEntry('1.1.0', entryBodyMajor)],
-    1
+    1,
+    semverAdapter
   )
 
   expect(output.type).toEqual('invalid-section-types')

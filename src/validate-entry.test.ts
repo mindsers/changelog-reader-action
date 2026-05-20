@@ -1,5 +1,6 @@
 import { makeEntry } from './__fixtures__/entry.js'
 import { validateEntry } from './validate-entry.js'
+import { semverAdapter } from './version/adapters/semver.js'
 
 const entryBodyMajor = `
 ### Added
@@ -23,7 +24,7 @@ const entryBodyPatch = `
 `
 
 function collectErrors(level: 'warn' | 'error', entries: ReturnType<typeof makeEntry>[]): Error[] {
-  const run = validateEntry(level)
+  const run = validateEntry(level, semverAdapter)
   return entries.flatMap((entry, index, arr) => run(entry, index, arr))
 }
 
