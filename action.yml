@@ -31,6 +31,8 @@ outputs:
     description: 'Status of the log entry found. Possibly one of the following: prereleased, released, unreleased, or yanked'
   changes:
     description: 'Description text of the log entry found'
+  changes_file:
+    description: 'Path to a temporary file containing the description text of the log entry found. Useful for tools that take release notes as a file path (e.g. goreleaser --release-notes, gh release create --notes-file)'
 runs:
   using: 'node24'
   main: 'dist/index.js'

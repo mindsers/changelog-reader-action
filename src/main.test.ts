@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import * as core from '@actions/core'
 import { vi } from 'vitest'
 
@@ -12,6 +12,8 @@ vi.mock('node:fs', () => ({
 
 vi.mock('node:fs/promises', () => ({
   readFile: vi.fn(),
+  mkdtemp: vi.fn(),
+  writeFile: vi.fn(),
 }))
 
 vi.mock('@actions/core', () => ({
@@ -27,6 +29,8 @@ vi.mock('@actions/core', () => ({
 }))
 
 const mockedReadFile = vi.mocked(readFile)
+const mockedMkdtemp = vi.mocked(mkdtemp)
+const mockedWriteFile = vi.mocked(writeFile)
 const mockedExistsSync = vi.mocked(existsSync)
 const mockedReadFileSync = vi.mocked(readFileSync)
 const mockedCore = vi.mocked(core)
@@ -107,6 +111,8 @@ describe('main', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockedExistsSync.mockReturnValue(false)
+    mockedMkdtemp.mockResolvedValue('/tmp/changelog-reader-abc123')
+    mockedWriteFile.mockResolvedValue(undefined)
   })
 
   test('returns the most recent released entry when no version input is given', async () => {
@@ -319,5 +325,39 @@ describe('main', () => {
     )
     // Action still produces output from inputs / defaults.
     expect(getOutput('version')).toEqual('2.0.0')
+  })
+
+  test('sets changes_file to a path inside the created temp directory', async () => {
+    setInputs({})
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedCore.setFailed).not.toHaveBeenCalled()
+    expect(getOutput('changes_file')).toEqual('/tmp/changelog-reader-abc123/changelog-entry.md')
+  })
+
+  test('writes the entry text to the changes_file', async () => {
+    setInputs({})
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    expect(mockedWriteFile).toHaveBeenCalledWith(
+      '/tmp/changelog-reader-abc123/changelog-entry.md',
+      getOutput('changes'),
+      'utf8'
+    )
+  })
+
+  test('changes_file content matches the changes output for the same entry', async () => {
+    setInputs({ version: '1.0.0' })
+    setChangelogContents(HAPPY_CHANGELOG)
+
+    await main()
+
+    const writtenContent = mockedWriteFile.mock.calls[0]?.[1]
+    expect(writtenContent).toEqual(getOutput('changes'))
+    expect(writtenContent).toContain('First version')
   })
 })
