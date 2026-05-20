@@ -1,6 +1,6 @@
 {
   "name": "changelog-reader-action",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "A GitHub Action to read your CHANGELOG",
   "main": "index.ts",
   "homepage": "https://github.com/mindsers/changelog-reader-action#readme",

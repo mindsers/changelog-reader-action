@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-05-20
+
 ### Added
 
 - New `changes_file` output: a path to a temporary file containing the matched entry's text, for tools that consume release notes as a file (goreleaser, `gh release create --notes-file`, etc.). Resolves #68.
@@ -161,8 +163,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CHANGELOG can be parsed by the github action
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.3.0...HEAD
-[2.2.3]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.3...v2.3.0
+[unreleased]: https://github.com/mindsers/changelog-reader-action/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/mindsers/changelog-reader-action/compare/v2.3.0...v2.4.0
+[2.3.0]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.3...v2.3.0
 [2.2.3]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/mindsers/changelog-reader-action/compare/v2.2.0...v2.2.1
