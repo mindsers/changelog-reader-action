@@ -38,13 +38,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
-    "@commitlint/cli": "^21.0.1",
-    "@commitlint/config-conventional": "^21.0.1",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@types/node": "^25.9.0",
     "@types/semver": "^7.7.1",
     "@vercel/ncc": "^0.38.4",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.8"
   },
   "keywords": [
     "GitHub",
