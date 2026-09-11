@@ -37,12 +37,12 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.16",
-    "@commitlint/cli": "^21.0.1",
+    "@biomejs/biome": "^2.5.12",
+    "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.0.1",
     "@types/node": "^25.9.0",
     "@types/semver": "^7.7.1",
-    "@vercel/ncc": "^0.38.4",
+    "@vercel/ncc": "^0.45.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.7"
   },
