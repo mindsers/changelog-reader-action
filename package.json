@@ -32,16 +32,16 @@
   },
   "dependencies": {
     "@actions/core": "^2.0.3",
-    "@renovatebot/pep440": "^5.0.0",
-    "semver": "^7.7.1",
-    "yaml": "^2.9.0"
+    "@renovatebot/pep440": "^5.0.1",
+    "semver": "^7.8.5",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@types/node": "^25.9.0",
-    "@types/semver": "^7.7.1",
+    "@types/semver": "^7.8.0",
     "@vercel/ncc": "^0.38.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
